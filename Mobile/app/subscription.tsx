@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-export default function HomePage() {
+export default function SubscriptionPage() {
   return (
     <View style={styles.container}>
-      <Text>HomePage</Text>
+      <Text>SubscriptionPage</Text>
     </View>
   );
 }

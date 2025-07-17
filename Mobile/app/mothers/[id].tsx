@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { useLocalSearchParams } from "expo-router";
 
-export default function HomePage() {
+export default function MotherProfile() {
+  const { id } = useLocalSearchParams();
   return (
     <View style={styles.container}>
-      <Text>HomePage</Text>
+      <Text>MotherProfile {id}</Text>
     </View>
   );
 }
