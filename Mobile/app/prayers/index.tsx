@@ -33,7 +33,7 @@ export default function PrayersPage() {
                 data={data}
                 labelField="label"
                 valueField="value"
-                placeholder="Select option"
+                placeholder="Select Ibu"
                 value={selectedValue}
                 onChange={(item: any) => setSelectedValue(item.value)}
               />

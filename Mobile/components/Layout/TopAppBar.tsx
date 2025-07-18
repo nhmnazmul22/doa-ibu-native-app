@@ -1,4 +1,11 @@
-import { Dimensions, Image, Pressable, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -8,7 +15,6 @@ const { width } = Dimensions.get("window");
 
 export default function TopAppBar() {
   const pathname = usePathname();
-
   return (
     <View style={styles.container}>
       <Link href="/">
@@ -25,10 +31,16 @@ export default function TopAppBar() {
         )}
       </Link>
       <Link href="/">
-        <Image
-          style={styles.logo}
-          source={require("../../assets/images/logo.png")}
-        />
+        {pathname.includes("/prayers/") || pathname.includes("/recording") ? (
+          <Text style={styles.pageTitle}>
+            {pathname.includes("/recording") ? "Now Recording" : "Now Playing"}
+          </Text>
+        ) : (
+          <Image
+            style={styles.logo}
+            source={require("../../assets/images/logo.png")}
+          />
+        )}
       </Link>
       <Link href="/">
         <MaterialCommunityIcons name="dots-vertical" size={24} color="black" />
@@ -52,5 +64,10 @@ const styles = StyleSheet.create({
   logo: {
     width: 50,
     height: 50,
+  },
+  pageTitle: {
+    fontFamily: "Nunito",
+    fontSize: 18,
+    fontWeight: 700,
   },
 });

@@ -1,6 +1,6 @@
 import { Button, Dimensions, StyleSheet, Text, View } from "react-native";
 import React from "react";
-import { Link } from "expo-router";
+import { Link, usePathname } from "expo-router";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Feather from "@expo/vector-icons/Feather";
@@ -8,6 +8,12 @@ import Feather from "@expo/vector-icons/Feather";
 const { width } = Dimensions.get("window");
 
 export default function TabBar() {
+  const pathname = usePathname();
+
+  if (pathname.includes("/prayers/") || pathname === "/recording") {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.menuItems}>
