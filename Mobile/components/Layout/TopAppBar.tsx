@@ -1,16 +1,28 @@
-import { Dimensions, Image, StyleSheet, View } from "react-native";
+import { Dimensions, Image, Pressable, StyleSheet, View } from "react-native";
 import React from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Link } from "expo-router";
+import { Link, router, usePathname } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 export default function TopAppBar() {
+  const pathname = usePathname();
+
   return (
     <View style={styles.container}>
       <Link href="/">
-        <FontAwesome name="search" size={24} />
+        {pathname === "/" ? (
+          <FontAwesome name="search" size={24} />
+        ) : (
+          <Pressable onPress={() => router.back()}>
+            <MaterialCommunityIcons
+              name="arrow-left-thin"
+              size={34}
+              color="black"
+            />
+          </Pressable>
+        )}
       </Link>
       <Link href="/">
         <Image
