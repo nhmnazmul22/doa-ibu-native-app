@@ -5,7 +5,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Feather from "@expo/vector-icons/Feather";
 
-const { width } = Dimensions.get("screen");
+const { width } = Dimensions.get("window");
 
 export default function TabBar() {
   return (

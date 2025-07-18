@@ -4,7 +4,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Link } from "expo-router";
 
-const { width } = Dimensions.get("screen");
+const { width } = Dimensions.get("window");
 
 export default function TopAppBar() {
   return (

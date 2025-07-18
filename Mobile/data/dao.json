@@ -1,0 +1,42 @@
+[
+  {
+    "_id": 1,
+    "thumbnail": "../assets/images/doa-bg.jpg",
+    "title": "Doa 1",
+    "shortDes": "Doa Des",
+    "favorite": true,
+    "duration": "5:30"
+  },
+  {
+    "_id": 2,
+    "thumbnail": "../assets/images/doa-bg.jpg",
+    "title": "Doa 2",
+    "shortDes": "Doa Des",
+    "favorite": true,
+    "duration": "5:30"
+  },
+  {
+    "_id": 3,
+    "thumbnail": "../assets/images/doa-bg.jpg",
+    "title": "Doa 3",
+    "shortDes": "Doa Des",
+    "favorite": true,
+    "duration": "5:30"
+  },
+  {
+    "_id": 4,
+    "thumbnail": "../assets/images/doa-bg.jpg",
+    "title": "Doa 4",
+    "shortDes": "Doa Des",
+    "favorite": true,
+    "duration": "5:30"
+  },
+  {
+    "_id": 5,
+    "thumbnail": "../assets/images/doa-bg.jpg",
+    "title": "Doa 5",
+    "shortDes": "Doa Des",
+    "favorite": false,
+    "duration": "5:30"
+  }
+]
