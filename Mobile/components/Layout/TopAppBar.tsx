@@ -1,3 +1,7 @@
+import { FontAwesome } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { Link, router, usePathname } from "expo-router";
+import React from "react";
 import {
   Dimensions,
   Image,
@@ -6,15 +10,26 @@ import {
   Text,
   View,
 } from "react-native";
-import React from "react";
-import { FontAwesome } from "@expo/vector-icons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Link, router, usePathname } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 export default function TopAppBar() {
   const pathname = usePathname();
+
+  const pageTitle = () => {
+    let title = "Now Playing";
+
+    if (pathname.includes("/recording")) {
+      title = "Now Recording";
+    } else if (pathname.includes("/mothers/")) {
+      title = "Ibu Profile";
+    } else {
+      title = title;
+    }
+
+    return title;
+  };
+
   return (
     <View style={styles.container}>
       <Link href="/">
@@ -31,10 +46,10 @@ export default function TopAppBar() {
         )}
       </Link>
       <Link href="/">
-        {pathname.includes("/prayers/") || pathname.includes("/recording") ? (
-          <Text style={styles.pageTitle}>
-            {pathname.includes("/recording") ? "Now Recording" : "Now Playing"}
-          </Text>
+        {pathname.includes("/prayers/") ||
+        pathname.includes("/recording") ||
+        pathname.includes("/mothers/") ? (
+          <Text style={styles.pageTitle}>{pageTitle()}</Text>
         ) : (
           <Image
             style={styles.logo}
