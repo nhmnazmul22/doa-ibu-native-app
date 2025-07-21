@@ -14,7 +14,7 @@ export default function MotherDoaList({ doas }: MotherDoaListProps) {
     <View style={styles.container}>
       <View style={styles.doaList}>
         {doas.map((doa) => (
-          <MotherDoa doa={doa} />
+          <MotherDoa key={doa._id} doa={doa} />
         ))}
       </View>
     </View>
