@@ -1,3 +1,4 @@
+import { ThemePresets } from "@/context/theme/presets";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
@@ -6,12 +7,16 @@ import React, { useState } from "react";
 import {
   Dimensions,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
@@ -28,6 +33,8 @@ const data = [
 export default function SettingPage() {
   const theme = useTheme();
   const colors = theme?.colors;
+  const setColor = theme?.applyPreset;
+  const currentTheme = theme?.currentTheme;
   const styles = getStyles(colors);
 
   const [name, setName] = useState<string>("");
@@ -40,6 +47,13 @@ export default function SettingPage() {
   const [isEnabled, setIsEnabled] = useState(true);
   const [date, setDate] = useState(new Date(1598051730000));
   const [show, setShow] = useState(false);
+
+  const themeData = Object.keys(ThemePresets).map((value) => {
+    return {
+      label: value[0].toUpperCase() + value.slice(1),
+      value,
+    };
+  });
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
@@ -61,148 +75,184 @@ export default function SettingPage() {
     setShow(true);
   };
 
+  const handleChangeTheme = (value: string) => {
+    if (value && setColor) {
+      setColor(value);
+    }
+  };
+
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View>
-          <Text style={styles.secTitle}>Profile Settings,</Text>
-          <View style={styles.imageBox}>
-            <Image source={profileImage} style={styles.profileImage} />
-            <View style={{ ...styles.badgeImgBox, display: "none" }}>
-              <SimpleLineIcons
-                name="badge"
-                size={20}
-                color={colors?.bodyBackground}
-              />
+    <KeyboardAvoidingView
+      style={{ flex: 1, zIndex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
+      keyboardVerticalOffset={40}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.container}>
+            <View>
+              <Text style={styles.secTitle}>Profile Settings,</Text>
+              <View style={styles.imageBox}>
+                <Image source={profileImage} style={styles.profileImage} />
+                <View style={{ ...styles.badgeImgBox, display: "none" }}>
+                  <SimpleLineIcons
+                    name="badge"
+                    size={20}
+                    color={colors?.bodyBackground}
+                  />
+                </View>
+              </View>
+              <View style={styles.inputContainer}>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputLabelText}>Name:</Text>
+                  <TextInput
+                    style={styles.input}
+                    inputMode="text"
+                    value={name}
+                    onChangeText={(text) => setName(text)}
+                    placeholder="Enter your name"
+                  />
+                </View>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputLabelText}>Phone:</Text>
+                  <TextInput
+                    style={styles.input}
+                    inputMode="tel"
+                    value={phone}
+                    onChangeText={(text) => setPhone(text)}
+                    placeholder="Enter your phone number"
+                  />
+                </View>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputLabelText}>Email:</Text>
+                  <TextInput
+                    style={styles.input}
+                    inputMode="email"
+                    value={email}
+                    onChangeText={(text) => setEmail(text)}
+                    placeholder="Enter your email"
+                  />
+                </View>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputLabelText}>Gender:</Text>
+                  <Dropdown
+                    style={styles.dropdown}
+                    data={data}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Select gender"
+                    value={gender}
+                    onChange={(item: any) => setGender(item.value)}
+                  />
+                </View>
+                <View style={styles.btnBox}>
+                  <Pressable style={styles.outlineBtn}>
+                    <Text style={styles.btnText}>Cancel</Text>
+                  </Pressable>
+                  <Pressable style={styles.btnPrimary}>
+                    <Text
+                      style={{ ...styles.btnText, ...styles.primaryBtnText }}
+                    >
+                      Save
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
-          </View>
-          <View style={styles.inputContainer}>
-            <View style={styles.inputBox}>
-              <Text style={styles.inputLabelText}>Name:</Text>
-              <TextInput
-                style={styles.input}
-                inputMode="text"
-                value={name}
-                onChangeText={(text) => setName(text)}
-                placeholder="Enter your name"
-              />
+            <View style={styles.notificationContainer}>
+              <Text style={styles.secTitle}>Notifikasi Settings,</Text>
+              <View style={styles.inputContainer}>
+                <View
+                  style={{
+                    ...styles.inputSec,
+                    justifyContent: "flex-start",
+                    gap: 10,
+                    marginBottom: 5,
+                  }}
+                >
+                  <Text style={styles.inputLabelText}>Show Notifications:</Text>
+                  <Switch
+                    trackColor={{
+                      false: colors?.darkText,
+                      true: colors?.secondary,
+                    }}
+                    thumbColor={
+                      isEnabled ? colors?.primary : colors?.bodyBackground
+                    }
+                    ios_backgroundColor={colors?.darkText}
+                    onValueChange={toggleSwitch}
+                    value={isEnabled}
+                  />
+                </View>
+                <View style={styles.inputSec}>
+                  <View style={{ width: "60%" }}>
+                    <TextInput
+                      style={{ ...styles.input, marginTop: 0 }}
+                      inputMode="text"
+                      value={notificationText}
+                      onChangeText={(text) => setNotificationText(text)}
+                    />
+                  </View>
+                  <View style={{ width: "35%" }}>
+                    <Pressable style={styles.btnPrimary}>
+                      <Text
+                        style={{ ...styles.btnText, ...styles.primaryBtnText }}
+                      >
+                        Update
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+                <View style={styles.inputSec}>
+                  <View style={{ width: "60%" }}>
+                    <TextInput
+                      style={{ ...styles.input, marginTop: 0 }}
+                      inputMode="text"
+                      value={date.toLocaleTimeString()}
+                      editable={false}
+                    />
+                    {show && (
+                      <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={"time"}
+                        is24Hour={false}
+                        onChange={onChange}
+                      />
+                    )}
+                  </View>
+                  <View style={{ width: "35%" }}>
+                    <Pressable style={styles.btnPrimary} onPress={showMode}>
+                      <Text
+                        style={{ ...styles.btnText, ...styles.primaryBtnText }}
+                      >
+                        Select Time
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
             </View>
-            <View style={styles.inputBox}>
-              <Text style={styles.inputLabelText}>Phone:</Text>
-              <TextInput
-                style={styles.input}
-                inputMode="tel"
-                value={phone}
-                onChangeText={(text) => setPhone(text)}
-                placeholder="Enter your phone number"
-              />
-            </View>
-            <View style={styles.inputBox}>
-              <Text style={styles.inputLabelText}>Email:</Text>
-              <TextInput
-                style={styles.input}
-                inputMode="email"
-                value={email}
-                onChangeText={(text) => setEmail(text)}
-                placeholder="Enter your email"
-              />
-            </View>
-            <View style={styles.inputBox}>
-              <Text style={styles.inputLabelText}>Gender:</Text>
+            <View>
+              <Text style={styles.secTitle}>Customize Theme,</Text>
               <Dropdown
-                style={styles.dropdown}
-                data={data}
+                dropdownPosition="top"
+                style={{ ...styles.dropdown, width: width * 0.9 }}
+                data={themeData}
                 labelField="label"
                 valueField="value"
-                placeholder="Select gender"
-                value={gender}
-                onChange={(item: any) => setGender(item.value)}
+                placeholder="Select Theme"
+                value={currentTheme}
+                onChange={(item: any) => handleChangeTheme(item.value)}
               />
             </View>
-            <View style={styles.btnBox}>
-              <Pressable style={styles.outlineBtn}>
-                <Text style={styles.btnText}>Cancel</Text>
-              </Pressable>
-              <Pressable style={styles.btnPrimary}>
-                <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
-                  Save
-                </Text>
-              </Pressable>
-            </View>
           </View>
-        </View>
-        <View style={styles.notificationContainer}>
-          <Text style={styles.secTitle}>Notifikasi Settings,</Text>
-          <View style={styles.inputContainer}>
-            <View
-              style={{
-                ...styles.inputSec,
-                justifyContent: "flex-start",
-                gap: 10,
-                marginBottom: 5,
-              }}
-            >
-              <Text style={styles.inputLabelText}>Show Notifications:</Text>
-              <Switch
-                trackColor={{
-                  false: colors?.darkText,
-                  true: colors?.secondary,
-                }}
-                thumbColor={
-                  isEnabled ? colors?.primary : colors?.bodyBackground
-                }
-                ios_backgroundColor={colors?.darkText}
-                onValueChange={toggleSwitch}
-                value={isEnabled}
-              />
-            </View>
-            <View style={styles.inputSec}>
-              <View style={{ width: "60%" }}>
-                <TextInput
-                  style={{ ...styles.input, marginTop: 0 }}
-                  inputMode="text"
-                  value={notificationText}
-                  onChangeText={(text) => setNotificationText(text)}
-                />
-              </View>
-              <View style={{ width: "35%" }}>
-                <Pressable style={styles.btnPrimary}>
-                  <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
-                    Update
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-            <View style={styles.inputSec}>
-              <View style={{ width: "60%" }}>
-                <TextInput
-                  style={{ ...styles.input, marginTop: 0 }}
-                  inputMode="text"
-                  value={date.toLocaleTimeString()}
-                  editable={false}
-                />
-                {show && (
-                  <DateTimePicker
-                    testID="dateTimePicker"
-                    value={date}
-                    mode={"time"}
-                    is24Hour={false}
-                    onChange={onChange}
-                  />
-                )}
-              </View>
-              <View style={{ width: "35%" }}>
-                <Pressable style={styles.btnPrimary} onPress={showMode}>
-                  <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
-                    Select Time
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -214,6 +264,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       justifyContent: "flex-start",
       alignItems: "flex-start",
       paddingBottom: 50,
+      paddingTop: 20,
     },
     profileImage: {
       width: 150,
@@ -268,7 +319,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       borderRadius: 8,
       paddingHorizontal: 12,
       fontFamily: "Nunito",
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: 600,
     },
     btnBox: {

@@ -16,7 +16,14 @@ export default function TabBar() {
 
   const styles = getStyles(colors);
 
-  if (pathname.includes("/prayers/") || pathname === "/recording") {
+  if (
+    pathname.includes("/prayers/") ||
+    pathname === "/recording" ||
+    pathname === "/login-signup" ||
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password"
+  ) {
     return null;
   }
 

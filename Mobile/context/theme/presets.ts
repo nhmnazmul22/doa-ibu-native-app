@@ -1,5 +1,3 @@
-// theme/presets.js
-
 import { PresetsColors } from "@/types";
 
 export const ThemePresets: Record<string, PresetsColors> = {
@@ -19,12 +17,44 @@ export const ThemePresets: Record<string, PresetsColors> = {
     success: "#BDE5B8",
     warning: "#FFE799",
   },
-  dark: {
-    primary: "#C16868",
-    secondary: "#3A3A3A",
-    darkText: "#FFFFFF",
-    bodyBackground: "#1E1E1E",
-    success: "#679267",
-    warning: "#B29B5B",
+  floral: {
+    primary: "#E67A90",
+    secondary: "#FFF0F5",
+    darkText: "#3B3B3B",
+    bodyBackground: "#FFFAF7",
+    success: "#B2D3C2",
+    warning: "#FFECB3",
+  },
+  sunset: {
+    primary: "#FF886A",
+    secondary: "#FFE5D4",
+    darkText: "#403030",
+    bodyBackground: "#FFF7F0",
+    success: "#C7E2B3",
+    warning: "#FFD580",
+  },
+  softpink: {
+    primary: "#F59BA3",
+    secondary: "#FFE6EB",
+    darkText: "#2D2D2D",
+    bodyBackground: "#FFF8F8",
+    success: "#CBE7C4",
+    warning: "#FFF3B0",
+  },
+  mint: {
+    primary: "#90D5C1",
+    secondary: "#E0FFF9",
+    darkText: "#2A2A2A",
+    bodyBackground: "#F7FFFC",
+    success: "#A4D4AE",
+    warning: "#FFF4A3",
+  },
+  peach: {
+    primary: "#FFB085",
+    secondary: "#FFF0E1",
+    darkText: "#3F3F3F",
+    bodyBackground: "#FFF9F3",
+    success: "#CDEAC0",
+    warning: "#FFE79D",
   },
 };

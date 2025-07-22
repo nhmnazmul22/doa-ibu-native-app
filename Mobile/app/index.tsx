@@ -2,7 +2,7 @@ import DoaList from "@/components/DoaList";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
-import { Link } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -12,6 +12,12 @@ export default function HomePage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+
+  const login = false;
+
+  if (!login) {
+    return Redirect({ href: "/login-signup" });
+  }
 
   return (
     <ScrollView>
@@ -66,10 +72,12 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontFamily: "NunitoBold",
       fontSize: 16,
       fontWeight: 900,
+      color: colors?.darkText,
     },
     greetingDes: {
       fontFamily: "Nunito",
       fontSize: 14,
+      color: colors?.darkText,
     },
     quote: {
       backgroundColor: colors?.secondary,
@@ -83,6 +91,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       textAlign: "center",
       fontFamily: "Nunito",
       fontSize: 16,
+      color: colors?.darkText,
     },
     doaCarouselBox: {
       marginTop: 30,
@@ -94,6 +103,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontWeight: 700,
       paddingHorizontal: 30,
       marginBottom: 5,
+      color: colors?.darkText,
     },
     horizontalLine: {
       width: width * 0.25,

@@ -35,6 +35,15 @@ export default function TopAppBar() {
     return title;
   };
 
+  if (
+    pathname === "/login-signup" ||
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password"
+  ) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <Link href="/">
@@ -72,7 +81,7 @@ export default function TopAppBar() {
 const getStyles = (colors: PresetsColors | undefined) =>
   StyleSheet.create({
     container: {
-      backgroundColor: "transparent",
+      backgroundColor: colors?.bodyBackground,
       paddingVertical: 30,
       paddingHorizontal: 30,
       display: "flex",
@@ -80,6 +89,8 @@ const getStyles = (colors: PresetsColors | undefined) =>
       justifyContent: "space-between",
       alignItems: "center",
       width: width * 1,
+      position: "relative",
+      zIndex: 5,
     },
     logo: {
       width: 50,
