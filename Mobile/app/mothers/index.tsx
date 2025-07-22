@@ -1,4 +1,6 @@
+import { useTheme } from "@/context/theme/ThemeContext";
 import mothers from "@/data/mother.json";
+import { PresetsColors } from "@/types";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -10,15 +12,16 @@ import {
   Text,
   View,
 } from "react-native";
+
 const motherImg = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
 
-
-
-
 export default function MOtherList() {
- 
- 
+  const theme = useTheme();
+  const colors = theme?.colors;
+
+  const styles = getStyles(colors);
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -41,44 +44,47 @@ export default function MOtherList() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    width: width * 0.9,
-  },
-  pageTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    fontFamily: "Nunito",
-  },
-  mothersList: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 20,
-    paddingVertical: 20,
-  },
-  motherBox: {
-    width: width * 0.4,
-    height: "auto",
-    display: "flex",
-    alignItems: "center",
-  },
-  motherProfileImg: {
-    width: 160,
-    height: 160,
-    borderRadius: 20,
-  },
-  mothertitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    fontFamily: "Nunito",
-    textAlign: "center",
-    marginTop: 5,
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+      width: width * 0.9,
+    },
+    pageTitle: {
+      fontSize: 20,
+      fontWeight: "700",
+      fontFamily: "Nunito",
+      color: colors?.darkText,
+    },
+    mothersList: {
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 20,
+      paddingVertical: 20,
+    },
+    motherBox: {
+      width: width * 0.4,
+      height: "auto",
+      display: "flex",
+      alignItems: "center",
+    },
+    motherProfileImg: {
+      width: 160,
+      height: 160,
+      borderRadius: 20,
+    },
+    mothertitle: {
+      fontSize: 16,
+      fontWeight: "700",
+      fontFamily: "Nunito",
+      textAlign: "center",
+      marginTop: 5,
+      color: colors?.darkText,
+    },
+  });

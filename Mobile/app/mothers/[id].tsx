@@ -1,7 +1,8 @@
 import LoadingComponents from "@/components/LoadingComponents";
 import MotherDoaList from "@/components/MotherDoaList";
+import { useTheme } from "@/context/theme/ThemeContext";
 import mothers from "@/data/mother.json";
-import { Mother } from "@/types";
+import { Mother, PresetsColors } from "@/types";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -17,9 +18,13 @@ const motherImg = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
 
 export default function MotherProfile() {
+  const theme = useTheme();
   const { id } = useLocalSearchParams();
   const [mother, setMother] = useState<Mother>();
   const [loading, setLoading] = useState(true);
+  
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
 
   useEffect(() => {
     setLoading(true);
@@ -61,66 +66,67 @@ export default function MotherProfile() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    width: width * 0.9,
-  },
-  profilePageHeader: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-  },
-  profileImg: {
-    width: 150,
-    height: 150,
-    borderRadius: 100,
-    marginBottom: 10,
-  },
-  normalText: {
-    fontFamily: "Nunito",
-    fontSize: 16,
-    color: "#2E2E2E",
-    marginBottom: 10,
-  },
-  name: {
-    fontFamily: "Nunito",
-    fontSize: 20,
-    color: "#D26C7A",
-    fontWeight: "bold",
-  },
-  followersInfoBox: {
-    display: "flex",
-    flexWrap: "wrap",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-    width: width * 0.6,
-  },
-  followersInfo: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  followingText: {
-    fontFamily: "Nunito",
-    fontSize: 20,
-    color: "#D26C7A",
-  },
-  motherDoaList: {
-    marginTop: 20,
-  },
-  motherDoaListTitle: {
-    fontFamily: "Nunito",
-    fontSize: 20,
-    color: "#2E2E2E",
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+      width: width * 0.9,
+    },
+    profilePageHeader: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
+    },
+    profileImg: {
+      width: 150,
+      height: 150,
+      borderRadius: 100,
+      marginBottom: 10,
+    },
+    normalText: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      color: colors?.darkText,
+      marginBottom: 10,
+    },
+    name: {
+      fontFamily: "Nunito",
+      fontSize: 20,
+      color: colors?.primary,
+      fontWeight: "bold",
+    },
+    followersInfoBox: {
+      display: "flex",
+      flexWrap: "wrap",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 10,
+      width: width * 0.6,
+    },
+    followersInfo: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    followingText: {
+      fontFamily: "Nunito",
+      fontSize: 20,
+      color: colors?.primary,
+    },
+    motherDoaList: {
+      marginTop: 20,
+    },
+    motherDoaListTitle: {
+      fontFamily: "Nunito",
+      fontSize: 20,
+      color: colors?.darkText,
+      fontWeight: "bold",
+      marginBottom: 10,
+    },
+  });

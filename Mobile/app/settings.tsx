@@ -1,4 +1,7 @@
+import { useTheme } from "@/context/theme/ThemeContext";
+import { PresetsColors } from "@/types";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -6,13 +9,15 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import Toast from "react-native-toast-message";
+
 const profileImage = require("@/assets/images/doa-banner.jpg");
-const badgeImg = require("@/assets/images/badge.png");
 const width = Dimensions.get("window").width;
 
 const data = [
@@ -21,10 +26,40 @@ const data = [
 ];
 
 export default function SettingPage() {
+  const theme = useTheme();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
+
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [gender, setGender] = useState<string>("");
+  const [notificationText, setNotificationText] = useState<string>(
+    "Have you listened to your Mother’s prayer today?"
+  );
+  const [isEnabled, setIsEnabled] = useState(true);
+  const [date, setDate] = useState(new Date(1598051730000));
+  const [show, setShow] = useState(false);
+
+  const toggleSwitch = () => {
+    setIsEnabled((previousState) => !previousState);
+    Toast.show({
+      type: "success",
+      text1: `Notification ${isEnabled ? "Disabled" : "Enabled"}!`,
+      position: "top",
+      visibilityTime: 2000,
+    });
+  };
+
+  const onChange = (event: any, selectedDate: any) => {
+    const currentDate = selectedDate;
+    setShow(false);
+    setDate(currentDate);
+  };
+
+  const showMode = () => {
+    setShow(true);
+  };
 
   return (
     <ScrollView>
@@ -34,7 +69,11 @@ export default function SettingPage() {
           <View style={styles.imageBox}>
             <Image source={profileImage} style={styles.profileImage} />
             <View style={{ ...styles.badgeImgBox, display: "none" }}>
-              <SimpleLineIcons name="badge" size={20} color="#FFF9F5" />
+              <SimpleLineIcons
+                name="badge"
+                size={20}
+                color={colors?.bodyBackground}
+              />
             </View>
           </View>
           <View style={styles.inputContainer}>
@@ -92,102 +131,184 @@ export default function SettingPage() {
             </View>
           </View>
         </View>
+        <View style={styles.notificationContainer}>
+          <Text style={styles.secTitle}>Notifikasi Settings,</Text>
+          <View style={styles.inputContainer}>
+            <View
+              style={{
+                ...styles.inputSec,
+                justifyContent: "flex-start",
+                gap: 10,
+                marginBottom: 5,
+              }}
+            >
+              <Text style={styles.inputLabelText}>Show Notifications:</Text>
+              <Switch
+                trackColor={{
+                  false: colors?.darkText,
+                  true: colors?.secondary,
+                }}
+                thumbColor={
+                  isEnabled ? colors?.primary : colors?.bodyBackground
+                }
+                ios_backgroundColor={colors?.darkText}
+                onValueChange={toggleSwitch}
+                value={isEnabled}
+              />
+            </View>
+            <View style={styles.inputSec}>
+              <View style={{ width: "60%" }}>
+                <TextInput
+                  style={{ ...styles.input, marginTop: 0 }}
+                  inputMode="text"
+                  value={notificationText}
+                  onChangeText={(text) => setNotificationText(text)}
+                />
+              </View>
+              <View style={{ width: "35%" }}>
+                <Pressable style={styles.btnPrimary}>
+                  <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
+                    Update
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+            <View style={styles.inputSec}>
+              <View style={{ width: "60%" }}>
+                <TextInput
+                  style={{ ...styles.input, marginTop: 0 }}
+                  inputMode="text"
+                  value={date.toLocaleTimeString()}
+                  editable={false}
+                />
+                {show && (
+                  <DateTimePicker
+                    testID="dateTimePicker"
+                    value={date}
+                    mode={"time"}
+                    is24Hour={false}
+                    onChange={onChange}
+                  />
+                )}
+              </View>
+              <View style={{ width: "35%" }}>
+                <Pressable style={styles.btnPrimary} onPress={showMode}>
+                  <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
+                    Select Time
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    // width: width * 0.9,
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 100,
-    marginBottom: 20,
-  },
-  secTitle: {
-    fontSize: 20,
-    marginBottom: 10,
-    fontFamily: "Nunito",
-    color: "#2E2E2E",
-  },
-  imageBox: {
-    position: "relative",
-    width: 150,
-  },
-  badgeImgBox: {
-    position: "absolute",
-    bottom: 18,
-    right: 10,
-    transform: "rotate(-20deg)",
-    backgroundColor: "#A8C3A0",
-    padding: 8,
-    borderRadius: 50,
-  },
-  inputContainer: {
-    width: width * 0.9,
-  },
-  inputBox: {
-    marginTop: 10,
-  },
-  input: {
-    fontFamily: "Nunito",
-    fontSize: 16,
-    height: 40,
-    marginTop: 5,
-    borderWidth: 1,
-    padding: 10,
-    borderColor: "#D26C7A",
-    borderRadius: 5,
-  },
-  inputLabelText: {
-    fontFamily: "Nunito",
-    fontSize: 16,
-    fontWeight: 700,
-  },
-  dropdown: {
-    height: 40,
-    borderColor: "#D26C7A",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    fontFamily: "Nunito",
-    fontSize: 16,
-    fontWeight: 600,
-  },
-  btnBox: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginTop: 30,
-    gap: 20,
-  },
-  outlineBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#D26C7A",
-    borderRadius: 10,
-  },
-  btnPrimary: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    backgroundColor: "#D26C7A",
-    borderRadius: 10,
-  },
-  btnText: {
-    fontFamily: "Nunito",
-    fontSize: 16,
-    fontWeight: 700,
-  },
-  primaryBtnText: {
-    color: "#ffffff",
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+      paddingBottom: 50,
+    },
+    profileImage: {
+      width: 150,
+      height: 150,
+      borderRadius: 100,
+      marginBottom: 20,
+    },
+    secTitle: {
+      fontSize: 20,
+      marginBottom: 10,
+      fontFamily: "Nunito",
+      color: colors?.darkText,
+    },
+    imageBox: {
+      position: "relative",
+      width: 150,
+    },
+    badgeImgBox: {
+      position: "absolute",
+      bottom: 18,
+      right: 10,
+      transform: "rotate(-20deg)",
+      backgroundColor: colors?.success,
+      padding: 8,
+      borderRadius: 50,
+    },
+    inputContainer: {
+      width: width * 0.9,
+    },
+    inputBox: {
+      marginTop: 10,
+    },
+    input: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      height: 40,
+      marginTop: 5,
+      borderWidth: 1,
+      padding: 10,
+      borderColor: colors?.primary,
+      borderRadius: 5,
+    },
+    inputLabelText: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 700,
+    },
+    dropdown: {
+      height: 40,
+      borderColor: colors?.primary,
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 600,
+    },
+    btnBox: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      marginTop: 30,
+      gap: 20,
+    },
+    outlineBtn: {
+      paddingHorizontal: 20,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: colors?.primary,
+      borderRadius: 10,
+    },
+    btnPrimary: {
+      paddingHorizontal: 20,
+      paddingVertical: 8,
+      backgroundColor: colors?.primary,
+      borderRadius: 10,
+    },
+    btnText: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 700,
+      textAlign: "center",
+    },
+    primaryBtnText: {
+      color: colors?.bodyBackground,
+    },
+    notificationContainer: {
+      marginTop: 40,
+    },
+    inputSec: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+  });

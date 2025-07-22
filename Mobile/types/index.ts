@@ -16,3 +16,12 @@ export interface Mother {
   followers: string;
   Doas: Doa[];
 }
+
+export interface PresetsColors{
+  primary: string;
+  secondary: string;
+  darkText: string;
+  bodyBackground: string;
+  success: string;
+  warning: string;
+}

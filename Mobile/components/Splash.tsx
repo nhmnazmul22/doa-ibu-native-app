@@ -1,10 +1,16 @@
+import { useTheme } from "@/context/theme/ThemeContext";
+import { PresetsColors } from "@/types";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const theme = useTheme();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
+
   useEffect(() => {
     async function prepare() {
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -21,12 +27,13 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FFF9F5",
-  },
-  text: { color: "white", fontSize: 24 },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors?.bodyBackground,
+    },
+    text: { color: colors?.bodyBackground, fontSize: 24 },
+  });

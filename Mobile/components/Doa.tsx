@@ -1,7 +1,9 @@
-import { Image, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { useTheme } from "@/context/theme/ThemeContext";
+import { PresetsColors } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link } from "expo-router";
+import React from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 interface DoaType {
   _id: string;
@@ -11,13 +13,21 @@ interface DoaType {
 }
 
 export default function Doa({ _id, thumbnail, title, shortDes }: DoaType) {
+  const theme = useTheme();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
+
   return (
     <View>
       <View style={styles.thumbnail}>
         <Image source={require("../assets/images/doa-bg.jpg")} />
         <View style={styles.playIcon}>
           <Link href={`/prayers/${_id}`}>
-            <MaterialIcons name="play-circle" size={40} color="#D26C7A" />
+            <MaterialIcons
+              name="play-circle"
+              size={40}
+              color={colors?.primary}
+            />
           </Link>
         </View>
       </View>
@@ -29,30 +39,33 @@ export default function Doa({ _id, thumbnail, title, shortDes }: DoaType) {
   );
 }
 
-const styles = StyleSheet.create({
-  thumbnail: {
-    position: "relative",
-  },
-  playIcon: {
-    position: "absolute",
-    bottom: -10,
-    left: 110,
-    backgroundColor: "#FFF9F5",
-    borderRadius: 50,
-    width: 40,
-    height: 40,
-  },
-  content: {
-    marginTop: 10,
-  },
-  contentTitle: {
-    fontFamily: "Nunito",
-    fontSize: 18,
-    fontWeight: 700,
-  },
-  contentDes: {
-    fontFamily: "Nunito",
-    fontSize: 16,
-    fontWeight: 400,
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    thumbnail: {
+      position: "relative",
+    },
+    playIcon: {
+      position: "absolute",
+      bottom: -10,
+      left: 110,
+      backgroundColor: colors?.bodyBackground,
+      borderRadius: 50,
+      width: 40,
+      height: 40,
+    },
+    content: {
+      marginTop: 10,
+    },
+    contentTitle: {
+      fontFamily: "Nunito",
+      fontSize: 18,
+      fontWeight: 700,
+      color: colors?.darkText,
+    },
+    contentDes: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 400,
+      color: colors?.darkText,
+    },
+  });

@@ -1,4 +1,6 @@
+import { useTheme } from "@/context/theme/ThemeContext";
 import { formatTime } from "@/lib";
+import { PresetsColors } from "@/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Fontisto from "@expo/vector-icons/Fontisto";
@@ -22,7 +24,12 @@ import {
 } from "react-native";
 
 const width = Dimensions.get("window").width;
+
 export default function RecordingPage() {
+  const theme = useTheme();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
+
   const [barHeights, setBarHeights] = React.useState(
     new Array(25).fill(0).map(() => Math.floor(Math.random() * 200) + 20)
   );
@@ -107,7 +114,6 @@ export default function RecordingPage() {
     };
   }, [recorderState.isRecording]);
 
-  // console.log("recorderState", recorderState);
   return (
     <View style={styles.container}>
       <View style={styles.stateLineContainer}>
@@ -131,23 +137,23 @@ export default function RecordingPage() {
         </Text>
         <View style={styles.iconsBox}>
           <Pressable>
-            <Feather name="trash-2" size={40} color="black" />
+            <Feather name="trash-2" size={40} color={colors?.darkText} />
           </Pressable>
           <Pressable
             onPress={recorderState.isRecording ? stopRecording : record}
           >
             {recorderState.isRecording ? (
-              <AntDesign name="pause" size={70} color="black" />
+              <AntDesign name="pause" size={70} color={colors?.darkText} />
             ) : (
               <MaterialCommunityIcons
                 name="record-circle"
                 size={80}
-                color="#D26C7A"
+                color={colors?.primary}
               />
             )}
           </Pressable>
           <Pressable>
-            <Fontisto name="save" size={32} color="black" />
+            <Fontisto name="save" size={32} color={colors?.darkText} />
           </Pressable>
         </View>
       </View>
@@ -155,68 +161,70 @@ export default function RecordingPage() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-  },
-  stateLineContainer: {
-    width: width * 1,
-    borderTopWidth: 2,
-    borderBottomWidth: 2,
-    paddingVertical: 80,
-    borderColor: "#D26C7A",
-    marginTop: 50,
-  },
-  stateLineBox: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: width * 0.9,
-    marginHorizontal: "auto",
-    height: 220,
-  },
-  stateLine: {
-    width: 3,
-    height: 220,
-    backgroundColor: "#2E2E2E",
-    borderRadius: 50,
-  },
-  stateLine2: {
-    width: 3,
-    height: 110,
-    backgroundColor: "#000",
-    borderRadius: 50,
-  },
-  stateLine3: {
-    width: 3,
-    height: 55,
-    backgroundColor: "#000",
-    borderRadius: 50,
-  },
-  recordActions: {
-    width: width * 0.9,
-    marginHorizontal: "auto",
-    marginTop: 20,
-  },
-  timingText: {
-    fontFamily: "Nunito",
-    textAlign: "center",
-    fontSize: 54,
-    fontWeight: "500",
-  },
-  iconsBox: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    marginHorizontal: "auto",
-    gap: 30,
-    marginTop: 150,
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      flex: 1,
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+    },
+    stateLineContainer: {
+      width: width * 1,
+      borderTopWidth: 2,
+      borderBottomWidth: 2,
+      paddingVertical: 80,
+      borderColor: colors?.primary,
+      marginTop: 50,
+    },
+    stateLineBox: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      width: width * 0.9,
+      marginHorizontal: "auto",
+      height: 220,
+    },
+    stateLine: {
+      width: 3,
+      height: 220,
+      backgroundColor: colors?.darkText,
+      borderRadius: 50,
+    },
+    stateLine2: {
+      width: 3,
+      height: 110,
+      backgroundColor: colors?.darkText,
+      borderRadius: 50,
+    },
+    stateLine3: {
+      width: 3,
+      height: 55,
+      backgroundColor: colors?.darkText,
+      borderRadius: 50,
+    },
+    recordActions: {
+      width: width * 0.9,
+      marginHorizontal: "auto",
+      marginTop: 20,
+    },
+    timingText: {
+      fontFamily: "Nunito",
+      textAlign: "center",
+      fontSize: 54,
+      fontWeight: "500",
+      color: colors?.darkText,
+    },
+    iconsBox: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
+      marginHorizontal: "auto",
+      gap: 30,
+      marginTop: 150,
+    },
+  });

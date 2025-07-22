@@ -1,8 +1,11 @@
-import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { useTheme } from "@/context/theme/ThemeContext";
+import { PresetsColors } from "@/types";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link } from "expo-router";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
 interface DoaItemType {
   _id: string;
   thumbnail: string;
@@ -19,12 +22,19 @@ export default function DoaItem({
   favorite,
   duration,
 }: DoaItemType) {
+  const theme = useTheme();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
         <View style={styles.playIcon}>
           <Link href={`/prayers/${_id}`}>
-            <MaterialIcons name="play-circle" size={48} color="#D26C7A" />
+            <MaterialIcons
+              name="play-circle"
+              size={48}
+              color={colors?.primary}
+            />
           </Link>
         </View>
         <View>
@@ -36,11 +46,11 @@ export default function DoaItem({
       <Pressable>
         {favorite ? (
           <Text>
-            <AntDesign name="heart" size={24} color="#D26C7A" />
+            <AntDesign name="heart" size={24} color={colors?.primary} />
           </Text>
         ) : (
           <Text>
-            <AntDesign name="hearto" size={24} color="#D26C7A" />
+            <AntDesign name="hearto" size={24} color={colors?.primary} />
           </Text>
         )}
       </Pressable>
@@ -48,33 +58,36 @@ export default function DoaItem({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    minHeight: 70,
-  },
-  infoContainer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  playIcon: {
-    backgroundColor: "#FFF9F5",
-    borderRadius: 50,
-    width: 50,
-    height: 50,
-  },
-  doaTitle: {
-    fontFamily: "Nunito",
-    fontSize: 16,
-    fontWeight: 700,
-  },
-  doaDes: {
-    fontFamily: "Nunito",
-    fontSize: 14,
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      minHeight: 70,
+    },
+    infoContainer: {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+    },
+    playIcon: {
+      backgroundColor: colors?.bodyBackground,
+      borderRadius: 50,
+      width: 50,
+      height: 50,
+    },
+    doaTitle: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 700,
+      color: colors?.darkText,
+    },
+    doaDes: {
+      fontFamily: "Nunito",
+      fontSize: 14,
+      color: colors?.darkText,
+    },
+  });

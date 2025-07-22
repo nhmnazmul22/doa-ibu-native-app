@@ -1,12 +1,16 @@
-import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { useTheme } from "@/context/theme/ThemeContext";
 import doa from "@/data/dao.json";
+import { PresetsColors } from "@/types";
+import React from "react";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import DoaItem from "./DoaItem";
-
 const { width } = Dimensions.get("window");
 
 export default function DoaList() {
   const data = doa;
+  const theme = useTheme();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -29,11 +33,12 @@ export default function DoaList() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingBottom: 20,
-    width: width * 0.9,
-    marginHorizontal: "auto",
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingBottom: 20,
+      width: width * 0.9,
+      marginHorizontal: "auto",
+    },
+  });

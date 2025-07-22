@@ -1,10 +1,12 @@
 import TabBar from "@/components/Layout/TabBar";
 import TopAppBar from "@/components/Layout/TopAppBar";
-import { Slot, SplashScreen } from "expo-router";
-import { SafeAreaView, StyleSheet, View } from "react-native";
-import { useFonts } from "expo-font";
-import { useEffect, useState } from "react";
 import Splash from "@/components/Splash";
+import { ThemeProvider } from "@/context/theme/ThemeContext";
+import { useFonts } from "expo-font";
+import { Slot } from "expo-router";
+import { useEffect, useState } from "react";
+import { SafeAreaView, StyleSheet, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -26,11 +28,14 @@ export default function RootLayout() {
 
   return (
     <SafeAreaView style={style.safeAreaView}>
-      <View style={style.container}>
-        <TopAppBar />
-        <Slot />
-        <TabBar />
-      </View>
+      <ThemeProvider>
+        <View style={style.container}>
+          <TopAppBar />
+          <Slot />
+          <TabBar />
+        </View>
+        <Toast />
+      </ThemeProvider>
     </SafeAreaView>
   );
 }

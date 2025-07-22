@@ -1,3 +1,5 @@
+import { useTheme } from "@/context/theme/ThemeContext";
+import { PresetsColors } from "@/types";
 import { FontAwesome } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Link, router, usePathname } from "expo-router";
@@ -15,6 +17,9 @@ const { width } = Dimensions.get("window");
 
 export default function TopAppBar() {
   const pathname = usePathname();
+  const theme = useTheme();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
 
   const pageTitle = () => {
     let title = "Now Playing";
@@ -64,25 +69,26 @@ export default function TopAppBar() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "transparent",
-    paddingVertical: 30,
-    paddingHorizontal: 30,
-    fontFamily: "Nunito",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: width * 1,
-  },
-  logo: {
-    width: 50,
-    height: 50,
-  },
-  pageTitle: {
-    fontFamily: "Nunito",
-    fontSize: 18,
-    fontWeight: 700,
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: "transparent",
+      paddingVertical: 30,
+      paddingHorizontal: 30,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      width: width * 1,
+    },
+    logo: {
+      width: 50,
+      height: 50,
+    },
+    pageTitle: {
+      fontFamily: "Nunito",
+      fontSize: 18,
+      fontWeight: 700,
+      color: colors?.darkText,
+    },
+  });

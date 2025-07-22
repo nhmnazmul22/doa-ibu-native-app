@@ -1,8 +1,10 @@
+import DoaList from "@/components/DoaList";
+import SliderDoa from "@/components/SliderDoa";
+import { useTheme } from "@/context/theme/ThemeContext";
+import { PresetsColors } from "@/types";
 import React, { useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
-import SliderDoa from "@/components/SliderDoa";
 import { Dropdown } from "react-native-element-dropdown";
-import DoaList from "@/components/DoaList";
 
 const data = [
   { label: "Option 1", value: "option1" },
@@ -13,6 +15,11 @@ const data = [
 const { width } = Dimensions.get("window");
 
 export default function PrayersPage() {
+  const theme = useTheme();
+  const colors = theme?.colors;
+
+  const styles = getStyles(colors);
+
   const [selectedValue, setSelectedValue] = useState(null);
 
   return (
@@ -48,51 +55,52 @@ export default function PrayersPage() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-  },
-  slider: {
-    height: 280,
-    width: "100%",
-  },
-  doaList: {
-    width: width * 0.9,
-    alignSelf: "center",
-    marginTop: 20,
-  },
-  doaListHeader: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  doaTitle: {
-    fontFamily: "Nunito",
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 5,
-  },
-  horizontalLine: {
-    width: width * 0.25,
-    marginBottom: 20,
-    height: 5,
-    backgroundColor: "#D26C7A",
-    borderBottomRightRadius: 10,
-    borderBottomLeftRadius: 10,
-  },
-  dropdown: {
-    height: 40,
-    width: width * 0.3,
-    borderColor: "#2E2E2E",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    fontFamily: "Nunito",
-    fontSize: 14,
-    fontWeight: 600,
-  },
-});
+const getStyles = (colors: PresetsColors | undefined) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+    },
+    slider: {
+      height: 280,
+      width: "100%",
+    },
+    doaList: {
+      width: width * 0.9,
+      alignSelf: "center",
+      marginTop: 20,
+    },
+    doaListHeader: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    doaTitle: {
+      fontFamily: "Nunito",
+      fontSize: 20,
+      fontWeight: "700",
+      marginBottom: 5,
+    },
+    horizontalLine: {
+      width: width * 0.25,
+      marginBottom: 20,
+      height: 5,
+      backgroundColor: colors?.primary,
+      borderBottomRightRadius: 10,
+      borderBottomLeftRadius: 10,
+    },
+    dropdown: {
+      height: 40,
+      width: width * 0.3,
+      borderColor: colors?.darkText,
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      fontFamily: "Nunito",
+      fontSize: 14,
+      fontWeight: 600,
+    },
+  });
