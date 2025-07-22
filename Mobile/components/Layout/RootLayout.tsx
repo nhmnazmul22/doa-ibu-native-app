@@ -37,7 +37,7 @@ export default function RootLayout() {
           <Slot />
           <TabBar />
         </View>
-        <Toast />
+        <Toast swipeable />
       </ThemeProvider>
     </SafeAreaView>
   );

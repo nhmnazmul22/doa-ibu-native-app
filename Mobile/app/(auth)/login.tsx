@@ -1,7 +1,7 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React from "react";
 import {
   Dimensions,
@@ -36,7 +36,7 @@ export default function LoginPage() {
         <Link style={styles.forgotLink} href="/forgot-password">
           Forgot Password
         </Link>
-        <Pressable style={styles.btn}>
+        <Pressable style={styles.btn} onPress={() => router.push("/")}>
           <Text style={styles.btnText}>Sign In</Text>
         </Pressable>
       </View>
@@ -46,7 +46,7 @@ export default function LoginPage() {
         <View style={styles.line}></View>
       </View>
       <View style={styles.iconsBox}>
-        <Pressable>
+        <Pressable onPress={() => router.push("/")}>
           <FontAwesome
             name="google"
             size={38}
@@ -54,7 +54,7 @@ export default function LoginPage() {
             style={{ marginHorizontal: "auto" }}
           />
         </Pressable>
-        <Pressable>
+        <Pressable onPress={() => router.push("/")}>
           <FontAwesome
             name="apple"
             size={38}

@@ -1,8 +1,10 @@
 import { ThemePresets } from "@/context/theme/presets";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
+import Entypo from "@expo/vector-icons/Entypo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -21,7 +23,6 @@ import {
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
-
 const profileImage = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
 
@@ -47,6 +48,7 @@ export default function SettingPage() {
   const [isEnabled, setIsEnabled] = useState(true);
   const [date, setDate] = useState(new Date(1598051730000));
   const [show, setShow] = useState(false);
+  const [premiumMember, setPremiumMember] = useState(false);
 
   const themeData = Object.keys(ThemePresets).map((value) => {
     return {
@@ -60,7 +62,7 @@ export default function SettingPage() {
     Toast.show({
       type: "success",
       text1: `Notification ${isEnabled ? "Disabled" : "Enabled"}!`,
-      position: "top",
+      position: "bottom",
       visibilityTime: 2000,
     });
   };
@@ -83,7 +85,7 @@ export default function SettingPage() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, zIndex: 1 }}
+      style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "position"}
       keyboardVerticalOffset={40}
     >
@@ -162,92 +164,133 @@ export default function SettingPage() {
                 </View>
               </View>
             </View>
-            <View style={styles.notificationContainer}>
-              <Text style={styles.secTitle}>Notifikasi Settings,</Text>
-              <View style={styles.inputContainer}>
-                <View
-                  style={{
-                    ...styles.inputSec,
-                    justifyContent: "flex-start",
-                    gap: 10,
-                    marginBottom: 5,
-                  }}
-                >
-                  <Text style={styles.inputLabelText}>Show Notifications:</Text>
-                  <Switch
-                    trackColor={{
-                      false: colors?.darkText,
-                      true: colors?.secondary,
-                    }}
-                    thumbColor={
-                      isEnabled ? colors?.primary : colors?.bodyBackground
-                    }
-                    ios_backgroundColor={colors?.darkText}
-                    onValueChange={toggleSwitch}
-                    value={isEnabled}
-                  />
-                </View>
-                <View style={styles.inputSec}>
-                  <View style={{ width: "60%" }}>
-                    <TextInput
-                      style={{ ...styles.input, marginTop: 0 }}
-                      inputMode="text"
-                      value={notificationText}
-                      onChangeText={(text) => setNotificationText(text)}
-                    />
-                  </View>
-                  <View style={{ width: "35%" }}>
-                    <Pressable style={styles.btnPrimary}>
-                      <Text
-                        style={{ ...styles.btnText, ...styles.primaryBtnText }}
-                      >
-                        Update
-                      </Text>
-                    </Pressable>
-                  </View>
-                </View>
-                <View style={styles.inputSec}>
-                  <View style={{ width: "60%" }}>
-                    <TextInput
-                      style={{ ...styles.input, marginTop: 0 }}
-                      inputMode="text"
-                      value={date.toLocaleTimeString()}
-                      editable={false}
-                    />
-                    {show && (
-                      <DateTimePicker
-                        testID="dateTimePicker"
-                        value={date}
-                        mode={"time"}
-                        is24Hour={false}
-                        onChange={onChange}
+            <View style={styles.afterSubscription}>
+              {!premiumMember && (
+                <View style={styles.blockBox}>
+                  <View style={styles.blockContent}>
+                    <Pressable onPress={() => setPremiumMember(true)}>
+                      <Entypo
+                        name="block"
+                        size={54}
+                        color="red"
+                        style={{ marginHorizontal: "auto" }}
                       />
-                    )}
-                  </View>
-                  <View style={{ width: "35%" }}>
-                    <Pressable style={styles.btnPrimary} onPress={showMode}>
-                      <Text
-                        style={{ ...styles.btnText, ...styles.primaryBtnText }}
-                      >
-                        Select Time
+                    </Pressable>
+                    <Pressable onPress={() => router.push("/subscription")}>
+                      <Text style={styles.blockMessage}>
+                        If you need access this feature, You need to become a
+                        premium member
                       </Text>
                     </Pressable>
+                    <Pressable style={styles.btnMember}>
+                      <Text
+                        style={{
+                          ...styles.blockMessage,
+                          color: colors?.bodyBackground,
+                        }}
+                        onPress={() => router.push("/subscription")}
+                      >
+                        Become a Premium Member
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+              <View style={styles.notificationContainer}>
+                <Text style={styles.secTitle}>Notifikasi Settings,</Text>
+                <View style={styles.inputContainer}>
+                  <View
+                    style={{
+                      ...styles.inputSec,
+                      justifyContent: "flex-start",
+                      gap: 10,
+                      marginBottom: 5,
+                    }}
+                  >
+                    <Text style={styles.inputLabelText}>
+                      Show Notifications:
+                    </Text>
+                    <Switch
+                      trackColor={{
+                        false: colors?.darkText,
+                        true: colors?.secondary,
+                      }}
+                      thumbColor={
+                        isEnabled ? colors?.primary : colors?.bodyBackground
+                      }
+                      ios_backgroundColor={colors?.darkText}
+                      onValueChange={toggleSwitch}
+                      value={isEnabled}
+                    />
+                  </View>
+                  <View style={styles.inputSec}>
+                    <View style={{ width: "60%" }}>
+                      <TextInput
+                        style={{ ...styles.input, marginTop: 0 }}
+                        inputMode="text"
+                        value={notificationText}
+                        onChangeText={(text) => setNotificationText(text)}
+                      />
+                    </View>
+                    <View style={{ width: "35%" }}>
+                      <Pressable style={styles.btnPrimary}>
+                        <Text
+                          style={{
+                            ...styles.btnText,
+                            ...styles.primaryBtnText,
+                          }}
+                        >
+                          Update
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  <View style={styles.inputSec}>
+                    <View style={{ width: "60%" }}>
+                      <TextInput
+                        style={{ ...styles.input, marginTop: 0 }}
+                        inputMode="text"
+                        value={date.toLocaleTimeString()}
+                        editable={false}
+                      />
+                      {show && (
+                        <DateTimePicker
+                          testID="dateTimePicker"
+                          value={date}
+                          mode={"time"}
+                          is24Hour={false}
+                          onChange={onChange}
+                        />
+                      )}
+                    </View>
+                    <View style={{ width: "35%" }}>
+                      <Pressable style={styles.btnPrimary} onPress={showMode}>
+                        <Text
+                          style={{
+                            ...styles.btnText,
+                            ...styles.primaryBtnText,
+                          }}
+                        >
+                          Select Time
+                        </Text>
+                      </Pressable>
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
-            <View>
-              <Text style={styles.secTitle}>Customize Theme,</Text>
-              <Dropdown
-                dropdownPosition="top"
-                style={{ ...styles.dropdown, width: width * 0.9 }}
-                data={themeData}
-                labelField="label"
-                valueField="value"
-                placeholder="Select Theme"
-                value={currentTheme}
-                onChange={(item: any) => handleChangeTheme(item.value)}
-              />
+              <View>
+                <Text style={styles.secTitle}>Customize Theme,</Text>
+                <Dropdown
+                  dropdownPosition="top"
+                  style={{ ...styles.dropdown, width: width * 0.9 }}
+                  data={themeData}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select Theme"
+                  value={currentTheme}
+                  onChange={(item: any) => handleChangeTheme(item.value)}
+                />
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -263,7 +306,6 @@ const getStyles = (colors: PresetsColors | undefined) =>
       flexDirection: "column",
       justifyContent: "flex-start",
       alignItems: "flex-start",
-      paddingBottom: 50,
       paddingTop: 20,
     },
     profileImage: {
@@ -353,7 +395,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       color: colors?.bodyBackground,
     },
     notificationContainer: {
-      marginTop: 40,
+      marginTop: 10,
     },
     inputSec: {
       display: "flex",
@@ -361,5 +403,44 @@ const getStyles = (colors: PresetsColors | undefined) =>
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: 20,
+    },
+    afterSubscription: {
+      paddingVertical: 10,
+      position: "relative",
+      width: width * 0.9,
+      height: 380,
+      marginTop: 20,
+    },
+    blockBox: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      backgroundColor: "#ffffffd2",
+      borderWidth: 3,
+      borderColor: colors?.primary,
+      borderRadius: 10,
+      zIndex: 10,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    blockContent: {
+      width: "80%",
+      marginHorizontal: "auto",
+      gap: 10,
+    },
+    blockMessage: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 700,
+      textAlign: "center",
+    },
+    btnMember: {
+      width: "100%",
+      paddingVertical: 20,
+      paddingHorizontal: 10,
+      borderRadius: 50,
+      backgroundColor: colors?.primary,
     },
   });

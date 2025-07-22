@@ -1,7 +1,7 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React from "react";
 import {
   Dimensions,
@@ -38,7 +38,7 @@ export default function RegisterPage() {
           style={styles.input}
           placeholder="Enter Password"
         />
-        <Pressable style={styles.btn}>
+        <Pressable style={styles.btn} onPress={() => router.push("/")}>
           <Text style={styles.btnText}>Create Account</Text>
         </Pressable>
       </View>
@@ -48,7 +48,7 @@ export default function RegisterPage() {
         <View style={styles.line}></View>
       </View>
       <View style={styles.iconsBox}>
-        <Pressable>
+        <Pressable onPress={() => router.push("/")}>
           <FontAwesome
             name="google"
             size={38}
@@ -56,7 +56,7 @@ export default function RegisterPage() {
             style={{ marginHorizontal: "auto" }}
           />
         </Pressable>
-        <Pressable>
+        <Pressable onPress={() => router.push("/")}>
           <FontAwesome
             name="apple"
             size={38}
