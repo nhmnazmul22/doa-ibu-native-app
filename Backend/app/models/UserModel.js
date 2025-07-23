@@ -1,5 +1,4 @@
 import mongoose, { Model, Schema } from "mongoose";
-import { IUser } from "../types/modelTypes";
 
 // Define Data Schema
 const DataScheme = new Schema(
@@ -19,6 +18,7 @@ const DataScheme = new Schema(
       enum: ["active", "inactive"],
       default: "active",
     },
+    isDonated: { type: Boolean, default: false },
     subscriptionStartDate: { type: Date, required: false },
     subscriptionEndDate: { type: Date, required: false },
     subscriptionRenewalDate: { type: Date, required: false },

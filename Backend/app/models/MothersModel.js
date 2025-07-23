@@ -1,5 +1,4 @@
 import mongoose, { Model, Schema } from "mongoose";
-import { IMothers } from "../types/modelTypes";
 
 // Define Schema
 const DataSchema = new Schema(

@@ -1,5 +1,4 @@
-import * as UserServices from "../services/UserServices";
-import { Request, Response } from "express";
+import * as UserServices from "../services/UserServices.js";
 
 // Get all User Controller
 export const GetAllUsersController = async (req, res) => {
@@ -10,7 +9,7 @@ export const GetAllUsersController = async (req, res) => {
 };
 
 // Create User Controller
-export const CreateUsersController = async (req, res) => {
+export const CreateUserController = async (req, res) => {
   const result = await UserServices.CreateUsersService(req);
   return res
     .status(result.status)
@@ -25,7 +24,7 @@ export const UpdateUsersController = async (req, res) => {
     .json({ message: result.message, data: result.data });
 };
 
-// Get Single User Controller
+// Login User Controller
 export const GetUserController = async (req, res) => {
   const result = await UserServices.GetUserService(req);
   return res

@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
-import { Response } from "express";
 
 // Convert String id to ObjectId
-export const convertObjectId = (id: string) => {
+export const convertObjectId = (id) => {
   return new mongoose.Types.ObjectId(id);
 };
-

@@ -1,20 +1,49 @@
+import * as MotherServices from "../services/MotherServices.js";
+
 // Get all Mother Controller
-const GetAllMotherController = async (req, res) => {};
+export const GetAllMotherController = async (req, res) => {
+  const result = await MotherServices.GetAllMotherService();
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Register Mother Controller
-const RegisterMotherController = async (req, res) => {};
+export const RegisterMotherController = async (req, res) => {
+  const result = await MotherServices.RegisterMotherService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Login Mother Controller
-const LoginMotherController = async (req, res) => {};
-
-// Forgot Password Controller
-const ForgotPasswordController = async (req, res) => {};
+export const LoginMotherController = async (req, res) => {
+  const result = await MotherServices.LoginMotherService(req, res);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Get single Mother Controller
-const GetMotherController = async (req, res) => {};
+export const GetMotherController = async (req, res) => {
+  const result = await MotherServices.GetMotherService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Update Mother Controller
-const UpdateMotherController = async (req, res) => {};
+export const UpdateMotherController = async (req, res) => {
+  const result = await MotherServices.UpdateMotherService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Delete Mother Controller
-const DeleteMotherController = async (req, res) => {};
+export const DeleteMotherController = async (req, res) => {
+  const result = await MotherServices.DeleteMotherService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};

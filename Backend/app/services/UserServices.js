@@ -1,12 +1,11 @@
-import mongoose from "mongoose";
-import UserModel from "../models/UserModel";
-import { Request } from "express";
-import { convertObjectId } from "../utility/lib";
+import bcrypt from "bcrypt";
+import UserModel from "../models/UserModel.js";
+import { convertObjectId } from "../utility/lib.js";
 
 // Get all User Service
 export const GetAllUsersService = async () => {
   try {
-    const users = await UserModel.find({});
+    const users = await UserModel.find({}, { password: 0 });
 
     if (users.length === 0) {
       return { status: 404, message: "Users not found", data: users };
@@ -27,11 +26,24 @@ export const CreateUsersService = async (req) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email) {
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
-    const user = await UserModel.create(req.body);
+    const prevUser = await UserModel.findOne({ email: email });
+
+    if (prevUser) {
+      return { status: 400, message: "User already exists", data: null };
+    }
+    let hashedPassword = "";
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    const user = await UserModel.create({
+      ...req.body,
+      password: hashedPassword,
+    });
 
     if (!user) {
       return { status: 500, message: "Server Issue", data: null };
@@ -113,26 +125,25 @@ export const UpdateUsersService = async (req) => {
 // Get Single User Service
 export const GetUserService = async (req) => {
   try {
-    const userId = convertObjectId(req.params.userId);
-    const user = await UserModel.findById(userId);
+    const email = req.params.email;
+    const user = await UserModel.findOne({ email: email });
 
-    if (!user && user?._id) {
+    if (!user) {
       return {
         status: 404,
         message: "User not found",
         data: null,
       };
     }
-
     // Convert mongoose document to plain object
-    const userObject = user.toObject();
+    const userObject = deletedUser.toObject();
 
     // Remove password field
     delete userObject.password;
 
     return {
       status: 200,
-      message: "User updated successful",
+      message: "User found successful",
       data: userObject,
     };
   } catch (err) {

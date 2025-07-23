@@ -6,6 +6,7 @@ import hpp from "hpp";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./routes/api.js";
+import dotenv from "dotenv";
 import {
   MAX_JSON_SIZE,
   MONGODB_CONNECTION,
@@ -19,6 +20,7 @@ import {
 const app = express();
 
 // Security Apply
+dotenv.config();
 app.use(cors());
 app.use(helmet());
 app.use(hpp());
