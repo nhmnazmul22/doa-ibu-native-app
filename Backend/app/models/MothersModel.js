@@ -1,11 +1,14 @@
 import mongoose, { Model, Schema } from "mongoose";
-import { IMothers } from "../types/modeTypes";
+import { IMothers } from "../types/modelTypes";
 
 // Define Schema
-const DataSchema: Schema<IMothers> = new Schema<IMothers>(
+const DataSchema = new Schema(
   {
     fullName: { type: String, required: true },
     email: { type: String, required: true, default: "" },
+    password: { type: String, required: true },
+    phone: { type: String, required: false },
+    gender: { type: String, required: false },
     followers: { type: String, required: false, default: "0" },
     following: { type: String, required: false, default: "0" },
     profilePicture: {
@@ -18,6 +21,6 @@ const DataSchema: Schema<IMothers> = new Schema<IMothers>(
 );
 
 // Define Model
-const MotherModel: Model<IMothers> =
-  mongoose.models.mothers || mongoose.model<IMothers>("mothers", DataSchema);
+const MotherModel =
+  mongoose.models.mothers || mongoose.model("mothers", DataSchema);
 export default MotherModel;

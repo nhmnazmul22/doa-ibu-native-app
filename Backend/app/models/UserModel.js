@@ -1,8 +1,8 @@
 import mongoose, { Model, Schema } from "mongoose";
-import { IUser } from "../types/modeTypes";
+import { IUser } from "../types/modelTypes";
 
 // Define Data Schema
-const DataScheme: Schema<IUser> = new Schema<IUser>(
+const DataScheme = new Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true },
@@ -32,7 +32,6 @@ const DataScheme: Schema<IUser> = new Schema<IUser>(
 );
 
 // Define Model (prevent overwrite in dev/watch)
-const UserModel: Model<IUser> =
-  mongoose.models.users || mongoose.model<IUser>("users", DataScheme);
+const UserModel = mongoose.models.users || mongoose.model("users", DataScheme);
 
 export default UserModel;
