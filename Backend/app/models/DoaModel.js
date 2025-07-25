@@ -3,16 +3,16 @@ import mongoose, { Schema } from "mongoose";
 // Define Data Schema
 const DataScheme = new Schema(
   {
-    thumbnail: { type: String, required: true },
+    thumbnail: { type: String },
+    audioLink: { type: String, require: true },
     title: { type: String, required: true },
-    shortDes: { type: String, required: true },
-    favorite: { type: Boolean, required: true, default: false },
+    shortDes: { type: String },
+    favorite: { type: Boolean, default: false },
     duration: { type: String },
-    type: { type: String, enum: ["uploaded", "recorded"] },
+    type: { type: String, enum: ["uploaded", "recorded"], default: "uploaded" },
     motherId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "mothers",
-      required: true,
     },
   },
   {

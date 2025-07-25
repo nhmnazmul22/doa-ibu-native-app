@@ -8,17 +8,9 @@ export const GetAllMotherController = async (req, res) => {
     .json({ message: result.message, data: result.data });
 };
 
-// Register Mother Controller
-export const RegisterMotherController = async (req, res) => {
-  const result = await MotherServices.RegisterMotherService(req);
-  return res
-    .status(result.status)
-    .json({ message: result.message, data: result.data });
-};
-
-// Login Mother Controller
-export const LoginMotherController = async (req, res) => {
-  const result = await MotherServices.LoginMotherService(req, res);
+// Create Mother Controller
+export const CreateMotherController = async (req, res) => {
+  const result = await MotherServices.CreateMotherService(req);
   return res
     .status(result.status)
     .json({ message: result.message, data: result.data });

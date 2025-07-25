@@ -1,14 +1,41 @@
+import * as DoaServices from "../services/DoaServices.js";
+
 // Get all Doa Controller
-const GetAllDoasController = async (req, res) => {};
+export const GetAllDoasController = async (req, res) => {
+  const result = await DoaServices.GetAllDoasService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Create Doa Controller
-const CreateDoasController = async (req, res) => {};
+export const CreateDoasController = async (req, res) => {
+  const result = await DoaServices.CreateDoasService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Update Doa Controller
-const UpdateDoasController = async (req, res) => {};
+export const UpdateDoasController = async (req, res) => {
+  const result = await DoaServices.UpdateDoasService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Get Single Doa Controller
-const GetDoaController = async (req, res) => {};
+export const GetDoaController = async (req, res) => {
+  const result = await DoaServices.GetDoaService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
 
 // Delete Doa Controller
-const DeleteDoaController = async (req, res) => {};
+export const DeleteDoaController = async (req, res) => {
+  const result = await DoaServices.DeleteDoaService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};

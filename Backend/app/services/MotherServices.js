@@ -21,8 +21,8 @@ export const GetAllMotherService = async () => {
   }
 };
 
-// Register Mother Service
-export const RegisterMotherService = async (req) => {
+// Create Mother Service
+export const CreateMotherService = async (req) => {
   try {
     const { fullName, email, password } = req.body;
 
@@ -38,7 +38,7 @@ export const RegisterMotherService = async (req) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const mother = await UserModel.create({
+    const mother = await MotherModel.create({
       ...req.body,
       password: hashedPassword,
     });
@@ -67,68 +67,18 @@ export const RegisterMotherService = async (req) => {
   }
 };
 
-// Login Mother Service
-export const LoginMotherService = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const mother = await MotherModel.findOne({ email: email });
-
-    if (!mother) {
-      return {
-        status: 404,
-        message: "Mother not found",
-        data: null,
-      };
-    }
-
-    const isPasswordTrue = await bcrypt.compare(password, mother.password);
-
-    if (!isPasswordTrue) {
-      return {
-        status: 400,
-        message: "Please, Input right password",
-        data: null,
-      };
-    }
-
-    // Generate Secure token
-    const token = TokenEncoded(mother["_id"], mother.email);
-
-    // Store token in cookie
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      path: "/",
-      sameSite: "None",
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-    };
-    res.cookie("motherToken", token, cookieOptions);
-
-    // Convert mongoose document to plain object
-    const motherObject = mother.toObject();
-
-    // Remove password field
-    delete motherObject.password;
-
-    return {
-      status: 200,
-      message: "Mother login successful",
-      data: motherObject,
-    };
-  } catch (err) {
-    return {
-      status: 500,
-      message: "Error in login mother route",
-      data: err.message || "Something Went Wrong!",
-    };
-  }
-};
-
 // Get single Mother Service
 export const GetMotherService = async (req) => {
   try {
-    const motherId = convertObjectId(req.headers.motherId);
-    const mother = await MotherModel.findById(motherId);
+    const email = req.params.email;
+    const motherId = convertObjectId(req.params.motherId);
+    let mother = null;
+
+    if (email) {
+      mother = await MotherModel.findOne({ email: email });
+    } else {
+      mother = await MotherModel.findOne({ _id: motherId });
+    }
 
     if (!mother) {
       return {
@@ -160,7 +110,7 @@ export const GetMotherService = async (req) => {
 // Update Mother Service
 export const UpdateMotherService = async (req) => {
   try {
-    const motherId = convertObjectId(req.headers.motherId);
+    const motherId = convertObjectId(req.params.motherId);
     const { password } = req.body;
 
     const mother = await MotherModel.findById(motherId);
@@ -213,7 +163,7 @@ export const UpdateMotherService = async (req) => {
 // Delete Mother Service
 export const DeleteMotherService = async (req) => {
   try {
-    const motherId = convertObjectId(req.headers.motherId);
+    const motherId = convertObjectId(req.params.motherId);
     const deletedMother = await MotherModel.findByIdAndDelete(motherId, {
       new: true,
     });

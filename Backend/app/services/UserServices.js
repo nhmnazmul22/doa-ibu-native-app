@@ -76,7 +76,7 @@ export const UpdateUsersService = async (req) => {
     const { password } = req.body;
 
     const user = await UserModel.findById(userId);
-    if (!user && user?._id) {
+    if (!user) {
       return {
         status: 404,
         message: "User not found",
@@ -126,7 +126,14 @@ export const UpdateUsersService = async (req) => {
 export const GetUserService = async (req) => {
   try {
     const email = req.params.email;
-    const user = await UserModel.findOne({ email: email });
+    const userId = convertObjectId(req.params.userId);
+    let user = null;
+
+    if (email) {
+      user = await UserModel.findOne({ email: email });
+    } else {
+      user = await UserModel.findOne({ _id: userId });
+    }
 
     if (!user) {
       return {
@@ -136,7 +143,7 @@ export const GetUserService = async (req) => {
       };
     }
     // Convert mongoose document to plain object
-    const userObject = deletedUser.toObject();
+    const userObject = user.toObject();
 
     // Remove password field
     delete userObject.password;
