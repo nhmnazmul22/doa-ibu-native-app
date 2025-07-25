@@ -12,3 +12,5 @@ export const URL_ENCODED = process.env.URL_ENCODED === "true";
 export const WEB_CACHE = process.env.WEB_CACHE === "true";
 export const JWT_EXPIRED_TIME = process.env.JWT_EXPIRED_TIME;
 export const JWT_KEY = process.env.JWT_KEY;
+export const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
+export const MIDTRANS_CLIENT_KEY = process.env.MIDTRANS_CLIENT_KEY;

@@ -2,6 +2,7 @@ import express from "express";
 import * as UserController from "../app/controllers/UsersController.js";
 import * as MotherController from "../app/controllers/MotherController.js";
 import * as DoaController from "../app/controllers/DoaController.js";
+import * as PaymentController from "../app/controllers/PaymentsController.js";
 import { upload } from "../app/middlewares/uploadMiddleware.js";
 
 const router = express.Router();
@@ -55,4 +56,11 @@ router.get("/get-doa/:doaId", DoaController.GetDoaController);
 router.put("/update-doa/:doaId", DoaController.UpdateDoasController);
 router.delete("/delete-doa/:doaId", DoaController.DeleteDoaController);
 
+// Payments Routes
+router.post("/donation-payment", PaymentController.CreateDonationController);
+router.post(
+  "/subscription-payment",
+  PaymentController.CreateSubscriptionChargeController
+);
+router.post("/midtrans/webhook", PaymentController.MidtransWebhookController);
 export default router;

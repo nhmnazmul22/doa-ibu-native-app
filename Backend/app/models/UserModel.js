@@ -1,17 +1,16 @@
-import mongoose, { Model, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-// Define Data Schema
+// Define User Schema
 const DataScheme = new Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    phone: { type: String, required: false },
-    gender: { type: String, required: false },
-    profilePicture: {
-      type: String,
-      required: false,
-    },
+    phone: { type: String },
+    gender: { type: String },
+    profilePicture: { type: String },
+
+    // Subscription Info
     subscriptionType: {
       type: String,
       enum: ["free", "premium", "donate"],
@@ -22,12 +21,50 @@ const DataScheme = new Schema(
       enum: ["active", "inactive"],
       default: "active",
     },
+    subscriptionStartDate: { type: Date },
+    subscriptionEndDate: { type: Date },
+    subscriptionRenewalDate: { type: Date },
+
+    // Donation Summary
     isDonated: { type: Boolean, default: false },
-    subscriptionStartDate: { type: Date, required: false },
-    subscriptionEndDate: { type: Date, required: false },
-    subscriptionRenewalDate: { type: Date, required: false },
-    totalDonations: { type: Number, default: 0, required: false },
-    totalSpent: { type: Number, default: 0, required: false },
+    lastDonationDate: { type: Date },
+    totalDonations: { type: Number, default: 0 },
+    totalSpent: { type: Number, default: 0 },
+
+    // Detailed Records
+    donations: [
+      {
+        order_id: String,
+        amount: Number,
+        date: Date,
+        method: String,
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    pendingPayments: [
+      {
+        order_id: String,
+        type: { type: String, enum: ["donation", "subscription"] },
+        amount: Number,
+        method: String,
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    subscriptions: [
+      {
+        order_id: String,
+        amount: Number,
+        startDate: Date,
+        endDate: Date,
+        method: String,
+        status: {
+          type: String,
+          enum: ["active", "expired", "cancelled"],
+          default: "active",
+        },
+        date: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,
