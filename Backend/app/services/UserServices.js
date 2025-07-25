@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import UserModel from "../models/UserModel.js";
-import { convertObjectId } from "../utility/lib.js";
+import { convertObjectId, removeExistingFile } from "../utility/lib.js";
+import path from "path";
 
 // Get all User Service
 export const GetAllUsersService = async () => {
@@ -23,18 +24,29 @@ export const GetAllUsersService = async () => {
 
 // Create User Service
 export const CreateUsersService = async (req) => {
+  // Generating imgUrl and image path
+  const image = req.files["image"]?.[0];
+  const imagePath = image ? path.join("uploads/images", image.filename) : null;
+
   try {
     const { name, email, password } = req.body;
 
     if (!name || !email) {
+      removeExistingFile(imagePath);
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
     const prevUser = await UserModel.findOne({ email: email });
 
     if (prevUser) {
+      removeExistingFile(imagePath);
       return { status: 400, message: "User already exists", data: null };
     }
+
+    const imageUrl = image
+      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
+      : null;
+
     let hashedPassword = "";
     if (password) {
       hashedPassword = await bcrypt.hash(password, 10);
@@ -43,9 +55,11 @@ export const CreateUsersService = async (req) => {
     const user = await UserModel.create({
       ...req.body,
       password: hashedPassword,
+      profilePicture: imageUrl || "",
     });
 
     if (!user) {
+      removeExistingFile(imagePath);
       return { status: 500, message: "Server Issue", data: null };
     }
 
@@ -61,6 +75,7 @@ export const CreateUsersService = async (req) => {
       data: userObject,
     };
   } catch (err) {
+    removeExistingFile(imagePath);
     return {
       status: 500,
       message: "Error in create users route",
@@ -71,12 +86,23 @@ export const CreateUsersService = async (req) => {
 
 // Update User Service
 export const UpdateUsersService = async (req) => {
-  try {
-    const userId = convertObjectId(req.params.userId);
-    const { password } = req.body;
+  const userId = convertObjectId(req.params.userId);
+  const { password } = req.body;
+  const image = req.files["image"]?.[0];
+  let imagePath = image ? path.join("uploads/images", image.fileName) : null;
+  let prevImagePath = null;
 
-    const user = await UserModel.findById(userId);
+  const user = await UserModel.findById(userId);
+
+  if (image && user.profilePicture) {
+    const linkArray = user.profilePicture.split("/");
+    const fileName = linkArray[linkArray.length - 1];
+    prevImagePath = path.join("uploads/images", fileName);
+  }
+
+  try {
     if (!user) {
+      removeExistingFile(imagePath);
       return {
         status: 404,
         message: "User not found",
@@ -85,6 +111,7 @@ export const UpdateUsersService = async (req) => {
     }
 
     if (password) {
+      removeExistingFile(imagePath);
       return {
         status: 400,
         message: "Can't update password directly",
@@ -92,13 +119,24 @@ export const UpdateUsersService = async (req) => {
       };
     }
 
+    // Generating imgUrl
+    const imageUrl = image
+      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
+      : null;
+
+    const updatedObj = {
+      ...req.body,
+      profilePicture: imageUrl,
+    };
+
     const updateUser = await UserModel.findOneAndUpdate(
       { _id: userId },
-      { ...req.body },
+      updatedObj,
       { new: true }
     );
 
     if (!updateUser) {
+      removeExistingFile(imagePath);
       return { status: 500, message: "Server Issue", data: null };
     }
 
@@ -108,12 +146,14 @@ export const UpdateUsersService = async (req) => {
     // Remove password field
     delete userObject.password;
 
+    removeExistingFile(prevImagePath);
     return {
       status: 201,
       message: "User updated successful",
       data: userObject,
     };
   } catch (err) {
+    removeExistingFile(imagePath);
     return {
       status: 500,
       message: "Error in update users route",
@@ -166,6 +206,23 @@ export const GetUserService = async (req) => {
 export const DeleteUserService = async (req) => {
   try {
     const userId = convertObjectId(req.params.userId);
+    const user = await UserModel.findById(userId);
+    let imagePath = null;
+
+    if (user.profilePicture) {
+      const linkArray = user.profilePicture.split("/");
+      const fileName = linkArray[linkArray.length - 1];
+      imagePath = image ? path.join("uploads/images", fileName) : null;
+    }
+
+    if (!user) {
+      return {
+        status: 404,
+        message: "User not found",
+        data: null,
+      };
+    }
+
     const deletedUser = await UserModel.findByIdAndDelete(userId, {
       new: true,
     });
@@ -177,10 +234,11 @@ export const DeleteUserService = async (req) => {
         data: null,
       };
     }
+    // Remove profile pic
+    removeExistingFile(imagePath);
 
     // Convert mongoose document to plain object
     const userObject = deletedUser.toObject();
-
     // Remove password field
     delete userObject.password;
 

@@ -8,6 +8,10 @@ const DataScheme = new Schema(
     password: { type: String, required: true },
     phone: { type: String, required: false },
     gender: { type: String, required: false },
+    profilePicture: {
+      type: String,
+      required: false,
+    },
     subscriptionType: {
       type: String,
       enum: ["free", "premium", "donate"],

@@ -1,6 +1,7 @@
 import MotherModel from "../models/MothersModel.js";
 import bcrypt from "bcrypt";
-import { convertObjectId } from "../utility/lib.js";
+import { convertObjectId, removeExistingFile } from "../utility/lib.js";
+import path from "path";
 
 // Get all Mother Service
 export const GetAllMotherService = async () => {
@@ -23,27 +24,37 @@ export const GetAllMotherService = async () => {
 
 // Create Mother Service
 export const CreateMotherService = async (req) => {
+  const image = req.files["image"]?.[0];
+  const imagePath = image ? path.join("uploads/images", image.filename) : null;
+
   try {
     const { fullName, email, password } = req.body;
 
     if (!fullName || !email || !password) {
+      removeExistingFile(imagePath);
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
     const prevMother = await MotherModel.findOne({ email: email });
 
     if (prevMother) {
+      removeExistingFile(imagePath);
       return { status: 400, message: "Mother already exists", data: null };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const imageUrl = image
+      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
+      : null;
 
     const mother = await MotherModel.create({
       ...req.body,
+      profilePicture: imageUrl,
       password: hashedPassword,
     });
 
     if (!mother) {
+      removeExistingFile(imagePath);
       return { status: 500, message: "Server Issue", data: null };
     }
 
@@ -59,6 +70,7 @@ export const CreateMotherService = async (req) => {
       data: motherObject,
     };
   } catch (err) {
+    removeExistingFile(imagePath);
     return {
       status: 500,
       message: "Error in create mother route",
@@ -109,12 +121,24 @@ export const GetMotherService = async (req) => {
 
 // Update Mother Service
 export const UpdateMotherService = async (req) => {
+  const motherId = convertObjectId(req.params.motherId);
+  const image = req.files["image"]?.[0];
+  const imagePath = image ? path.join("uploads/images", image.fileName) : null;
+  let prevImagePath = null;
+
+  const mother = await MotherModel.findById(motherId);
+
+  if (image && mother.profilePicture) {
+    const linkArray = user.profilePicture.split("/");
+    const fileName = linkArray[linkArray.length - 1];
+    prevImagePath = path.join("uploads/images", fileName);
+  }
+
   try {
-    const motherId = convertObjectId(req.params.motherId);
     const { password } = req.body;
 
-    const mother = await MotherModel.findById(motherId);
-    if (!mother && mother?._id) {
+    if (!mother) {
+      removeExistingFile(imagePath);
       return {
         status: 404,
         message: "Mother not found",
@@ -123,20 +147,30 @@ export const UpdateMotherService = async (req) => {
     }
 
     if (password) {
+      removeExistingFile(imagePath);
       return {
         status: 400,
         message: "Can't update password directly",
         data: null,
       };
     }
+    const imageUrl = image
+      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
+      : null;
+
+    const updateObj = {
+      ...req.body,
+      profilePicture: imageUrl,
+    };
 
     const updateMother = await MotherModel.findOneAndUpdate(
       { _id: motherId },
-      { ...req.body },
+      updateObj,
       { new: true }
     );
 
     if (!updateMother) {
+      removeExistingFile(imagePath);
       return { status: 500, message: "Server Issue", data: null };
     }
 
@@ -146,12 +180,14 @@ export const UpdateMotherService = async (req) => {
     // Remove password field
     delete motherObject.password;
 
+    removeExistingFile(prevImagePath);
     return {
       status: 201,
       message: "Mother updated successful",
       data: motherObject,
     };
   } catch (err) {
+    removeExistingFile(imagePath);
     return {
       status: 500,
       message: "Error in update mother route",
@@ -164,6 +200,15 @@ export const UpdateMotherService = async (req) => {
 export const DeleteMotherService = async (req) => {
   try {
     const motherId = convertObjectId(req.params.motherId);
+
+    const mother = await MotherModel.findById(motherId);
+    let imagePath = null;
+    if (mother.profilePicture) {
+      const linkArray = user.profilePicture.split("/");
+      const fileName = linkArray[linkArray.length - 1];
+      imagePath = path.join("uploads/images", fileName);
+    }
+
     const deletedMother = await MotherModel.findByIdAndDelete(motherId, {
       new: true,
     });
@@ -182,6 +227,7 @@ export const DeleteMotherService = async (req) => {
     // Remove password field
     delete motherObject.password;
 
+    removeExistingFile(imagePath);
     return {
       status: 200,
       message: "Mother delete successful",

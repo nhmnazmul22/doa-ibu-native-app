@@ -1,6 +1,6 @@
 import DoaModel from "../models/DoaModel.js";
 import { getAudioDurationInSeconds } from "get-audio-duration";
-import { convertObjectId } from "../utility/lib.js";
+import { convertObjectId, removeExistingFile } from "../utility/lib.js";
 import path from "path";
 
 // Get all Doa Service
@@ -25,18 +25,24 @@ export const GetAllDoasService = async (req) => {
 
 // Create Doa Service
 export const CreateDoasService = async (req) => {
+  const image = req.files["image"]?.[0];
+  const audio = req.files["audio"]?.[0];
+  const imagePath = image ? path.join("uploads/images", image.filename) : null;
+  const audioPath = audio ? path.join("uploads/audio", audio.filename) : null;
+
   try {
     const { title, audioLink } = req.body;
 
     if (!title) {
+      removeExistingFile(imagePath);
+      removeExistingFile(audioPath);
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
     // Generating imgUrl and audio url
-    const image = req.files["image"]?.[0];
-    const audio = req.files["audio"]?.[0];
-
     if (!audio) {
+      removeExistingFile(imagePath);
+      removeExistingFile(audioPath);
       return { status: 400, message: "Audio File not provided", data: null };
     }
 
@@ -65,6 +71,8 @@ export const CreateDoasService = async (req) => {
     const doa = await DoaModel.create(doaObj);
 
     if (!doa) {
+      removeExistingFile(imagePath);
+      removeExistingFile(audioPath);
       return { status: 500, message: "Server Issue", data: null };
     }
 
@@ -74,6 +82,8 @@ export const CreateDoasService = async (req) => {
       data: doa,
     };
   } catch (err) {
+    removeExistingFile(imagePath);
+    removeExistingFile(audioPath);
     return {
       status: 500,
       message: "Error in create Doa route",
@@ -143,12 +153,31 @@ export const GetDoaService = async (req) => {
 export const DeleteDoaService = async (req) => {
   try {
     const doaId = convertObjectId(req.params.doaId);
+    let imagePath = null;
+    let audioPath = null;
+
+    const doa = await DoaModel.findById(doaId);
+
+    if (doa.thumbnail) {
+      const linkArray = doa.thumbnail.split("/");
+      const fileName = linkArray[linkArray.length - 1];
+      imagePath = image ? path.join("uploads/images", fileName) : null;
+    }
+
+    if (doa.audioLink) {
+      const linkArray = doa.audioLink.split("/");
+      const fileName = linkArray[linkArray.length - 1];
+      audioPath = audio ? path.join("uploads/audio", fileName) : null;
+    }
+
     const deleteDoa = await DoaModel.findOneAndDelete({ _id: doaId });
 
-    if (deleteDoa) {
+    if (!deleteDoa) {
       return { status: 404, message: "Doa delete failed", data: deleteDoa };
     }
 
+    removeExistingFile(imagePath);
+    removeExistingFile(audioPath);
     return { status: 200, message: "Doa deleted successful", data: deleteDoa };
   } catch (err) {
     return {

@@ -8,18 +8,34 @@ const router = express.Router();
 
 // User Routes
 router.get("/get-all-users", UserController.GetAllUsersController);
-router.post("/create-user", UserController.CreateUserController);
+router.post(
+  "/create-user",
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  UserController.CreateUserController
+);
 router.get("/get-user/:email", UserController.GetUserController);
 router.get("/get-user-by-id/:userId", UserController.GetUserController);
-router.put("/update-user/:userId", UserController.UpdateUsersController);
+router.put(
+  "/update-user/:userId",
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  UserController.UpdateUsersController
+);
 router.delete("/delete-user/:userId", UserController.DeleteUserController);
 
 // Mother Routes
 router.get("/get-all-mothers", MotherController.GetAllMotherController);
-router.post("/create-mother", MotherController.CreateMotherController);
+router.post(
+  "/create-mother",
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  MotherController.CreateMotherController
+);
 router.get("/get-mother/:email", MotherController.GetMotherController);
 router.get("/get-mother-by-id/:motherId", MotherController.GetMotherController);
-router.put("/update-mother/:motherId", MotherController.UpdateMotherController);
+router.put(
+  "/update-mother/:motherId",
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  MotherController.UpdateMotherController
+);
 router.delete(
   "/delete-mother/:motherId",
   MotherController.DeleteMotherController
