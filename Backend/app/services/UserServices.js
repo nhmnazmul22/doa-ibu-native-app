@@ -175,10 +175,12 @@ export const GetUserService = async (req) => {
     // Remove password field
     delete userObject.password;
 
+    const token = TokenEncoded(user._id, user.email);
     return {
       status: 200,
       message: "User found successful",
       data: userObject,
+      token: token,
     };
   } catch (err) {
     return {

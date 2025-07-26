@@ -2,6 +2,7 @@ import MotherModel from "../models/MothersModel.js";
 import bcrypt from "bcrypt";
 import { convertObjectId, removeExistingFile } from "../utility/lib.js";
 import path from "path";
+import { TokenEncoded } from "../utility/tokenUtility.js";
 
 // Get all Mother Service
 export const GetAllMotherService = async () => {
@@ -94,10 +95,13 @@ export const GetMotherService = async (req) => {
     // Remove password field
     delete motherObject.password;
 
+    const token = TokenEncoded(mother._id, mother.email);
+
     return {
       status: 200,
       message: "Mother found successful",
       data: motherObject,
+      token: token,
     };
   } catch (err) {
     return {
