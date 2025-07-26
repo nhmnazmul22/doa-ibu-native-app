@@ -29,7 +29,7 @@ export const GetUserController = async (req, res) => {
   const result = await UserServices.GetUserService(req);
   return res
     .status(result.status)
-    .json({ message: result.message, data: result.data });
+    .json({ message: result.message, data: result.data, token: result.token });
 };
 
 // Delete User Controller

@@ -21,7 +21,7 @@ export const GetMotherController = async (req, res) => {
   const result = await MotherServices.GetMotherService(req);
   return res
     .status(result.status)
-    .json({ message: result.message, data: result.data });
+    .json({ message: result.message, data: result.data, token: result.token });
 };
 
 // Update Mother Controller

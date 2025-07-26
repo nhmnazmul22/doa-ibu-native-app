@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/UserModel.js";
 import { convertObjectId, removeExistingFile } from "../utility/lib.js";
 import path from "path";
+import { TokenEncoded } from "../utility/tokenUtility.js";
 
 // Get all User Service
 export const GetAllUsersService = async () => {
