@@ -24,28 +24,18 @@ export const GetAllUsersService = async () => {
 
 // Create User Service
 export const CreateUsersService = async (req) => {
-  // Generating imgUrl and image path
-  const image = req.files["image"]?.[0];
-  const imagePath = image ? path.join("uploads/images", image.filename) : null;
-
   try {
     const { name, email, password } = req.body;
 
     if (!name || !email) {
-      removeExistingFile(imagePath);
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
     const prevUser = await UserModel.findOne({ email: email });
 
     if (prevUser) {
-      removeExistingFile(imagePath);
       return { status: 400, message: "User already exists", data: null };
     }
-
-    const imageUrl = image
-      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
-      : null;
 
     let hashedPassword = "";
     if (password) {
@@ -55,11 +45,9 @@ export const CreateUsersService = async (req) => {
     const user = await UserModel.create({
       ...req.body,
       password: hashedPassword,
-      profilePicture: imageUrl || "",
     });
 
     if (!user) {
-      removeExistingFile(imagePath);
       return { status: 500, message: "Server Issue", data: null };
     }
 
@@ -75,7 +63,6 @@ export const CreateUsersService = async (req) => {
       data: userObject,
     };
   } catch (err) {
-    removeExistingFile(imagePath);
     return {
       status: 500,
       message: "Error in create users route",

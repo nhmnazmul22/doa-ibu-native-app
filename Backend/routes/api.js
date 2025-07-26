@@ -11,7 +11,6 @@ const router = express.Router();
 router.get("/get-all-users", UserController.GetAllUsersController);
 router.post(
   "/create-user",
-  upload.fields([{ name: "image", maxCount: 1 }]),
   UserController.CreateUserController
 );
 router.get("/get-user/:email", UserController.GetUserController);
