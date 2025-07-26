@@ -9,10 +9,7 @@ const router = express.Router();
 
 // User Routes
 router.get("/get-all-users", UserController.GetAllUsersController);
-router.post(
-  "/create-user",
-  UserController.CreateUserController
-);
+router.post("/create-user", UserController.CreateUserController);
 router.get("/get-user/:email", UserController.GetUserController);
 router.get("/get-user-by-id/:userId", UserController.GetUserController);
 router.put(
@@ -24,11 +21,7 @@ router.delete("/delete-user/:userId", UserController.DeleteUserController);
 
 // Mother Routes
 router.get("/get-all-mothers", MotherController.GetAllMotherController);
-router.post(
-  "/create-mother",
-  upload.fields([{ name: "image", maxCount: 1 }]),
-  MotherController.CreateMotherController
-);
+router.post("/create-mother", MotherController.CreateMotherController);
 router.get("/get-mother/:email", MotherController.GetMotherController);
 router.get("/get-mother-by-id/:motherId", MotherController.GetMotherController);
 router.put(

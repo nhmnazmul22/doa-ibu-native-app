@@ -24,37 +24,27 @@ export const GetAllMotherService = async () => {
 
 // Create Mother Service
 export const CreateMotherService = async (req) => {
-  const image = req.files["image"]?.[0];
-  const imagePath = image ? path.join("uploads/images", image.filename) : null;
-
   try {
     const { fullName, email, password } = req.body;
 
     if (!fullName || !email || !password) {
-      removeExistingFile(imagePath);
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
     const prevMother = await MotherModel.findOne({ email: email });
 
     if (prevMother) {
-      removeExistingFile(imagePath);
       return { status: 400, message: "Mother already exists", data: null };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const imageUrl = image
-      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
-      : null;
 
     const mother = await MotherModel.create({
       ...req.body,
-      profilePicture: imageUrl,
       password: hashedPassword,
     });
 
     if (!mother) {
-      removeExistingFile(imagePath);
       return { status: 500, message: "Server Issue", data: null };
     }
 
@@ -70,7 +60,6 @@ export const CreateMotherService = async (req) => {
       data: motherObject,
     };
   } catch (err) {
-    removeExistingFile(imagePath);
     return {
       status: 500,
       message: "Error in create mother route",
