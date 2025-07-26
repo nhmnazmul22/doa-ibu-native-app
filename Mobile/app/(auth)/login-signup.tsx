@@ -91,7 +91,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
     },
     btnText: {
       fontSize: 16,
-      fontWeight: "500",
+      fontWeight: "700",
       fontFamily: "Nunito",
       color: colors?.darkText,
       textAlign: "center",

@@ -25,9 +25,9 @@ export const GetAllUsersService = async () => {
 // Create User Service
 export const CreateUsersService = async (req) => {
   try {
-    const { name, email, password } = req.body;
+    const { fullName, email, password } = req.body;
 
-    if (!name || !email) {
+    if (!fullName || !email) {
       return { status: 400, message: "Required Filed missing", data: null };
     }
 

@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 // Define User Schema
 const DataScheme = new Schema(
   {
-    name: { type: String, required: true },
+    fullName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
     phone: { type: String },

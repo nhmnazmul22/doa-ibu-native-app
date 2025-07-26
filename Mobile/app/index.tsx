@@ -2,7 +2,7 @@ import DoaList from "@/components/DoaList";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
-import { Link } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -13,11 +13,11 @@ export default function HomePage() {
   const colors = theme?.colors;
   const styles = getStyles(colors);
 
-  // const login = false;
+  const login = false;
 
-  // if (!login) {
-  //   return Redirect({ href: "/login-signup" });
-  // }
+  if (!login) {
+    return Redirect({ href: "/login-signup" });
+  }
 
   return (
     <ScrollView>

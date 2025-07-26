@@ -1,9 +1,13 @@
 import { useTheme } from "@/context/theme/ThemeContext";
+import api from "@/lib/config/axios";
+import { auth } from "@/lib/config/firebaseconfig";
 import { PresetsColors } from "@/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, router } from "expo-router";
-import React from "react";
+import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
+import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Pressable,
   StyleSheet,
@@ -11,6 +15,8 @@ import {
   TextInput,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
+import Checkbox from "expo-checkbox";
 
 const width = Dimensions.get("window").width;
 
@@ -18,28 +24,122 @@ export default function RegisterPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [fullName, setFullName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [type, setType] = useState<"user" | "mother">("user");
+
+  const reset = () => {
+    setFullName("");
+    setEmail("");
+    setPassword("");
+  };
+
+  const handleRegistration = async (e: any) => {
+    try {
+      setLoading(true);
+
+      const userObj = {
+        name: fullName,
+        email: email,
+        password: password,
+      };
+      let res = null;
+
+      if (type === "user") {
+        res = await api.post("/create-user", userObj);
+      } else {
+        res = await api.post("/create-mother", userObj);
+      }
+
+      if (res.status === 201) {
+        const credentials = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        if (credentials.user) {
+          reset();
+          Toast.show({
+            type: "success",
+            text1: `Account Registration successful`,
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.push("/login");
+        } else {
+          setLoading(false);
+          Toast.show({
+            type: "error",
+            text1: `Account Registration failed`,
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
+      }
+    } catch (err: any) {
+      Toast.show({
+        type: "error",
+        text1: err.message || `Account Registration failed`,
+        position: "bottom",
+        visibilityTime: 2000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Register Account</Text>
+      <Text style={styles.title}>Register User Account</Text>
       <View style={styles.inputContainer}>
         <TextInput
           inputMode="text"
           style={styles.input}
           placeholder="Full Name"
+          value={fullName}
+          onChangeText={(text) => setFullName(text)}
         />
         <TextInput
           inputMode="email"
           style={styles.input}
-          placeholder="Enter username or email"
+          placeholder="Enter email"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
         <TextInput
           inputMode="text"
           style={styles.input}
           placeholder="Enter Password"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
         />
-        <Pressable style={styles.btn} onPress={() => router.push("/")}>
-          <Text style={styles.btnText}>Create Account</Text>
+        <View style={styles.checkboxContainer}>
+          <Text style={styles.checkBoxTitle}>Select account Type:</Text>
+          <View style={styles.checkBoxs}>
+            <View style={styles.check}>
+              <Checkbox
+                value={type === "user"}
+                onValueChange={(value) => value && setType("user")}
+                color={type === "user" ? colors?.primary : undefined}
+              />
+              <Text style={styles.checkTitle}>User Account</Text>
+            </View>
+            <View style={styles.check}>
+              <Checkbox
+                value={type === "mother"}
+                onValueChange={(value) => value && setType("mother")}
+                color={type === "mother" ? colors?.primary : undefined}
+              />
+              <Text style={styles.checkTitle}>Mother Account</Text>
+            </View>
+          </View>
+        </View>
+        <Pressable style={styles.btn} onPress={handleRegistration}>
+          {loading && <ActivityIndicator size="small" color="#ffffff" />}
+          {!loading && <Text style={styles.btnText}>Create Account</Text>}
         </Pressable>
       </View>
       <View style={styles.lineBox}>
@@ -96,6 +196,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontSize: 30,
       color: colors?.primary,
       fontWeight: 700,
+      textAlign: "center",
     },
     inputContainer: {
       width: width * 0.9,
@@ -129,6 +230,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       paddingVertical: 20,
       paddingHorizontal: 30,
       marginHorizontal: "auto",
+      marginTop: 20,
     },
     btnText: {
       fontSize: 16,
@@ -167,5 +269,59 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontWeight: 600,
       fontFamily: "Nunito",
       color: colors?.darkText,
+      textAlign: "center",
+    },
+    tabsList: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 30,
+    },
+    tabBtnPrimary: {
+      backgroundColor: colors?.bodyBackground,
+      borderWidth: 1,
+      borderColor: colors?.primary,
+      paddingHorizontal: 30,
+      paddingVertical: 10,
+      borderRadius: 10,
+    },
+    activeBtn: {
+      backgroundColor: colors?.primary,
+      borderWidth: 0,
+    },
+    tabBtnText: {
+      fontFamily: "Nunito",
+      fontSize: 14,
+      textAlign: "center",
+      color: colors?.darkText,
+      fontWeight: "700",
+    },
+    activeBtnText: {
+      color: colors?.bodyBackground,
+    },
+    checkboxContainer: {
+      marginTop: 10,
+    },
+    checkBoxTitle: {
+      fontSize: 16,
+      fontWeight: 700,
+      marginBottom: 10,
+      fontFamily: "Nunito",
+      color: colors?.darkText,
+    },
+    checkBoxs: {
+      flexDirection: "row",
+      gap: 10,
+    },
+    check: {
+      flexDirection: "row",
+      gap: 10,
+    },
+    checkTitle: {
+      fontFamily: "Nunito",
+      color: colors?.darkText,
+      fontSize: 14,
     },
   });

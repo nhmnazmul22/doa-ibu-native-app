@@ -18,7 +18,6 @@ export default function LoginPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign in</Text>
@@ -94,6 +93,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontSize: 30,
       color: colors?.primary,
       fontWeight: 700,
+      textAlign: "center",
     },
     inputContainer: {
       width: width * 0.9,
@@ -165,5 +165,36 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontWeight: 600,
       fontFamily: "Nunito",
       color: colors?.darkText,
+      textAlign: "center",
+    },
+    tabsList: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 30,
+    },
+    tabBtnPrimary: {
+      backgroundColor: colors?.bodyBackground,
+      borderWidth: 1,
+      borderColor: colors?.primary,
+      paddingHorizontal: 30,
+      paddingVertical: 10,
+      borderRadius: 10,
+    },
+    activeBtn: {
+      backgroundColor: colors?.primary,
+      borderWidth: 0,
+    },
+    tabBtnText: {
+      fontFamily: "Nunito",
+      fontSize: 14,
+      textAlign: "center",
+      color: colors?.darkText,
+      fontWeight: "700",
+    },
+    activeBtnText: {
+      color: colors?.bodyBackground,
     },
   });
