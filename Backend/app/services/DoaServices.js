@@ -25,8 +25,8 @@ export const GetAllDoasService = async (req) => {
 
 // Create Doa Service
 export const CreateDoasService = async (req) => {
-  const image = req.files["image"]?.[0];
-  const audio = req.files["audio"]?.[0];
+  const image = req.files?.["image"]?.[0];
+  const audio = req.files?.["audio"]?.[0];
   const imagePath = image ? path.join("uploads/images", image.filename) : null;
   const audioPath = audio ? path.join("uploads/audio", audio.filename) : null;
 
