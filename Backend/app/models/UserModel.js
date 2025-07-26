@@ -9,7 +9,7 @@ const DataScheme = new Schema(
     phone: { type: String },
     gender: { type: String },
     profilePicture: { type: String },
-
+    role: { type: String, enum: ["user"], default: "user" },
     // Subscription Info
     subscriptionType: {
       type: String,

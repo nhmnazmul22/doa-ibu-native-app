@@ -15,6 +15,7 @@ const DataSchema = new Schema(
       required: false,
     },
     bio: { type: String, required: false, default: "" },
+    role: {type: String, enum: ["mother"], defa}
   },
   { versionKey: false, timestamps: true }
 );
