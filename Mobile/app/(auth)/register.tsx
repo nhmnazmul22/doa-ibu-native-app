@@ -1,10 +1,8 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import api from "@/lib/config/axios";
-import { auth } from "@/lib/config/firebaseconfig";
 import { PresetsColors } from "@/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, router } from "expo-router";
-import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -17,6 +15,9 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import Checkbox from "expo-checkbox";
+import { auth } from "@/lib/config/firebaseconfig";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { validateEmail, validatePassword } from "@/lib";
 
 const width = Dimensions.get("window").width;
 
@@ -29,7 +30,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [type, setType] = useState<"user" | "mother">("user");
-
   const reset = () => {
     setFullName("");
     setEmail("");
@@ -37,23 +37,58 @@ export default function RegisterPage() {
   };
 
   const handleRegistration = async (e: any) => {
+    let createdUserId = null;
     try {
       setLoading(true);
-
-      const userObj = {
-        name: fullName,
-        email: email,
-        password: password,
-      };
-      let res = null;
-
-      if (type === "user") {
-        res = await api.post("/create-user", userObj);
-      } else {
-        res = await api.post("/create-mother", userObj);
+      if (!fullName || !password || !email) {
+        Toast.show({
+          type: "error",
+          text1: "Please, fill up all field",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
       }
 
+      // checking validation
+      const isEmail = validateEmail(email);
+      const isPassword = validatePassword(password);
+      if (!isEmail) {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Email address!",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
+      }
+
+      if (!isPassword.success) {
+        Toast.show({
+          type: "error",
+          text1: isPassword.message,
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
+      }
+
+      const userObj = {
+        fullName,
+        email,
+        password,
+      };
+
+      // Call backend API
+      const res =
+        type === "user"
+          ? await api.post("/create-user", userObj)
+          : await api.post("/create-mother", userObj);
+
       if (res.status === 201) {
+        createdUserId = res.data.data._id;
+
+        // Create user in Firebase
         const credentials = await createUserWithEmailAndPassword(
           auth,
           email,
@@ -64,25 +99,47 @@ export default function RegisterPage() {
           reset();
           Toast.show({
             type: "success",
-            text1: `Account Registration successful`,
+            text1: "Account Registration successful",
             position: "bottom",
             visibilityTime: 2000,
           });
           router.push("/login");
-        } else {
-          setLoading(false);
-          Toast.show({
-            type: "error",
-            text1: `Account Registration failed`,
-            position: "bottom",
-            visibilityTime: 2000,
-          });
+          return;
         }
       }
+
+      // If registration failed and we’re still here
+      throw new Error("Something went wrong");
     } catch (err: any) {
+      console.log("Registration Error:", err);
+
+      let message = "Account Registration failed";
+
+      // Optional deletion of backend user
+      if (
+        ["auth/email-already-in-use", "auth/invalid-email"].includes(err.code)
+      ) {
+        message =
+          err.code === "auth/email-already-in-use"
+            ? "This email is already in use"
+            : "Invalid email format";
+
+        if (createdUserId) {
+          try {
+            await api.delete(
+              type === "user"
+                ? `/delete-user/${createdUserId}`
+                : `/delete-mother/${createdUserId}`
+            );
+          } catch (deleteErr) {
+            console.error("Failed to delete user from backend:", deleteErr);
+          }
+        }
+      }
+
       Toast.show({
         type: "error",
-        text1: err.message || `Account Registration failed`,
+        text1: message,
         position: "bottom",
         visibilityTime: 2000,
       });
@@ -93,7 +150,7 @@ export default function RegisterPage() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Register User Account</Text>
+      <Text style={styles.title}>Register Account</Text>
       <View style={styles.inputContainer}>
         <TextInput
           inputMode="text"
@@ -119,22 +176,22 @@ export default function RegisterPage() {
         <View style={styles.checkboxContainer}>
           <Text style={styles.checkBoxTitle}>Select account Type:</Text>
           <View style={styles.checkBoxs}>
-            <View style={styles.check}>
+            <Pressable style={styles.check} onPress={() => setType("user")}>
               <Checkbox
                 value={type === "user"}
                 onValueChange={(value) => value && setType("user")}
                 color={type === "user" ? colors?.primary : undefined}
               />
               <Text style={styles.checkTitle}>User Account</Text>
-            </View>
-            <View style={styles.check}>
+            </Pressable>
+            <Pressable style={styles.check} onPress={() => setType("mother")}>
               <Checkbox
                 value={type === "mother"}
                 onValueChange={(value) => value && setType("mother")}
                 color={type === "mother" ? colors?.primary : undefined}
               />
               <Text style={styles.checkTitle}>Mother Account</Text>
-            </View>
+            </Pressable>
           </View>
         </View>
         <Pressable style={styles.btn} onPress={handleRegistration}>
@@ -142,29 +199,32 @@ export default function RegisterPage() {
           {!loading && <Text style={styles.btnText}>Create Account</Text>}
         </Pressable>
       </View>
-      <View style={styles.lineBox}>
+      {/* <View style={styles.lineBox}>
         <View style={styles.line}></View>
         <Text>Or</Text>
         <View style={styles.line}></View>
       </View>
       <View style={styles.iconsBox}>
         <Pressable onPress={() => router.push("/")}>
-          <FontAwesome
-            name="google"
-            size={38}
-            color={colors?.darkText}
-            style={{ marginHorizontal: "auto" }}
-          />
+          <View style={styles.socialLoginBtn}>
+            <FontAwesome
+              name="google"
+              size={38}
+              color={colors?.darkText}
+              style={{ marginHorizontal: "auto" }}
+            />
+            <Text>Continue with Google</Text>
+          </View>
         </Pressable>
         <Pressable onPress={() => router.push("/")}>
           <FontAwesome
-            name="apple"
+            name="facebook"
             size={38}
             color={colors?.darkText}
             style={{ marginHorizontal: "auto" }}
           />
         </Pressable>
-      </View>
+      </View> */}
       <Text style={styles.registerText}>
         Do you have an account?{" "}
         <Link
@@ -323,5 +383,8 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontFamily: "Nunito",
       color: colors?.darkText,
       fontSize: 14,
+    },
+    socialLoginBtn: {
+      backgroundColor: colors?.primary,
     },
   });

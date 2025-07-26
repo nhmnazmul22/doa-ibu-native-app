@@ -47,7 +47,8 @@
           "backgroundColor": "#000000"
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

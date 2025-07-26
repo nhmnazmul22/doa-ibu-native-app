@@ -1,9 +1,16 @@
 import { useTheme } from "@/context/theme/ThemeContext";
+import { validateEmail, validatePassword } from "@/lib";
+import { auth } from "@/lib/config/firebaseconfig";
+import { saveToken } from "@/lib/token";
+import { AppDispatch, RootState } from "@/store";
+import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, router } from "expo-router";
-import React from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Pressable,
   StyleSheet,
@@ -11,6 +18,8 @@ import {
   TextInput,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
+import { useDispatch, useSelector } from "react-redux";
 
 const width = Dimensions.get("window").width;
 
@@ -18,6 +27,84 @@ export default function LoginPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user);
+
+  const reset = () => {
+    setEmail("");
+    setPassword("");
+  };
+
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      if (!email || !password) {
+        Toast.show({
+          type: "error",
+          text1: "Please, fill up all field",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
+      }
+
+      const isEmail = validateEmail(email);
+      const isPassword = validatePassword(password);
+      if (!isEmail) {
+        Toast.show({
+          type: "error",
+          text1: "Invalid Email address!",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
+      }
+
+      if (!isPassword.success) {
+        Toast.show({
+          type: "error",
+          text1: isPassword.message,
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
+      }
+      const res = await signInWithEmailAndPassword(auth, email, password);
+      if (res.user.email) {
+        setUserEmail(res.user.email);
+        if (
+          user.loading === false &&
+          user.error === null &&
+          user.items?.token
+        ) {
+          saveToken(user.items?.token);
+          reset();
+          router.replace("/");
+        }
+      }
+    } catch (err: any) {
+      console.log("Error", err);
+      Toast.show({
+        type: "error",
+        text1: err.message || "Login failed, try again",
+        position: "bottom",
+        visibilityTime: 2000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userEmail) {
+      dispatch(fetchUser(userEmail));
+    }
+  }, [userEmail]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign in</Text>
@@ -26,20 +113,22 @@ export default function LoginPage() {
           inputMode="email"
           style={styles.input}
           placeholder="Enter username or email"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
         <TextInput
           inputMode="text"
           style={styles.input}
           placeholder="Enter Password"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
         />
-        <Link style={styles.forgotLink} href="/forgot-password">
-          Forgot Password
-        </Link>
-        <Pressable style={styles.btn} onPress={() => router.push("/")}>
-          <Text style={styles.btnText}>Sign In</Text>
+        <Pressable style={styles.btn} onPress={handleLogin}>
+          {loading && <ActivityIndicator size="small" color="#ffffff" />}
+          {!loading && <Text style={styles.btnText}>Sign In</Text>}
         </Pressable>
       </View>
-      <View style={styles.lineBox}>
+      {/* <View style={styles.lineBox}>
         <View style={styles.line}></View>
         <Text>Or</Text>
         <View style={styles.line}></View>
@@ -55,13 +144,13 @@ export default function LoginPage() {
         </Pressable>
         <Pressable onPress={() => router.push("/")}>
           <FontAwesome
-            name="apple"
+            name="facebook"
             size={38}
             color={colors?.darkText}
             style={{ marginHorizontal: "auto" }}
           />
         </Pressable>
-      </View>
+      </View> */}
       <Text style={styles.registerText}>
         Not a member ?{" "}
         <Link

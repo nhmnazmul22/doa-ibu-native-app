@@ -52,7 +52,7 @@ export const useTheme = () => {
     Toast.show({
       type: "info",
       text1: `useTheme must be used within ThemeProvider`,
-      position: "top",
+      position: "bottom",
       visibilityTime: 2000,
     });
     return;

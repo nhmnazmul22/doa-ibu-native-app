@@ -1,10 +1,13 @@
 import DoaList from "@/components/DoaList";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
+import { checkTokenValidity } from "@/lib/token";
 import { PresetsColors } from "@/types";
-import { Link, Redirect } from "expo-router";
-import React from "react";
+import { Link } from "expo-router";
+import React, { useEffect } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { getFormattedTimeAndGreeting } from "@/lib";
 
 const { width } = Dimensions.get("window");
 
@@ -12,19 +15,21 @@ export default function HomePage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const userContext = useUserInfo();
+  const { dateTime, greeting } = getFormattedTimeAndGreeting();
 
-  const login = false;
-
-  if (!login) {
-    return Redirect({ href: "/login-signup" });
-  }
+  useEffect(() => {
+    checkTokenValidity();
+  }, []);
 
   return (
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.greeting}>
-          <Text style={styles.greetingTitle}>Good Morning, Mr. Man</Text>
-          <Text style={styles.greetingDes}>07/15/2025, 8:00AM</Text>
+          <Text style={styles.greetingTitle}>
+            {greeting}, {userContext?.user?.fullName}
+          </Text>
+          <Text style={styles.greetingDes}>{dateTime}</Text>
         </View>
         <View style={styles.quote}>
           <Text style={styles.quoteText}>

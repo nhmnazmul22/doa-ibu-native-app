@@ -2,12 +2,15 @@ import TabBar from "@/components/Layout/TabBar";
 import TopAppBar from "@/components/Layout/TopAppBar";
 import Splash from "@/components/Splash";
 import { ThemeProvider, useTheme } from "@/context/theme/ThemeContext";
+import UserProvider from "@/context/user/userContext";
+import { store } from "@/store";
 import { PresetsColors } from "@/types";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { Provider } from "react-redux";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -31,14 +34,18 @@ export default function RootLayout() {
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
-      <ThemeProvider>
-        <View style={styles.container}>
-          <TopAppBar />
-          <Slot />
-          <TabBar />
-        </View>
-        <Toast swipeable />
-      </ThemeProvider>
+      <Provider store={store}>
+        <UserProvider>
+          <ThemeProvider>
+            <View style={styles.container}>
+              <TopAppBar />
+              <Slot />
+              <TabBar />
+            </View>
+            <Toast swipeable />
+          </ThemeProvider>
+        </UserProvider>
+      </Provider>
     </SafeAreaView>
   );
 }

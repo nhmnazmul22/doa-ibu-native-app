@@ -1,5 +1,9 @@
 import { ThemePresets } from "@/context/theme/presets";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
+import api from "@/lib/config/axios";
+import { AppDispatch } from "@/store";
+import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
 import Entypo from "@expo/vector-icons/Entypo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
@@ -7,6 +11,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   Keyboard,
@@ -23,6 +28,7 @@ import {
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
 const profileImage = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
 
@@ -37,18 +43,24 @@ export default function SettingPage() {
   const setColor = theme?.applyPreset;
   const currentTheme = theme?.currentTheme;
   const styles = getStyles(colors);
+  const userContext = useUserInfo();
+  const user = userContext?.user;
 
-  const [name, setName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [gender, setGender] = useState<string>("");
+  const [name, setName] = useState<string>(user.fullName || "");
+  const [phone, setPhone] = useState<string>(user.phone || "");
+  const [email, setEmail] = useState<string>(user.email || "");
+  const [gender, setGender] = useState<string>(user.gender || "");
+  const [loading, setLoading] = useState<boolean>(false);
   const [notificationText, setNotificationText] = useState<string>(
     "Have you listened to your Mother’s prayer today?"
   );
   const [isEnabled, setIsEnabled] = useState(true);
   const [date, setDate] = useState(new Date(1598051730000));
   const [show, setShow] = useState(false);
-  const [premiumMember, setPremiumMember] = useState(false);
+  const [premiumMember, setPremiumMember] = useState(
+    user.subscriptionType === "premium" || false
+  );
+  const dispatch = useDispatch<AppDispatch>();
 
   const themeData = Object.keys(ThemePresets).map((value) => {
     return {
@@ -83,6 +95,53 @@ export default function SettingPage() {
     }
   };
 
+  const handleUpdate = async () => {
+    try {
+      setLoading(true);
+
+      const fromData = new FormData();
+
+      fromData.set("fullName", name);
+      fromData.set("email", email);
+      fromData.set("phone", phone);
+      fromData.set("gender", gender);
+      fromData.set("image", "");
+
+      if (!user._id) {
+        Toast.show({
+          type: "error",
+          text1: "User Id not found",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
+      }
+      const res = await api.put(`/update-user/${user._id}`, fromData);
+
+      if (res.status === 201) {
+        Toast.show({
+          type: "success",
+          text1: "Profile Info update successful",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        dispatch(fetchUser(user._id));
+        return;
+      }
+    } catch (err: any) {
+      console.log("Error", err);
+      Toast.show({
+        type: "error",
+        text1: err.message || "Profile info update failed",
+        position: "bottom",
+        visibilityTime: 2000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log(user);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -151,24 +210,26 @@ export default function SettingPage() {
                   />
                 </View>
                 <View style={styles.btnBox}>
-                  <Pressable style={styles.outlineBtn}>
-                    <Text style={styles.btnText}>Cancel</Text>
-                  </Pressable>
-                  <Pressable style={styles.btnPrimary}>
-                    <Text
-                      style={{ ...styles.btnText, ...styles.primaryBtnText }}
-                    >
-                      Save
-                    </Text>
+                  <Pressable style={styles.btnPrimary} onPress={handleUpdate}>
+                    {loading && (
+                      <ActivityIndicator size="small" color="#ffffff" />
+                    )}
+                    {!loading && (
+                      <Text
+                        style={{ ...styles.btnText, ...styles.primaryBtnText }}
+                      >
+                        Save
+                      </Text>
+                    )}
                   </Pressable>
                 </View>
               </View>
             </View>
             <View style={styles.afterSubscription}>
-              {!premiumMember && (
+              {user.subscriptionType !== "premium" && (
                 <View style={styles.blockBox}>
                   <View style={styles.blockContent}>
-                    <Pressable onPress={() => setPremiumMember(true)}>
+                    <Pressable>
                       <Entypo
                         name="block"
                         size={54}
