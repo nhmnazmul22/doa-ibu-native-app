@@ -77,7 +77,8 @@ export const UpdateUsersService = async (req) => {
   const userId = convertObjectId(req.params.userId);
   const { password } = req.body;
   const image = req.file;
-  let imagePath = image ? path.join("uploads/images", image.fileName) : null;
+  console.log(image);
+  let imagePath = image ? path.join("uploads/images", image.filename) : null;
   let prevImagePath = null;
 
   const user = await UserModel.findById(userId);
