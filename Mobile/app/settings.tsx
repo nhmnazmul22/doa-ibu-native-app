@@ -9,7 +9,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -57,6 +57,9 @@ export default function SettingPage() {
   const [isEnabled, setIsEnabled] = useState(true);
   const [date, setDate] = useState(new Date(1598051730000));
   const [show, setShow] = useState(false);
+  const [isPremiumMember, setIsPremiumMember] = useState(
+    user.subscriptionType !== "premium" || false
+  );
   const dispatch = useDispatch<AppDispatch>();
 
   const themeData = Object.keys(ThemePresets).map((value) => {
@@ -137,8 +140,14 @@ export default function SettingPage() {
       setLoading(false);
     }
   };
+  
 
-  console.log(user);
+  useEffect(() => {
+    if (user.subscriptionType) {
+      setIsPremiumMember(user.subscriptionType !== "premium");
+    }
+  }, [user.subscriptionType]);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -155,13 +164,15 @@ export default function SettingPage() {
               <Text style={styles.secTitle}>Profile Settings,</Text>
               <View style={styles.imageBox}>
                 <Image source={profileImage} style={styles.profileImage} />
-                <View style={{ ...styles.badgeImgBox, display: "none" }}>
-                  <SimpleLineIcons
-                    name="badge"
-                    size={20}
-                    color={colors?.bodyBackground}
-                  />
-                </View>
+                {user.isDonated && (
+                  <View style={{ ...styles.badgeImgBox }}>
+                    <SimpleLineIcons
+                      name="badge"
+                      size={20}
+                      color={colors?.bodyBackground}
+                    />
+                  </View>
+                )}
               </View>
               <View style={styles.inputContainer}>
                 <View style={styles.inputBox}>
@@ -223,7 +234,7 @@ export default function SettingPage() {
               </View>
             </View>
             <View style={styles.afterSubscription}>
-              {user.subscriptionType !== "premium" && (
+              {isPremiumMember && (
                 <View style={styles.blockBox}>
                   <View style={styles.blockContent}>
                     <Pressable>
@@ -249,6 +260,22 @@ export default function SettingPage() {
                         onPress={() => router.push("/subscription")}
                       >
                         Become a Premium Member
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={{
+                        ...styles.btnMember,
+                        backgroundColor: colors?.darkText,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          ...styles.blockMessage,
+                          color: colors?.bodyBackground,
+                        }}
+                        onPress={() => router.push("/subscription")}
+                      >
+                        🎁 Donate Something 🧡
                       </Text>
                     </Pressable>
                   </View>

@@ -74,6 +74,7 @@ export default function LoginPage() {
         return;
       }
       const res = await signInWithEmailAndPassword(auth, email, password);
+
       if (res.user.email) {
         setUserEmail(res.user.email);
         if (
@@ -84,6 +85,15 @@ export default function LoginPage() {
           saveToken(user.items?.token);
           reset();
           router.replace("/");
+        } else {
+          reset();
+          Toast.show({
+            type: "error",
+            text1: "Login failed, user not found.",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          return;
         }
       }
     } catch (err: any) {

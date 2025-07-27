@@ -41,12 +41,9 @@ export default function SubscriptionPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
   const [tab, setTab] = useState<"free" | "premium" | "donate">("free");
   const [price, setPrice] = useState<string>("5000");
   const [visibleModal, setVisibleModal] = useState(false);
-
-
 
   return (
     <KeyboardAvoidingView
@@ -153,11 +150,6 @@ export default function SubscriptionPage() {
                         </View>
                       ))}
                     </View>
-                  </View>
-                  <View style={styles.btnBox}>
-                    <Pressable>
-                      <Text style={styles.btnLink}>Dapatkan semua fitur.</Text>
-                    </Pressable>
                   </View>
                 </View>
               )}
@@ -358,10 +350,10 @@ export default function SubscriptionPage() {
                     />
                   </View>
                   <View style={styles.btnBox}>
-                    <Pressable>
-                      <Text style={styles.btnLink}>Dapatkan semua fitur.</Text>
-                    </Pressable>
-                    <Pressable disabled={true} style={[styles.buyBtn]}>
+                    <Pressable
+                      style={[styles.buyBtn]}
+                      onPress={() => setVisibleModal(true)}
+                    >
                       <Text style={styles.btnText}>Dukung Aplikasi Ini</Text>
                     </Pressable>
                   </View>
@@ -373,6 +365,8 @@ export default function SubscriptionPage() {
           <SubscriptionModal
             visibleModal={visibleModal}
             setVisibleModal={setVisibleModal}
+            price={tab === "donate" ? price : ""}
+            type={tab === "donate" ? "donate" : "premium"}
           />
         </ScrollView>
       </TouchableWithoutFeedback>

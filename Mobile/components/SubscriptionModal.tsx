@@ -16,8 +16,11 @@ import Checkbox from "expo-checkbox";
 import api from "@/lib/config/axios";
 import { useUserInfo } from "@/context/user/userContext";
 import Toast from "react-native-toast-message";
+import * as Clipboard from "expo-clipboard";
 
 interface SubscriptionModalType {
+  price?: string;
+  type: string;
   visibleModal: boolean;
   setVisibleModal: Dispatch<SetStateAction<boolean>>;
 }
@@ -26,13 +29,15 @@ const width = Dimensions.get("window").width;
 export default function SubscriptionModal({
   visibleModal,
   setVisibleModal,
+  price,
+  type,
 }: SubscriptionModalType) {
   const theme = useTheme();
   const userContext = useUserInfo();
   const colors = theme?.colors;
   const styles = getStyles(colors);
   const [paymentMethod, setPaymentMethod] = useState<"qris" | "gopay">("qris");
-  const [amount, setAmount] = useState("25000");
+  const [amount, setAmount] = useState(price || "25000");
   const [loading, setLoading] = useState(false);
   const [qrUrl, setQrUrl] = useState<string>("");
 
@@ -45,6 +50,7 @@ export default function SubscriptionModal({
         userId: userContext?.user?._id,
       };
       if (!paymentInfo.amount || !paymentInfo.method || !paymentInfo.userId) {
+        setVisibleModal(false);
         Toast.show({
           type: "error",
           text1: "Some required field missing",
@@ -53,9 +59,11 @@ export default function SubscriptionModal({
         });
         return;
       }
-      const res = await api.post("/subscription-payment", paymentInfo);
+      const restApi = `${
+        type === "donate" ? "/donation-payment" : "/subscription-payment"
+      }`;
+      const res = await api.post(restApi, paymentInfo);
       if (res.status === 201) {
-        console.log(res.data.data.redirect_url);
         setQrUrl(res.data.data.redirect_url);
         Toast.show({
           type: "info",
@@ -68,6 +76,7 @@ export default function SubscriptionModal({
       }
     } catch (err: any) {
       console.log("Error", err);
+      setVisibleModal(false);
       Toast.show({
         type: "error",
         text1: err.message || "Subscription payment initiated failed",
@@ -79,110 +88,144 @@ export default function SubscriptionModal({
     }
   };
 
-  useEffect(() => {
-    if (paymentMethod === "qris") {
-      setAmount("15000");
-      return;
-    } else {
-      setAmount("25000");
-      return;
+  const copyToClipboard = async () => {
+    if (qrUrl) {
+      await Clipboard.setStringAsync(qrUrl);
     }
-  }, [paymentMethod]);
+  };
+
+  useEffect(() => {
+    if (type === "premium") {
+      if (paymentMethod === "qris") {
+        setAmount("15000");
+        return;
+      } else {
+        setAmount("25000");
+        return;
+      }
+    }
+  }, [paymentMethod, type]);
+
+  useEffect(() => {
+    if (price && type === "donate") {
+      setAmount(price);
+    }
+  }, [price, type]);
 
   return (
     <Modal
       animationType="slide"
-      
       visible={visibleModal}
       onRequestClose={() => {
         setVisibleModal(false);
       }}
     >
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          {qrUrl && (
-            <View>
-              <Image source={{ uri: qrUrl }} />
-            </View>
-          )}
-          {!qrUrl && (
-            <>
-              <View style={styles.checkboxContainer}>
-                <Text style={styles.checkBoxTitle}>Select Payment Method:</Text>
-                <View style={styles.checkBoxs}>
-                  <Pressable
-                    style={styles.check}
-                    onPress={() => setPaymentMethod("qris")}
-                  >
-                    <Checkbox
-                      value={paymentMethod === "qris"}
-                      onValueChange={(value) =>
-                        value && setPaymentMethod("qris")
-                      }
-                      color={
-                        paymentMethod === "qris" ? colors?.primary : undefined
-                      }
-                    />
-                    <Text style={styles.checkTitle}>QRIS</Text>
-                  </Pressable>
-                  <Pressable
-                    style={styles.check}
-                    onPress={() => setPaymentMethod("gopay")}
-                  >
-                    <Checkbox
-                      value={paymentMethod === "gopay"}
-                      onValueChange={(value) =>
-                        value && setPaymentMethod("gopay")
-                      }
-                      color={
-                        paymentMethod === "gopay" ? colors?.primary : undefined
-                      }
-                    />
-                    <Text style={styles.checkTitle}>GoPay</Text>
-                  </Pressable>
-                </View>
-              </View>
-              <View style={styles.inputBox}>
-                <Text style={styles.inputLabelText}>
-                  Amount will be charge:
-                </Text>
-                <TextInput
-                  readOnly
-                  style={styles.input}
-                  inputMode="text"
-                  value={amount}
-                />
-              </View>
-              <View style={styles.btnBox}>
-                <Pressable
+        {qrUrl && (
+          <View style={styles.qrContainer}>
+            <Text style={styles.qrContainerTitle}>Scan the QR code</Text>
+            <Image source={{ uri: qrUrl }} style={{ height: 300 }} />
+            <Pressable onPress={copyToClipboard}>
+              <Text style={styles.qrCodeNoteText}>
+                <Text
                   style={{
-                    ...styles.button,
-                    backgroundColor: colors?.darkText,
+                    fontWeight: 700,
                   }}
-                  onPress={() => setVisibleModal(false)}
                 >
-                  <Text
-                    style={{
-                      ...styles.textStyle,
-                      color: colors?.bodyBackground,
-                    }}
-                  >
-                    Close
-                  </Text>
+                  QR Code URI:
+                </Text>{" "}
+                {qrUrl}
+              </Text>
+            </Pressable>
+
+            <Text style={styles.qrCodeNoteText}>
+              <Text
+                style={{
+                  fontWeight: 700,
+                }}
+              >
+                Note:
+              </Text>{" "}
+              Do not close the app or don't go back previous page, Otherwise QR
+              code will be removed.
+            </Text>
+          </View>
+        )}
+
+        {!qrUrl && (
+          <View style={styles.modalView}>
+            <View style={styles.checkboxContainer}>
+              <Text style={styles.checkBoxTitle}>Select Payment Method:</Text>
+              <View style={styles.checkBoxs}>
+                <Pressable
+                  style={styles.check}
+                  onPress={() => setPaymentMethod("qris")}
+                >
+                  <Checkbox
+                    value={paymentMethod === "qris"}
+                    onValueChange={(value) => value && setPaymentMethod("qris")}
+                    color={
+                      paymentMethod === "qris" ? colors?.primary : undefined
+                    }
+                  />
+                  <Text style={styles.checkTitle}>QRIS</Text>
                 </Pressable>
-                <Pressable style={styles.button} onPress={handlePayNow}>
-                  {loading && (
-                    <ActivityIndicator
-                      size="small"
-                      color={colors?.bodyBackground}
-                    />
-                  )}
-                  {!loading && <Text style={styles.textStyle}>Pay Now</Text>}
+                <Pressable
+                  style={styles.check}
+                  onPress={() => setPaymentMethod("gopay")}
+                >
+                  <Checkbox
+                    value={paymentMethod === "gopay"}
+                    onValueChange={(value) =>
+                      value && setPaymentMethod("gopay")
+                    }
+                    color={
+                      paymentMethod === "gopay" ? colors?.primary : undefined
+                    }
+                  />
+                  <Text style={styles.checkTitle}>GoPay</Text>
                 </Pressable>
               </View>
-            </>
-          )}
-        </View>
+            </View>
+            <View style={styles.inputBox}>
+              <Text style={styles.inputLabelText}>Amount will be charge:</Text>
+              <TextInput
+                readOnly
+                style={styles.input}
+                inputMode="text"
+                value={amount}
+              />
+            </View>
+            <View style={styles.btnBox}>
+              <Pressable
+                style={{
+                  ...styles.button,
+                  backgroundColor: colors?.darkText,
+                }}
+                onPress={() => setVisibleModal(false)}
+              >
+                <Text
+                  style={{
+                    ...styles.textStyle,
+                    color: colors?.bodyBackground,
+                  }}
+                >
+                  Close
+                </Text>
+              </Pressable>
+              <Pressable style={styles.button} onPress={handlePayNow}>
+                {loading && (
+                  <ActivityIndicator
+                    size="small"
+                    color={colors?.bodyBackground}
+                  />
+                )}
+                {!loading && <Text style={styles.textStyle}>Pay Now</Text>}
+              </Pressable>
+            </View>
+            <Text></Text>
+          </View>
+        )}
       </View>
     </Modal>
   );
@@ -192,8 +235,23 @@ const getStyles = (colors: PresetsColors | undefined) =>
   StyleSheet.create({
     centeredView: {
       flex: 1,
-      justifyContent: "center",
+      justifyContent: "flex-start",
       alignItems: "center",
+      marginTop: 200,
+    },
+    qrContainer: { width: width * 0.8, height: 300, padding: 5 },
+    qrContainerTitle: {
+      textAlign: "center",
+      marginBottom: 10,
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 700,
+    },
+    qrCodeNoteText: {
+      textAlign: "center",
+      marginTop: 10,
+      fontFamily: "Nunito",
+      fontSize: 14,
     },
     modalView: {
       margin: 20,
@@ -201,6 +259,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       borderRadius: 20,
       padding: 20,
       width: width * 0.8,
+      height: "auto",
       alignItems: "center",
       shadowColor: colors?.darkText,
       shadowOffset: {
