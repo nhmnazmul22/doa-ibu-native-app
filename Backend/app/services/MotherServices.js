@@ -122,7 +122,7 @@ export const UpdateMotherService = async (req) => {
   const mother = await MotherModel.findById(motherId);
 
   if (image && mother.profilePicture) {
-    const linkArray = user.profilePicture.split("/");
+    const linkArray = mother.profilePicture.split("/");
     const fileName = linkArray[linkArray.length - 1];
     prevImagePath = path.join("uploads/images", fileName);
   }
@@ -149,7 +149,7 @@ export const UpdateMotherService = async (req) => {
     }
     const imageUrl = image
       ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
-      : null;
+      : mother.profilePicture;
 
     const updateObj = {
       ...req.body,

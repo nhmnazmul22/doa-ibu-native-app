@@ -77,7 +77,6 @@ export const UpdateUsersService = async (req) => {
   const userId = convertObjectId(req.params.userId);
   const { password } = req.body;
   const image = req.file;
-  console.log(image);
   let imagePath = image ? path.join("uploads/images", image.filename) : null;
   let prevImagePath = null;
 
@@ -111,7 +110,7 @@ export const UpdateUsersService = async (req) => {
     // Generating imgUrl
     const imageUrl = image
       ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
-      : null;
+      : user.profilePicture;
 
     const updatedObj = {
       ...req.body,
