@@ -115,7 +115,7 @@ export const GetMotherService = async (req) => {
 // Update Mother Service
 export const UpdateMotherService = async (req) => {
   const motherId = convertObjectId(req.params.motherId);
-  const image = req.files?.["image"]?.[0];
+  const image = req.file;
   const imagePath = image ? path.join("uploads/images", image.fileName) : null;
   let prevImagePath = null;
 

@@ -76,7 +76,7 @@ export const CreateUsersService = async (req) => {
 export const UpdateUsersService = async (req) => {
   const userId = convertObjectId(req.params.userId);
   const { password } = req.body;
-  const image =  req.files?.["image"]?.[0];
+  const image = req.file;
   let imagePath = image ? path.join("uploads/images", image.fileName) : null;
   let prevImagePath = null;
 

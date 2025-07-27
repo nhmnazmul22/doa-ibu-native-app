@@ -14,7 +14,7 @@ router.get("/get-user/:email", UserController.GetUserController);
 router.get("/get-user-by-id/:userId", UserController.GetUserController);
 router.put(
   "/update-user/:userId",
-  upload.fields([{ name: "image", maxCount: 1 }]),
+  upload.single("image"),
   UserController.UpdateUsersController
 );
 router.delete("/delete-user/:userId", UserController.DeleteUserController);
@@ -26,7 +26,7 @@ router.get("/get-mother/:email", MotherController.GetMotherController);
 router.get("/get-mother-by-id/:motherId", MotherController.GetMotherController);
 router.put(
   "/update-mother/:motherId",
-  upload.fields([{ name: "image", maxCount: 1 }]),
+  upload.single("image"),
   MotherController.UpdateMotherController
 );
 router.delete(
