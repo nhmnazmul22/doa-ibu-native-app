@@ -130,7 +130,6 @@ export const CreateSubscriptionChargeService = async (req) => {
 };
 
 export const MidtransWebhookService = async (req) => {
-  console.log("Webhook", req.body);
   const {
     order_id,
     transaction_status,
@@ -150,20 +149,18 @@ export const MidtransWebhookService = async (req) => {
       const updateData = {
         $inc: { totalSpent: Number(gross_amount) },
         $set: {},
-        $push: {},
-        $pull: {},
       };
 
       if (isDonation) {
         updateData.$set.isDonated = true;
         updateData.$set.lastDonationDate = new Date(settlement_time);
-        updateData.$push.donations = {
+        updateData.$set.donations = {
           order_id,
           amount: Number(gross_amount),
           date: new Date(settlement_time),
           method: payment_type,
         };
-        updateData.$pull.pendingPayments = { order_id };
+        updateData.$set.pendingPayments = null;
       }
 
       if (isSubscription) {
@@ -180,17 +177,16 @@ export const MidtransWebhookService = async (req) => {
           subscriptionStartDate: startDate,
           subscriptionEndDate: endDate,
           subscriptionRenewalDate: endDate,
+          subscriptions: {
+            order_id,
+            amount: Number(gross_amount),
+            startDate,
+            endDate,
+            method: payment_type,
+            status: "active",
+          },
+          pendingPayments: null,
         });
-
-        updateData.$push.subscriptions = {
-          order_id,
-          amount: Number(gross_amount),
-          startDate,
-          endDate,
-          method: payment_type,
-          status: "active",
-        };
-        updateData.$pull.pendingPayments = { order_id };
       }
 
       const user = await UserModel.findOneAndUpdate(

@@ -10,7 +10,7 @@ const DataScheme = new Schema(
     gender: { type: String },
     profilePicture: { type: String },
     role: { type: String, enum: ["user"], default: "user" },
-    qrUrl: {type: String },
+
     // Subscription Info
     subscriptionType: {
       type: String,
@@ -33,39 +33,33 @@ const DataScheme = new Schema(
     totalSpent: { type: Number, default: 0 },
 
     // Detailed Records
-    donations: [
-      {
-        order_id: String,
-        amount: Number,
-        date: Date,
-        method: String,
-        date: { type: Date, default: Date.now },
+    donations: {
+      order_id: String,
+      amount: Number,
+      date: Date,
+      method: String,
+      date: { type: Date, default: Date.now },
+    },
+    pendingPayments: {
+      order_id: String,
+      type: { type: String, enum: ["donation", "subscription"] },
+      amount: Number,
+      method: String,
+      date: { type: Date, default: Date.now },
+    },
+    subscriptions: {
+      order_id: String,
+      amount: Number,
+      startDate: Date,
+      endDate: Date,
+      method: String,
+      status: {
+        type: String,
+        enum: ["active", "expired", "cancelled"],
+        default: "active",
       },
-    ],
-    pendingPayments: [
-      {
-        order_id: String,
-        type: { type: String, enum: ["donation", "subscription"] },
-        amount: Number,
-        method: String,
-        date: { type: Date, default: Date.now },
-      },
-    ],
-    subscriptions: [
-      {
-        order_id: String,
-        amount: Number,
-        startDate: Date,
-        endDate: Date,
-        method: String,
-        status: {
-          type: String,
-          enum: ["active", "expired", "cancelled"],
-          default: "active",
-        },
-        date: { type: Date, default: Date.now },
-      },
-    ],
+      date: { type: Date, default: Date.now },
+    },
   },
   {
     timestamps: true,
