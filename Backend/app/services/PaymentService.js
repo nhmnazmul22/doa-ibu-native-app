@@ -147,7 +147,10 @@ export const MidtransWebhookService = async (req) => {
       transaction_status === "capture"
     ) {
       const updateData = {
-        $inc: { totalSpent: Number(gross_amount) },
+        $inc: {
+          totalSpent: Number(gross_amount),
+          totalDonations: isDonation ? Number(gross_amount) : 0,
+        },
         $set: {},
       };
 
