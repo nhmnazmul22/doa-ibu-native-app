@@ -10,6 +10,7 @@ const DataScheme = new Schema(
     gender: { type: String },
     profilePicture: { type: String },
     role: { type: String, enum: ["user"], default: "user" },
+    qrUrl: {type: String },
     // Subscription Info
     subscriptionType: {
       type: String,
@@ -19,7 +20,7 @@ const DataScheme = new Schema(
     subscriptionStatus: {
       type: String,
       enum: ["active", "inactive"],
-      default: "active",
+      default: "inactive",
     },
     subscriptionStartDate: { type: Date },
     subscriptionEndDate: { type: Date },

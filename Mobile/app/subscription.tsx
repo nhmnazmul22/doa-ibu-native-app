@@ -1,4 +1,6 @@
+import SubscriptionModal from "@/components/SubscriptionModal";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
 import { PresetsColors } from "@/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import React, { useState } from "react";
@@ -39,8 +41,12 @@ export default function SubscriptionPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const userContext = useUserInfo();
   const [tab, setTab] = useState<"free" | "premium" | "donate">("free");
   const [price, setPrice] = useState<string>("5000");
+  const [visibleModal, setVisibleModal] = useState(false);
+
+
 
   return (
     <KeyboardAvoidingView
@@ -198,7 +204,10 @@ export default function SubscriptionPage() {
                     </View>
                   </View>
                   <View style={styles.btnBox}>
-                    <Pressable disabled={true} style={[styles.buyBtn]}>
+                    <Pressable
+                      style={[styles.buyBtn]}
+                      onPress={() => setVisibleModal(true)}
+                    >
                       <Text style={styles.btnText}>Pembelian</Text>
                     </Pressable>
                   </View>
@@ -360,6 +369,11 @@ export default function SubscriptionPage() {
               )}
             </View>
           </View>
+
+          <SubscriptionModal
+            visibleModal={visibleModal}
+            setVisibleModal={setVisibleModal}
+          />
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

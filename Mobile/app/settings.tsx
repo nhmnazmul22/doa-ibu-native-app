@@ -57,9 +57,6 @@ export default function SettingPage() {
   const [isEnabled, setIsEnabled] = useState(true);
   const [date, setDate] = useState(new Date(1598051730000));
   const [show, setShow] = useState(false);
-  const [premiumMember, setPremiumMember] = useState(
-    user.subscriptionType === "premium" || false
-  );
   const dispatch = useDispatch<AppDispatch>();
 
   const themeData = Object.keys(ThemePresets).map((value) => {
