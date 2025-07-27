@@ -32,22 +32,25 @@ const DataScheme = new Schema(
     totalDonations: { type: Number, default: 0 },
     totalSpent: { type: Number, default: 0 },
 
-    // Detailed Records
-    donations: {
+    // Latest Donation
+    latestDonation: {
       order_id: String,
       amount: Number,
-      date: Date,
-      method: String,
       date: { type: Date, default: Date.now },
+      method: String,
     },
-    pendingPayments: {
+
+    // Latest Pending Payment
+    latestPendingPayment: {
       order_id: String,
       type: { type: String, enum: ["donation", "subscription"] },
       amount: Number,
       method: String,
       date: { type: Date, default: Date.now },
     },
-    subscriptions: {
+
+    // Latest Subscription
+    latestSubscription: {
       order_id: String,
       amount: Number,
       startDate: Date,
@@ -67,7 +70,7 @@ const DataScheme = new Schema(
   }
 );
 
-// Define Model (prevent overwrite in dev/watch)
+// Define Model
 const UserModel = mongoose.models.users || mongoose.model("users", DataScheme);
 
 export default UserModel;

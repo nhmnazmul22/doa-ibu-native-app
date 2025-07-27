@@ -1,6 +1,7 @@
 import { core } from "../utility/midtransClient.js";
 import UserModel from "../models/UserModel.js";
-// For Donation
+
+// Create Donation Charge
 export const CreateDonationService = async (req) => {
   const { amount, method, userId } = req.body;
   const orderId = `DONATE-${Date.now()}`;
@@ -31,12 +32,12 @@ export const CreateDonationService = async (req) => {
       (a) => a.name.includes("qr-code") || a.name.includes("deeplink-redirect")
     );
 
-    // Store the payment request as pending (await webhook settlement)
+    // Save latest pending payment
     await UserModel.findByIdAndUpdate(userId, {
-      $push: {
-        pendingPayments: {
+      $set: {
+        latestPendingPayment: {
           order_id: orderId,
-          amount: amount,
+          amount,
           type: "donation",
           method,
         },
@@ -60,7 +61,7 @@ export const CreateDonationService = async (req) => {
   }
 };
 
-// For subscriptions
+// Create Subscription Charge
 export const CreateSubscriptionChargeService = async (req) => {
   const { userId, amount, method } = req.body;
   const orderId = `SUBS-${Date.now()}`;
@@ -90,8 +91,6 @@ export const CreateSubscriptionChargeService = async (req) => {
 
   try {
     const chargeRes = await core.charge(payload);
-
-    // Find the correct action URL (depends on method)
     const action = chargeRes.actions?.find((a) =>
       [
         "generate-qr-code",
@@ -100,12 +99,12 @@ export const CreateSubscriptionChargeService = async (req) => {
       ].includes(a.name)
     );
 
-    // Store the payment request as pending (await webhook settlement)
+    // Save latest pending payment
     await UserModel.findByIdAndUpdate(userId, {
-      $push: {
-        pendingPayments: {
+      $set: {
+        latestPendingPayment: {
           order_id: orderId,
-          amount: amount,
+          amount,
           type: "subscription",
           method,
         },
@@ -129,6 +128,7 @@ export const CreateSubscriptionChargeService = async (req) => {
   }
 };
 
+// Midtrans Webhook Handler
 export const MidtransWebhookService = async (req) => {
   const {
     order_id,
@@ -154,13 +154,13 @@ export const MidtransWebhookService = async (req) => {
       if (isDonation) {
         updateData.$set.isDonated = true;
         updateData.$set.lastDonationDate = new Date(settlement_time);
-        updateData.$set.donations = {
+        updateData.$set.latestDonation = {
           order_id,
           amount: Number(gross_amount),
           date: new Date(settlement_time),
           method: payment_type,
         };
-        updateData.$set.pendingPayments = null;
+        updateData.$set.latestPendingPayment = null;
       }
 
       if (isSubscription) {
@@ -177,27 +177,28 @@ export const MidtransWebhookService = async (req) => {
           subscriptionStartDate: startDate,
           subscriptionEndDate: endDate,
           subscriptionRenewalDate: endDate,
-          subscriptions: {
+          latestSubscription: {
             order_id,
             amount: Number(gross_amount),
             startDate,
             endDate,
             method: payment_type,
             status: "active",
+            date: new Date(settlement_time),
           },
-          pendingPayments: null,
+          latestPendingPayment: null,
         });
       }
 
       const user = await UserModel.findOneAndUpdate(
-        { "pendingPayments.order_id": order_id },
+        { "latestPendingPayment.order_id": order_id },
         updateData,
         { new: true }
       );
 
       if (!user && isSubscription) {
         await UserModel.findOneAndUpdate(
-          { "subscriptions.order_id": order_id },
+          { "latestSubscription.order_id": order_id },
           updateData,
           { new: true }
         );
