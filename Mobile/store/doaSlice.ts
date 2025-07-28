@@ -1,11 +1,10 @@
 import api from "@/lib/config/axios";
-import { User } from "@/types";
+import { Doa } from "@/types";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Response {
   message: string;
-  data: User;
-  token: string;
+  data: Doa;
 }
 
 interface InitialState {
@@ -18,45 +17,41 @@ const initialState: InitialState = {
   items: {
     message: "",
     data: {
-      fullName: "",
-      email: "",
+      title: "",
+      shortDes: "",
     },
-    token: "",
   },
   loading: false,
   error: null,
 };
 
-export const fetchUser = createAsyncThunk<Response, string>(
-  "user/fetchUser",
-  async (email) => {
-    const response = await api.get(`/get-user/${email}`);
+export const fetchDoa = createAsyncThunk<Response, string>(
+  "doa/fetchDoa",
+  async (param) => {
+    const response = await api.get(`/get-doa/${param}`);
     return response.data;
   }
 );
 
-const userSlice = createSlice({
-  name: "user",
+const doaSlice = createSlice({
+  name: "doa",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUser.pending, (state) => {
+      .addCase(fetchDoa.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        fetchUser.fulfilled,
-        (state, action: PayloadAction<Response>) => {
-          state.loading = false;
-          state.items = action.payload;
-        }
-      )
-      .addCase(fetchUser.rejected, (state, action) => {
+      .addCase(fetchDoa.fulfilled, (state, action: PayloadAction<Response>) => {
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchDoa.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
       });
   },
 });
 
-export default userSlice.reducer;
+export default doaSlice.reducer;

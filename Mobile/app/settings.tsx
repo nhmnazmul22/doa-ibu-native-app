@@ -31,7 +31,8 @@ import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
-import { getNotificationSetting, setNotificationSetting } from "@/lib";
+import { getNotificationSetting } from "@/lib";
+import { scheduleDailyNotification } from "@/lib/notification";
 
 const profileImage = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
@@ -58,11 +59,8 @@ export default function SettingPage() {
   );
   const [imageFile, setImageFile] = useState<ImagePicker.ImagePickerAsset>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [notificationText, setNotificationText] = useState<string>(
-    "Have you listened to your Mother’s prayer today?"
-  );
-  const [isEnabled, setIsEnabled] = useState(true);
-  const [date, setDate] = useState("2025-07-28T00:30:00.000Z");
+  const [notificationText, setNotificationText] = useState<string>("");
+  const [date, setDate] = useState("");
   const [show, setShow] = useState(false);
   const [isPremiumMember, setIsPremiumMember] = useState(
     user.subscriptionType !== "premium" || false
@@ -78,20 +76,17 @@ export default function SettingPage() {
     };
   });
 
-  const updateNotification = async () => {
-    setNotificationSetting(isEnabled, notificationText, date);
-    Toast.show({
-      type: "success",
-      text1: `Notification Updated!`,
-      position: "bottom",
-      visibilityTime: 2000,
-    });
+  const updateNotification = async (isToast?: boolean) => {
+    await scheduleDailyNotification(notificationText, date);
+    isToast &&
+      Toast.show({
+        type: "success",
+        text1: `Notification Setting Updated!`,
+        position: "bottom",
+        visibilityTime: 2000,
+      });
     getNotification();
     return;
-  };
-
-  const toggleSwitch = () => {
-    setIsEnabled((previousState) => !previousState);
   };
 
   const pickImage = async () => {
@@ -200,9 +195,10 @@ export default function SettingPage() {
   const getNotification = async () => {
     const settings = await getNotificationSetting();
     if (settings) {
-      setNotificationText(settings.notificationMsg);
-      setIsEnabled(settings.showNotification);
-      setDate(settings.notificationTime);
+      setNotificationText(
+        settings.message || "Have you listened to your Mother’s prayer today?"
+      );
+      setDate(settings.scheduleTime || "2025-07-28T00:30:00.000Z");
     }
   };
 
@@ -365,30 +361,6 @@ export default function SettingPage() {
               <View style={styles.notificationContainer}>
                 <Text style={styles.secTitle}>Notifikasi Settings,</Text>
                 <View style={styles.inputContainer}>
-                  <View
-                    style={{
-                      ...styles.inputSec,
-                      justifyContent: "flex-start",
-                      gap: 10,
-                      marginBottom: 5,
-                    }}
-                  >
-                    <Text style={styles.inputLabelText}>
-                      Show Notifications:
-                    </Text>
-                    <Switch
-                      trackColor={{
-                        false: colors?.darkText,
-                        true: colors?.secondary,
-                      }}
-                      thumbColor={
-                        isEnabled ? colors?.primary : colors?.bodyBackground
-                      }
-                      ios_backgroundColor={colors?.darkText}
-                      onValueChange={toggleSwitch}
-                      value={isEnabled}
-                    />
-                  </View>
                   <View style={styles.inputSec}>
                     <View style={{ width: "100%" }}>
                       <TextInput
@@ -433,7 +405,7 @@ export default function SettingPage() {
                   <View style={{ width: "50%", marginBottom: 20 }}>
                     <Pressable
                       style={styles.btnPrimary}
-                      onPress={updateNotification}
+                      onPress={() => updateNotification(true)}
                     >
                       <Text
                         style={{

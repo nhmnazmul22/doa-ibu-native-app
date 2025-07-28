@@ -91,24 +91,6 @@ export const getFormattedTimeAndGreeting = () => {
   };
 };
 
-export const setNotificationSetting = async (
-  showNotification: boolean,
-  notificationMsg: string,
-  notificationTime: string
-) => {
-  try {
-    const settings = JSON.stringify({
-      showNotification,
-      notificationMsg,
-      notificationTime,
-    });
-
-    await AsyncStorage.setItem("notificationSettings", settings);
-  } catch (err) {
-    console.error("Failed to save notification settings", err);
-  }
-};
-
 export const getNotificationSetting = async () => {
   try {
     const settings = await AsyncStorage.getItem("notificationSettings");

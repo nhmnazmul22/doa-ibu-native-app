@@ -16,10 +16,21 @@ import {
 } from "react-native";
 import { getFormattedTimeAndGreeting } from "@/lib";
 import { useSubscriptionCountdown } from "@/hook/useSubscriptionCountdown";
-import { applyNotificationSettings } from "@/lib/notification";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { fetchUser } from "@/store/userSlice";
+import * as Notifications from "expo-notifications";
+import { setupNotificationPermissions } from "@/lib/notification";
+
+// 🔔 Configure notification handler
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 const { width } = Dimensions.get("window");
 
@@ -47,7 +58,10 @@ export default function HomePage() {
 
   useEffect(() => {
     checkTokenValidity();
-    applyNotificationSettings();
+  }, []);
+
+  useEffect(() => {
+    setupNotificationPermissions();
   }, []);
 
   return (
