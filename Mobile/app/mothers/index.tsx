@@ -1,17 +1,22 @@
+import ErrorComponents from "@/components/ErrorComponent";
+import LoadingComponents from "@/components/LoadingComponents";
 import { useTheme } from "@/context/theme/ThemeContext";
-import mothers from "@/data/mother.json";
+import { AppDispatch, RootState } from "@/store";
+import { fetchMothers } from "@/store/mothersSlice";
 import { PresetsColors } from "@/types";
 import { router } from "expo-router";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 const motherImg = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
@@ -19,25 +24,56 @@ const width = Dimensions.get("window").width;
 export default function MOtherList() {
   const theme = useTheme();
   const colors = theme?.colors;
-
   const styles = getStyles(colors);
+  const dispatch = useDispatch<AppDispatch>();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { items, loading, error } = useSelector(
+    (state: RootState) => state.mothers
+  );
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchMothers());
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchMothers());
+  }, []);
+
+  if (loading) {
+    return <LoadingComponents />;
+  }
+
+  if (!loading && !items?.data && error) {
+    return <ErrorComponents errorText={error} />;
+  }
 
   return (
-    <ScrollView>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.container}>
         <Text style={styles.pageTitle}>Favorite Ibu/Mother’s,</Text>
+
         <View style={styles.mothersList}>
-          {mothers.map((mother, index) => (
-            <Pressable
-              key={mother._id}
-              onPress={() => router.push(`/mothers/${mother._id}`)}
-            >
-              <View style={styles.motherBox}>
-                <Image source={motherImg} style={styles.motherProfileImg} />
-                <Text style={styles.mothertitle}>{mother.name}</Text>
-              </View>
-            </Pressable>
-          ))}
+          {!loading &&
+            items?.data.map((mother, index) => (
+              <Pressable
+                key={mother._id}
+                onPress={() => router.push(`/mothers/${mother._id}`)}
+              >
+                <View style={styles.motherBox}>
+                  <Image source={motherImg} style={styles.motherProfileImg} />
+                  <Text style={styles.mothertitle}>{mother.fullName}</Text>
+                </View>
+              </Pressable>
+            ))}
         </View>
       </View>
     </ScrollView>

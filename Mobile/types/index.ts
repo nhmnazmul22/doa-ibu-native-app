@@ -5,16 +5,17 @@ export interface Doa {
   shortDes: string;
   favorite?: boolean;
   duration?: string;
+  audioLink?: string;
+  motherDetails?: Mother;
 }
 
 export interface Mother {
   _id?: string;
   profilePicture?: string;
-  name?: string;
-  email?: string;
+  fullName: string;
+  email: string;
   following?: string;
   followers?: string;
-  Doas?: Doa[];
 }
 
 export interface PresetsColors {

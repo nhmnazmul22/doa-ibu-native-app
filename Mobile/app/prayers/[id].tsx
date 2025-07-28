@@ -1,10 +1,14 @@
+import LoadingComponents from "@/components/LoadingComponents";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { AppDispatch, RootState } from "@/store";
+import { fetchDoa } from "@/store/doaSlice";
+import { fetchDoas } from "@/store/doasSlice";
 import { PresetsColors } from "@/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Slider from "@react-native-community/slider";
-import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
+import { AudioSource, useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -15,27 +19,35 @@ import {
   Text,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
 
-const audioTracks = [
-  require("../../assets/audio/doa-ibu.mp3"),
-  require("../../assets/audio/doa-ibu-2.mp3"),
-  require("../../assets/audio/doa-ibu-3.mp3"),
-];
+let audioTracks: (AudioSource | undefined)[] | { uri: string }[] = [];
 
 export default function MotherDoa() {
   const theme = useTheme();
-  const { id } = useLocalSearchParams();
+  const colors = theme?.colors;
+  const styles = getStyles(colors);
+
+  const { id }: { id: string } = useLocalSearchParams();
   const [trackIndex, setTrackIndex] = useState(0);
   const player = useAudioPlayer(audioTracks[trackIndex]);
   const playerStatus = useAudioPlayerStatus(player);
   const [isLooping, setIsLooping] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
-  const favorite = true;
-  const colors = theme?.colors;
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    items: Doa,
+    loading: doaLoading,
+    error: doaError,
+  } = useSelector((state: RootState) => state.doa);
 
-  const styles = getStyles(colors);
+  const {
+    items: doas,
+    loading: doasLoading,
+    error: doasError,
+  } = useSelector((state: RootState) => state.doas);
 
   const formatTime = (sec: number): string => {
     const minutes = Math.floor(sec / 60);
@@ -50,10 +62,12 @@ export default function MotherDoa() {
 
   const handleNextTrack = () => {
     if (trackIndex < audioTracks.length - 1) {
+      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
       reset();
       player.seekTo(0);
       setTrackIndex(trackIndex + 1);
     } else {
+      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
       reset();
       player.seekTo(0);
       setTrackIndex(0);
@@ -62,9 +76,11 @@ export default function MotherDoa() {
 
   const handlePrevTrack = () => {
     if (trackIndex > 0) {
+      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
       reset();
       setTrackIndex(trackIndex - 1);
     } else {
+      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
       reset();
       setTrackIndex(audioTracks.length - 1);
     }
@@ -80,21 +96,47 @@ export default function MotherDoa() {
     }
   }, [playerStatus.didJustFinish]);
 
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchDoa(id));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    dispatch(fetchDoas("uploaded"));
+  }, []);
+
+  useEffect(() => {
+    if (doas?.data) {
+      doas.data.map((item, index) => {
+        if (item.audioLink) {
+          audioTracks.push({
+            uri: item.audioLink,
+          });
+        }
+      });
+    }
+  }, []);
+
+  if (doaLoading) {
+    return <LoadingComponents />;
+  }
+
   return (
     <View style={styles.container}>
       <Image
-        source={require("../../assets/images/doa-banner.jpg")}
+        source={{ uri: Doa?.data.thumbnail }}
         style={styles.doaImgBox}
         resizeMode="cover"
       />
 
       <View style={styles.doaInfo}>
         <View>
-          <Text style={styles.doaInfoTitle}>Track {trackIndex + 1}</Text>
-          <Text style={styles.doaInfoDes}>Doa Track Description</Text>
+          <Text style={styles.doaInfoTitle}>{Doa?.data.title}</Text>
+          <Text style={styles.doaInfoDes}>{Doa?.data.shortDes}</Text>
         </View>
         <Pressable>
-          {favorite ? (
+          {Doa?.data.favorite ? (
             <AntDesign name="heart" size={24} color={colors?.primary} />
           ) : (
             <AntDesign name="hearto" size={24} color={colors?.darkText} />

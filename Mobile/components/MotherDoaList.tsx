@@ -3,17 +3,33 @@ import { Doa, PresetsColors } from "@/types";
 import React from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import MotherDoa from "./MotherDoa";
+import LoadingComponents from "./LoadingComponents";
+import ErrorComponents from "./ErrorComponent";
 
 interface MotherDoaListProps {
+  loading?: boolean;
   doas: Doa[];
+  error?: string;
 }
 
 const { width } = Dimensions.get("window");
 
-export default function MotherDoaList({ doas }: MotherDoaListProps) {
+export default function MotherDoaList({
+  doas,
+  loading,
+  error,
+}: MotherDoaListProps) {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+
+  if (loading) {
+    return <LoadingComponents />;
+  }
+
+  if (!loading && doas.length === 0 && error) {
+    return <ErrorComponents errorText={error} />;
+  }
 
   return (
     <View style={styles.container}>

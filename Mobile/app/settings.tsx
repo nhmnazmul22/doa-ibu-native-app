@@ -76,15 +76,14 @@ export default function SettingPage() {
     };
   });
 
-  const updateNotification = async (isToast?: boolean) => {
+  const updateNotification = async () => {
     await scheduleDailyNotification(notificationText, date);
-    isToast &&
-      Toast.show({
-        type: "success",
-        text1: `Notification Setting Updated!`,
-        position: "bottom",
-        visibilityTime: 2000,
-      });
+    Toast.show({
+      type: "success",
+      text1: `Notification Setting Updated!`,
+      position: "bottom",
+      visibilityTime: 2000,
+    });
     getNotification();
     return;
   };
@@ -199,6 +198,9 @@ export default function SettingPage() {
         settings.message || "Have you listened to your Mother’s prayer today?"
       );
       setDate(settings.scheduleTime || "2025-07-28T00:30:00.000Z");
+    } else {
+      setNotificationText("Have you listened to your Mother’s prayer today?");
+      setDate("2025-07-28T00:30:00.000Z");
     }
   };
 
@@ -405,7 +407,7 @@ export default function SettingPage() {
                   <View style={{ width: "50%", marginBottom: 20 }}>
                     <Pressable
                       style={styles.btnPrimary}
-                      onPress={() => updateNotification(true)}
+                      onPress={updateNotification}
                     >
                       <Text
                         style={{

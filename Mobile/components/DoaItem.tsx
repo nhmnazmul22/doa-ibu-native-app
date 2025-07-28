@@ -1,4 +1,5 @@
 import { useTheme } from "@/context/theme/ThemeContext";
+import { formatTime } from "@/lib";
 import { PresetsColors } from "@/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -42,7 +43,7 @@ export default function DoaItem({
           <Text style={styles.doaDes}>{shortDes}</Text>
         </View>
       </View>
-      <Text style={styles.doaDes}>{duration}</Text>
+      <Text style={styles.doaDes}>{formatTime(Number(duration))}</Text>
       <Pressable>
         {favorite ? (
           <Text>

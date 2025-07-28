@@ -2,15 +2,8 @@ import DoaList from "@/components/DoaList";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
-import React, { useState } from "react";
+import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Dropdown } from "react-native-element-dropdown";
-
-const data = [
-  { label: "Option 1", value: "option1" },
-  { label: "Option 2", value: "option2" },
-  { label: "Option 3", value: "option3" },
-];
 
 const { width } = Dimensions.get("window");
 
@@ -19,8 +12,6 @@ export default function PrayersPage() {
   const colors = theme?.colors;
 
   const styles = getStyles(colors);
-
-  const [selectedValue, setSelectedValue] = useState(null);
 
   return (
     <ScrollView>
@@ -33,17 +24,6 @@ export default function PrayersPage() {
             <View>
               <Text style={styles.doaTitle}>All Prayers / Doa Ibu,</Text>
               <View style={styles.horizontalLine}></View>
-            </View>
-            <View>
-              <Dropdown
-                style={styles.dropdown}
-                data={data}
-                labelField="label"
-                valueField="value"
-                placeholder="Select Ibu"
-                value={selectedValue}
-                onChange={(item: any) => setSelectedValue(item.value)}
-              />
             </View>
           </View>
           <View>

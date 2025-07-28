@@ -1,10 +1,10 @@
 import api from "@/lib/config/axios";
-import { Mother } from "@/types";
+import { User } from "@/types";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Response {
   message: string;
-  data: Mother;
+  data: User[];
 }
 
 interface InitialState {
@@ -16,45 +16,42 @@ interface InitialState {
 const initialState: InitialState = {
   items: {
     message: "",
-    data: {
-      email: "",
-      fullName: "",
-    },
+    data: [],
   },
   loading: false,
   error: null,
 };
 
-export const fetchMother = createAsyncThunk<Response, string>(
-  "mother/fetchMother",
-  async (email) => {
-    const response = await api.get(`/get-mother/${email}`);
+export const fetchAllUser = createAsyncThunk<Response>(
+  "user/fetchAllUser",
+  async () => {
+    const response = await api.get(`/get-all-users`);
     return response.data;
   }
 );
 
-const motherSlice = createSlice({
-  name: "mother",
+const usersSlice = createSlice({
+  name: "users",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMother.pending, (state) => {
+      .addCase(fetchAllUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
-        fetchMother.fulfilled,
+        fetchAllUser.fulfilled,
         (state, action: PayloadAction<Response>) => {
           state.loading = false;
           state.items = action.payload;
         }
       )
-      .addCase(fetchMother.rejected, (state, action) => {
+      .addCase(fetchAllUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
       });
   },
 });
 
-export default motherSlice.reducer;
+export default usersSlice.reducer;

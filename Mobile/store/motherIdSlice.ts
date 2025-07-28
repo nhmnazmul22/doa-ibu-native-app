@@ -25,10 +25,10 @@ const initialState: InitialState = {
   error: null,
 };
 
-export const fetchMother = createAsyncThunk<Response, string>(
+export const fetchMotherById = createAsyncThunk<Response, string>(
   "mother/fetchMother",
-  async (email) => {
-    const response = await api.get(`/get-mother/${email}`);
+  async (motherId) => {
+    const response = await api.get(`/get-mother-by-id/${motherId}`);
     return response.data;
   }
 );
@@ -39,18 +39,18 @@ const motherSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMother.pending, (state) => {
+      .addCase(fetchMotherById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
-        fetchMother.fulfilled,
+        fetchMotherById.fulfilled,
         (state, action: PayloadAction<Response>) => {
           state.loading = false;
           state.items = action.payload;
         }
       )
-      .addCase(fetchMother.rejected, (state, action) => {
+      .addCase(fetchMotherById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
       });

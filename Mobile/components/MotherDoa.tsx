@@ -1,4 +1,5 @@
 import { useTheme } from "@/context/theme/ThemeContext";
+import { formatTime } from "@/lib";
 import { Doa, PresetsColors } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link, router } from "expo-router";
@@ -27,7 +28,7 @@ export default function MotherDoa({ doa }: MotherDoaProps) {
           </View>
         </View>
       </Pressable>
-      <Text style={styles.doaDes}>{doa.duration}</Text>
+      <Text style={styles.doaDes}>{formatTime(Number(doa.duration))}</Text>
       <View style={styles.playIcon}>
         <Link href={`/prayers/${doa._id}`}>
           <MaterialIcons name="play-circle" size={48} color={colors?.primary} />

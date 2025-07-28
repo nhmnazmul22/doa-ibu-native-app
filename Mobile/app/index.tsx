@@ -21,6 +21,8 @@ import { AppDispatch } from "@/store";
 import { fetchUser } from "@/store/userSlice";
 import * as Notifications from "expo-notifications";
 import { setupNotificationPermissions } from "@/lib/notification";
+import { fetchDoa } from "@/store/doaSlice";
+import { fetchDoas } from "@/store/doasSlice";
 
 // 🔔 Configure notification handler
 Notifications.setNotificationHandler({
@@ -46,15 +48,11 @@ export default function HomePage() {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     dispatch(fetchUser(userContext?.user.email));
+    dispatch(fetchDoas("uploaded"));
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
   }, []);
-
-  const { timeLeft } = useSubscriptionCountdown(
-    userContext?.user?.subscriptionStartDate,
-    userContext?.user?.subscriptionEndDate
-  );
 
   useEffect(() => {
     checkTokenValidity();
@@ -76,19 +74,6 @@ export default function HomePage() {
             {greeting}, {userContext?.user?.fullName}
           </Text>
           <Text style={styles.greetingDes}>{dateTime}</Text>
-        </View>
-        <View style={styles.subscriptionCountDown}>
-          {userContext?.user?.subscriptionStatus === "active" && timeLeft && (
-            <View style={styles.countDownBox}>
-              <Text style={styles.countDownTitle}>
-                Subscription Expires In:
-              </Text>
-              <Text style={styles.countDownTime}>
-                {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
-                {timeLeft.seconds}s
-              </Text>
-            </View>
-          )}
         </View>
         <View style={styles.doaCarouselBox}>
           <Text style={styles.doaCarouselTitle}>Favorite Doa Ibu,</Text>
