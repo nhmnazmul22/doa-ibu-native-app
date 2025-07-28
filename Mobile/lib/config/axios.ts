@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://doa-ibu-native-app.onrender.com/api",
+  baseURL: "http://appdoaibu.my.id/api",
 });
 
 export default api;

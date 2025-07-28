@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Convert Milliseconds to a formatted time string
 export function formatTime(milliseconds: number): string {
@@ -88,4 +89,35 @@ export const getFormattedTimeAndGreeting = () => {
     dateTime: `${date}, ${time}`,
     greeting,
   };
+};
+
+export const setNotificationSetting = async (
+  showNotification: boolean,
+  notificationMsg: string,
+  notificationTime: string
+) => {
+  try {
+    const settings = JSON.stringify({
+      showNotification,
+      notificationMsg,
+      notificationTime,
+    });
+
+    await AsyncStorage.setItem("notificationSettings", settings);
+  } catch (err) {
+    console.error("Failed to save notification settings", err);
+  }
+};
+
+export const getNotificationSetting = async () => {
+  try {
+    const settings = await AsyncStorage.getItem("notificationSettings");
+    if (settings) {
+      return JSON.parse(settings);
+    }
+    return null;
+  } catch (err) {
+    console.error("Failed to load notification settings", err);
+    return null;
+  }
 };

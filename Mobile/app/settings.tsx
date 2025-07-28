@@ -9,7 +9,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -18,6 +18,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Switch,
@@ -29,9 +30,11 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
+import { getNotificationSetting, setNotificationSetting } from "@/lib";
+
 const profileImage = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
-
 const data = [
   { label: "Male", value: "male" },
   { label: "Female", value: "female" },
@@ -50,16 +53,22 @@ export default function SettingPage() {
   const [phone, setPhone] = useState<string>(user.phone || "");
   const [email, setEmail] = useState<string>(user.email || "");
   const [gender, setGender] = useState<string>(user.gender || "");
+  const [image, setImage] = useState<string | null>(
+    user.profilePicture || null
+  );
+  const [imageFile, setImageFile] = useState<ImagePicker.ImagePickerAsset>();
   const [loading, setLoading] = useState<boolean>(false);
   const [notificationText, setNotificationText] = useState<string>(
     "Have you listened to your Mother’s prayer today?"
   );
   const [isEnabled, setIsEnabled] = useState(true);
-  const [date, setDate] = useState(new Date(1598051730000));
+  const [date, setDate] = useState("2025-07-28T00:30:00.000Z");
   const [show, setShow] = useState(false);
   const [isPremiumMember, setIsPremiumMember] = useState(
     user.subscriptionType !== "premium" || false
   );
+  const [refreshing, setRefreshing] = useState(false);
+
   const dispatch = useDispatch<AppDispatch>();
 
   const themeData = Object.keys(ThemePresets).map((value) => {
@@ -69,14 +78,34 @@ export default function SettingPage() {
     };
   });
 
-  const toggleSwitch = () => {
-    setIsEnabled((previousState) => !previousState);
+  const updateNotification = async () => {
+    setNotificationSetting(isEnabled, notificationText, date);
     Toast.show({
       type: "success",
-      text1: `Notification ${isEnabled ? "Disabled" : "Enabled"}!`,
+      text1: `Notification Updated!`,
       position: "bottom",
       visibilityTime: 2000,
     });
+    getNotification();
+    return;
+  };
+
+  const toggleSwitch = () => {
+    setIsEnabled((previousState) => !previousState);
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images", "videos"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageFile(result.assets[0]);
+      setImage(result.assets[0].uri);
+    }
   };
 
   const onChange = (event: any, selectedDate: any) => {
@@ -99,13 +128,20 @@ export default function SettingPage() {
     try {
       setLoading(true);
 
-      const fromData = new FormData();
+      const formData = new FormData();
 
-      fromData.set("fullName", name);
-      fromData.set("email", email);
-      fromData.set("phone", phone);
-      fromData.set("gender", gender);
-      fromData.set("image", "");
+      formData.append("fullName", name);
+      formData.append("email", email);
+      formData.append("phone", phone);
+      formData.append("gender", gender);
+      // Add the image
+      if (imageFile?.uri) {
+        formData.append("image", {
+          uri: imageFile.uri,
+          name: imageFile.fileName || "upload.jpg",
+          type: imageFile.mimeType || "image/jpeg",
+        } as any);
+      }
 
       if (!user._id) {
         Toast.show({
@@ -116,9 +152,18 @@ export default function SettingPage() {
         });
         return;
       }
-      const res = await api.put(`/update-user/${user._id}`, fromData);
 
-      if (res.status === 201) {
+      const response = await fetch(
+        `http://appdoaibu.my.id/api/update-user/${user._id}`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+
+      const result = await response.text();
+
+      if (response.status === 201) {
         Toast.show({
           type: "success",
           text1: "Profile Info update successful",
@@ -129,7 +174,10 @@ export default function SettingPage() {
         return;
       }
     } catch (err: any) {
-      console.log("Error", err);
+      console.log("🔥 Full Error:", JSON.stringify(err, null, 2));
+      console.log("🔥 Error response:", err.response?.data);
+      console.log("🔥 Error message:", err.message);
+
       Toast.show({
         type: "error",
         text1: err.message || "Profile info update failed",
@@ -140,13 +188,33 @@ export default function SettingPage() {
       setLoading(false);
     }
   };
-  
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchUser(user.email));
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
+  }, []);
+
+  const getNotification = async () => {
+    const settings = await getNotificationSetting();
+    if (settings) {
+      setNotificationText(settings.notificationMsg);
+      setIsEnabled(settings.showNotification);
+      setDate(settings.notificationTime);
+    }
+  };
 
   useEffect(() => {
     if (user.subscriptionType) {
       setIsPremiumMember(user.subscriptionType !== "premium");
     }
   }, [user.subscriptionType]);
+
+  useEffect(() => {
+    getNotification();
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -158,22 +226,35 @@ export default function SettingPage() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
           <View style={styles.container}>
             <View>
               <Text style={styles.secTitle}>Profile Settings,</Text>
-              <View style={styles.imageBox}>
-                <Image source={profileImage} style={styles.profileImage} />
-                {user.isDonated && (
-                  <View style={{ ...styles.badgeImgBox }}>
-                    <SimpleLineIcons
-                      name="badge"
-                      size={20}
-                      color={colors?.bodyBackground}
+              <Pressable onPress={pickImage}>
+                <View style={styles.imageBox}>
+                  {image && (
+                    <Image
+                      source={{ uri: image }}
+                      style={styles.profileImage}
                     />
-                  </View>
-                )}
-              </View>
+                  )}
+                  {!image && (
+                    <Image source={profileImage} style={styles.profileImage} />
+                  )}
+                  {user.isDonated && (
+                    <View style={{ ...styles.badgeImgBox }}>
+                      <SimpleLineIcons
+                        name="badge"
+                        size={20}
+                        color={colors?.bodyBackground}
+                      />
+                    </View>
+                  )}
+                </View>
+              </Pressable>
               <View style={styles.inputContainer}>
                 <View style={styles.inputBox}>
                   <Text style={styles.inputLabelText}>Name:</Text>
@@ -309,7 +390,7 @@ export default function SettingPage() {
                     />
                   </View>
                   <View style={styles.inputSec}>
-                    <View style={{ width: "60%" }}>
+                    <View style={{ width: "100%" }}>
                       <TextInput
                         style={{ ...styles.input, marginTop: 0 }}
                         inputMode="text"
@@ -317,33 +398,21 @@ export default function SettingPage() {
                         onChangeText={(text) => setNotificationText(text)}
                       />
                     </View>
-                    <View style={{ width: "35%" }}>
-                      <Pressable style={styles.btnPrimary}>
-                        <Text
-                          style={{
-                            ...styles.btnText,
-                            ...styles.primaryBtnText,
-                          }}
-                        >
-                          Update
-                        </Text>
-                      </Pressable>
-                    </View>
                   </View>
                   <View style={styles.inputSec}>
                     <View style={{ width: "60%" }}>
                       <TextInput
+                        readOnly
                         style={{ ...styles.input, marginTop: 0 }}
                         inputMode="text"
-                        value={date.toLocaleTimeString()}
-                        editable={false}
+                        defaultValue={new Date(date).toLocaleTimeString()}
                       />
                       {show && (
                         <DateTimePicker
                           testID="dateTimePicker"
-                          value={date}
+                          value={new Date(date)}
                           mode={"time"}
-                          is24Hour={false}
+                          is24Hour={true}
                           onChange={onChange}
                         />
                       )}
@@ -360,6 +429,21 @@ export default function SettingPage() {
                         </Text>
                       </Pressable>
                     </View>
+                  </View>
+                  <View style={{ width: "50%", marginBottom: 20 }}>
+                    <Pressable
+                      style={styles.btnPrimary}
+                      onPress={updateNotification}
+                    >
+                      <Text
+                        style={{
+                          ...styles.btnText,
+                          ...styles.primaryBtnText,
+                        }}
+                      >
+                        Update Notification
+                      </Text>
+                    </Pressable>
                   </View>
                 </View>
               </View>
@@ -398,6 +482,8 @@ const getStyles = (colors: PresetsColors | undefined) =>
       height: 150,
       borderRadius: 100,
       marginBottom: 20,
+      borderWidth: 2,
+      borderColor: colors?.darkText,
     },
     secTitle: {
       fontSize: 20,
@@ -478,6 +564,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
     },
     primaryBtnText: {
       color: colors?.bodyBackground,
+      fontSize: 14,
     },
     notificationContainer: {
       marginTop: 10,

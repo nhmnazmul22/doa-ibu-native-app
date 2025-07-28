@@ -3,7 +3,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 
 export const saveToken = async (token: string) => {
-  console.log(token);
   await AsyncStorage.setItem("authToken", token);
 };
 

@@ -8,7 +8,6 @@ import { Link } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
-  ProgressBarAndroid,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -17,7 +16,10 @@ import {
 } from "react-native";
 import { getFormattedTimeAndGreeting } from "@/lib";
 import { useSubscriptionCountdown } from "@/hook/useSubscriptionCountdown";
-import * as Progress from "react-native-progress";
+import { applyNotificationSettings } from "@/lib/notification";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { fetchUser } from "@/store/userSlice";
 
 const { width } = Dimensions.get("window");
 
@@ -28,11 +30,11 @@ export default function HomePage() {
   const userContext = useUserInfo();
   const { dateTime, greeting } = getFormattedTimeAndGreeting();
   const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-
-    // Simulate fetching data (e.g., from API)
+    dispatch(fetchUser(userContext?.user.email));
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
@@ -45,6 +47,7 @@ export default function HomePage() {
 
   useEffect(() => {
     checkTokenValidity();
+    applyNotificationSettings();
   }, []);
 
   return (
