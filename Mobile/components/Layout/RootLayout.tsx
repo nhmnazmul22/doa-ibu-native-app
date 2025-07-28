@@ -8,7 +8,8 @@ import { PresetsColors } from "@/types";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import {  StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 
