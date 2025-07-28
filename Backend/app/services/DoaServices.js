@@ -7,7 +7,20 @@ import path from "path";
 export const GetAllDoasService = async (req) => {
   try {
     const type = req.params.type;
-    const doas = await DoaModel.find({ type: type });
+    const doas = await DoaModel.aggregate([
+      { $match: { type: type } },
+      {
+        $lookup: {
+          from: "mothers",
+          localField: "motherId",
+          foreignField: "_id",
+          as: "motherDetails",
+        },
+      },
+      { $unwind: "$motherDetails" },
+      { $project: { motherId: 0, "motherDetails.password": 0 } },
+      { $sort: { createdAt: -1 } },
+    ]);
 
     if (doas.length === 0) {
       return { status: 404, message: "Doas not found", data: doas };
@@ -133,17 +146,62 @@ export const UpdateDoasService = async (req) => {
 export const GetDoaService = async (req) => {
   try {
     const doaId = convertObjectId(req.params.doaId);
-    const doa = await DoaModel.findOne({ _id: doaId });
+    const doa = await DoaModel.aggregate([
+      { $match: { _id: doaId } },
+      {
+        $lookup: {
+          from: "mothers",
+          localField: "motherId",
+          foreignField: "_id",
+          as: "motherDetails",
+        },
+      },
+      { $unwind: "$motherDetails" },
+      { $project: { motherId: 0, "motherDetails.password": 0 } },
+      { $sort: { createdAt: -1 } },
+    ]);
 
-    if (doa) {
+    if (doa.length === 0) {
       return { status: 404, message: "Doa not found", data: doa };
     }
 
-    return { status: 200, message: "Doa found", data: doa };
+    return { status: 200, message: "Doa found", data: doa[0] };
   } catch (err) {
     return {
       status: 500,
       message: "Error in get doa route",
+      data: err.message || "Something Went Wrong!",
+    };
+  }
+};
+
+export const GetDoasByMotherId = async (req) => {
+  try {
+    const motherId = convertObjectId(req.params.motherId);
+    const doas = await DoaModel.aggregate([
+      { $match: { motherId: motherId } },
+      {
+        $lookup: {
+          from: "mothers",
+          localField: "motherId",
+          foreignField: "_id",
+          as: "motherDetails",
+        },
+      },
+      { $unwind: "$motherDetails" },
+      { $project: { motherId: 0, "motherDetails.password": 0 } },
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    if (doas.length === 0) {
+      return { status: 404, message: "Doas not found", data: doas };
+    }
+
+    return { status: 200, message: "Doas found", data: doas };
+  } catch (err) {
+    return {
+      status: 500,
+      message: "Error in get doas by mother id route",
       data: err.message || "Something Went Wrong!",
     };
   }

@@ -45,6 +45,10 @@ router.post(
   DoaController.CreateDoasController
 );
 router.get("/get-doa/:doaId", DoaController.GetDoaController);
+router.get(
+  "/get-doas-by-motherId/:motherId",
+  DoaController.GetDoasByMotherIdController
+);
 router.put("/update-doa/:doaId", DoaController.UpdateDoasController);
 router.delete("/delete-doa/:doaId", DoaController.DeleteDoaController);
 
