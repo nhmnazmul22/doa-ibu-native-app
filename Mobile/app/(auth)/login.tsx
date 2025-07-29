@@ -1,13 +1,10 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { validateEmail, validatePassword } from "@/lib";
-import { auth } from "@/lib/config/firebaseconfig";
 import { saveToken } from "@/lib/token";
 import { AppDispatch, RootState } from "@/store";
 import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, router } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -29,7 +26,7 @@ export default function LoginPage() {
   const styles = getStyles(colors);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [userEmail, setUserEmail] = useState<string>("");
+  // const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user);
@@ -73,10 +70,10 @@ export default function LoginPage() {
         });
         return;
       }
-      const res = await signInWithEmailAndPassword(auth, email, password);
+      // const res = await signInWithEmailAndPassword(auth, email, password);
 
-      if (res.user.email) {
-        setUserEmail(res.user.email);
+      if (email) {
+        // setUserEmail(res.user.email);
         if (
           user.loading === false &&
           user.error === null &&
@@ -110,10 +107,10 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    if (userEmail) {
-      dispatch(fetchUser(userEmail));
+    if (email) {
+      dispatch(fetchUser(email));
     }
-  }, [userEmail]);
+  }, [email]);
 
   return (
     <View style={styles.container}>

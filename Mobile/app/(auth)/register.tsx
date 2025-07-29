@@ -1,7 +1,8 @@
 import { useTheme } from "@/context/theme/ThemeContext";
+import { validateEmail, validatePassword } from "@/lib";
 import api from "@/lib/config/axios";
 import { PresetsColors } from "@/types";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Checkbox from "expo-checkbox";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -14,10 +15,6 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import Checkbox from "expo-checkbox";
-import { auth } from "@/lib/config/firebaseconfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { validateEmail, validatePassword } from "@/lib";
 
 const width = Dimensions.get("window").width;
 
@@ -87,27 +84,26 @@ export default function RegisterPage() {
 
       if (res.status === 201) {
         createdUserId = res.data.data._id;
+        reset();
+        Toast.show({
+          type: "success",
+          text1: "Account Registration successful",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        router.push("/login");
+        return;
 
-        // Create user in Firebase
-        const credentials = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        // // Create user in Firebase
+        // const credentials = await createUserWithEmailAndPassword(
+        //   auth,
+        //   email,
+        //   password
+        // );
 
-        if (credentials.user) {
-          reset();
-          Toast.show({
-            type: "success",
-            text1: "Account Registration successful",
-            position: "bottom",
-            visibilityTime: 2000,
-          });
-          router.push("/login");
-          return;
-        }
+        // if (credentials.user) {
+        // }
       }
-      throw new Error("Something went wrong");
     } catch (err: any) {
       console.error("Registration Error:", err);
 
