@@ -41,6 +41,7 @@ export default function SubscriptionPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const userContext = useUserInfo();
   const [tab, setTab] = useState<"free" | "premium" | "donate">("free");
   const [price, setPrice] = useState<string>("5000");
   const [visibleModal, setVisibleModal] = useState(false);
@@ -195,14 +196,17 @@ export default function SubscriptionPage() {
                       ))}
                     </View>
                   </View>
-                  <View style={styles.btnBox}>
-                    <Pressable
-                      style={[styles.buyBtn]}
-                      onPress={() => setVisibleModal(true)}
-                    >
-                      <Text style={styles.btnText}>Pembelian</Text>
-                    </Pressable>
-                  </View>
+                  {userContext?.user.subscriptionType !== "premium" &&
+                    userContext?.user.subscriptionStatus !== "active" && (
+                      <View style={styles.btnBox}>
+                        <Pressable
+                          style={[styles.buyBtn]}
+                          onPress={() => setVisibleModal(true)}
+                        >
+                          <Text style={styles.btnText}>Pembelian</Text>
+                        </Pressable>
+                      </View>
+                    )}
                 </View>
               )}
               {tab === "donate" && (

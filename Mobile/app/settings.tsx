@@ -450,6 +450,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       justifyContent: "flex-start",
       alignItems: "flex-start",
       paddingTop: 20,
+      paddingBottom: 20,
     },
     profileImage: {
       width: 150,

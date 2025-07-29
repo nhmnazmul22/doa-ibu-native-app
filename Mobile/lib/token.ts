@@ -37,3 +37,8 @@ export const checkTokenValidity = async () => {
 
   return token;
 };
+
+export const deleteToken = async () => {
+  const token = await AsyncStorage.removeItem("authToken");
+  console.log(token);
+};

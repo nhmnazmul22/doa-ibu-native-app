@@ -12,7 +12,9 @@ import {
   Text,
   View,
 } from "react-native";
-
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Toast from "react-native-toast-message";
+import { deleteToken } from "@/lib/token";
 const { width } = Dimensions.get("window");
 
 export default function TopAppBar() {
@@ -44,11 +46,28 @@ export default function TopAppBar() {
     return null;
   }
 
+  const handelLogout = () => {
+    try {
+      deleteToken();
+      router.replace("/login");
+    } catch (err) {
+      console.log(err);
+      Toast.show({
+        type: "error",
+        text1: "Log out filed",
+        position: "bottom",
+        visibilityTime: 2000,
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Link href="/">
         {pathname === "/" ? (
-          <FontAwesome name="search" size={24} />
+          <Pressable onPress={() => router.push("/subscription")}>
+            <MaterialIcons name="subscriptions" size={28} color="black" />
+          </Pressable>
         ) : (
           <Pressable onPress={() => router.back()}>
             <MaterialCommunityIcons
@@ -71,9 +90,9 @@ export default function TopAppBar() {
           />
         )}
       </Link>
-      <Link href="/">
-        <MaterialCommunityIcons name="dots-vertical" size={24} color="black" />
-      </Link>
+      <Pressable onPress={handelLogout}>
+        <MaterialCommunityIcons name="logout" size={28} color="black" />
+      </Pressable>
     </View>
   );
 }
