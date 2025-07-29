@@ -97,7 +97,7 @@ export default function LoginPage() {
         }
       }
     } catch (err: any) {
-      console.log("Error", err);
+      console.error("Error", err);
       Toast.show({
         type: "error",
         text1: err.message || "Login failed, try again",

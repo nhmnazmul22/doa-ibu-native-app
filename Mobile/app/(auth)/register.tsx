@@ -107,11 +107,9 @@ export default function RegisterPage() {
           return;
         }
       }
-
-      // If registration failed and we’re still here
       throw new Error("Something went wrong");
     } catch (err: any) {
-      console.log("Registration Error:", err);
+      console.error("Registration Error:", err);
 
       let message = "Account Registration failed";
 
