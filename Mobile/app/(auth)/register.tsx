@@ -93,23 +93,12 @@ export default function RegisterPage() {
         });
         router.push("/login");
         return;
-
-        // // Create user in Firebase
-        // const credentials = await createUserWithEmailAndPassword(
-        //   auth,
-        //   email,
-        //   password
-        // );
-
-        // if (credentials.user) {
-        // }
       }
     } catch (err: any) {
       console.error("Registration Error:", err);
 
       let message = "Account Registration failed";
 
-      // Optional deletion of backend user
       if (
         ["auth/email-already-in-use", "auth/invalid-email"].includes(err.code)
       ) {

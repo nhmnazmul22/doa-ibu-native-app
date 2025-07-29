@@ -26,7 +26,6 @@ export default function LoginPage() {
   const styles = getStyles(colors);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  // const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user);
@@ -70,10 +69,7 @@ export default function LoginPage() {
         });
         return;
       }
-      // const res = await signInWithEmailAndPassword(auth, email, password);
-
       if (email) {
-        // setUserEmail(res.user.email);
         if (
           user.loading === false &&
           user.error === null &&
