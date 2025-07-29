@@ -147,8 +147,10 @@ export const UpdateMotherService = async (req) => {
         data: null,
       };
     }
+
+    const protocol = req.protocol === "http" ? "https" : req.protocol;
     const imageUrl = image
-      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
+      ? `${protocol}://${req.get("host")}/uploads/images/${image.filename}`
       : mother.profilePicture;
 
     const updateObj = {
@@ -230,6 +232,52 @@ export const DeleteMotherService = async (req) => {
     return {
       status: 500,
       message: "Error in delete Mother route",
+      data: err.message || "Something Went Wrong!",
+    };
+  }
+};
+
+// Follow mother service
+export const FollowMotherService = async (req) => {
+  try {
+    const motherId = convertObjectId(req.params.motherId);
+    const mother = await MotherModel.findById(motherId);
+    const { userId } = req.body;
+
+    if (!mother) {
+      return {
+        status: 404,
+        message: "Mother not found",
+        data: null,
+      };
+    }
+
+    const updateArray = [...mother.followers, userId];
+
+    const updateMother = await MotherModel.findOneAndUpdate(
+      { _id: motherId },
+      { followers: updateArray },
+      { new: true }
+    );
+
+    if (!updateMother) {
+      return { status: 500, message: "Server Issue", data: null };
+    }
+
+    // Convert mongoose document to plain object
+    const motherObject = updateMother.toObject();
+
+    // Remove password field
+    delete motherObject.password;
+    return {
+      status: 201,
+      message: "New follower added in mother profile",
+      data: motherObject,
+    };
+  } catch (err) {
+    return {
+      status: 500,
+      message: "Error in adding mother new follower route",
       data: err.message || "Something Went Wrong!",
     };
   }

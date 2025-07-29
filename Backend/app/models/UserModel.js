@@ -10,59 +10,20 @@ const DataScheme = new Schema(
     gender: { type: String },
     profilePicture: { type: String },
     role: { type: String, enum: ["user"], default: "user" },
-
     // Subscription Info
     subscriptionType: {
       type: String,
-      enum: ["free", "premium", "donate"],
+      enum: ["free", "premium"],
       default: "free",
     },
     subscriptionStatus: {
       type: String,
-      enum: ["active", "inactive"],
+      enum: ["active", "inactive", "expire"],
       default: "inactive",
     },
     subscriptionStartDate: { type: Date },
     subscriptionEndDate: { type: Date },
-    subscriptionRenewalDate: { type: Date },
-
-    // Donation Summary
     isDonated: { type: Boolean, default: false },
-    lastDonationDate: { type: Date },
-    totalDonations: { type: Number, default: 0 },
-    totalSpent: { type: Number, default: 0 },
-
-    // Latest Donation
-    latestDonation: {
-      order_id: String,
-      amount: Number,
-      date: { type: Date, default: Date.now },
-      method: String,
-    },
-
-    // Latest Pending Payment
-    latestPendingPayment: {
-      order_id: String,
-      type: { type: String, enum: ["donation", "subscription"] },
-      amount: Number,
-      method: String,
-      date: { type: Date, default: Date.now },
-    },
-
-    // Latest Subscription
-    latestSubscription: {
-      order_id: String,
-      amount: Number,
-      startDate: Date,
-      endDate: Date,
-      method: String,
-      status: {
-        type: String,
-        enum: ["active", "expired", "cancelled"],
-        default: "active",
-      },
-      date: { type: Date, default: Date.now },
-    },
   },
   {
     timestamps: true,

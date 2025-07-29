@@ -7,7 +7,11 @@ const DataScheme = new Schema(
     audioLink: { type: String, require: true },
     title: { type: String, required: true },
     shortDes: { type: String },
-    favorite: { type: Boolean, default: false },
+    favoriteUsers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      required: false,
+      default: [],
+    },
     duration: { type: String },
     type: { type: String, enum: ["uploaded", "recorded"], default: "uploaded" },
     motherId: {

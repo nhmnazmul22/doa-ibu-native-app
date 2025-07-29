@@ -1,10 +1,12 @@
 import { core } from "../utility/midtransClient.js";
 import UserModel from "../models/UserModel.js";
-
+import { convertObjectId } from "../utility/lib.js";
+import DonationsModel from "../models/SubscriptionModel.js";
+import SubscriptionModel from "../models/SubscriptionModel.js";
 // Create Donation Charge
 export const CreateDonationService = async (req) => {
   const { amount, method, userId } = req.body;
-  const orderId = `DONATE-${Date.now()}`;
+  const orderId = `DONATE-${userId}`;
 
   const payload = {
     transaction_details: { order_id: orderId, gross_amount: amount },
@@ -64,7 +66,7 @@ export const CreateDonationService = async (req) => {
 // Create Subscription Charge
 export const CreateSubscriptionChargeService = async (req) => {
   const { userId, amount, method } = req.body;
-  const orderId = `SUBS-${Date.now()}`;
+  const orderId = `SUBS-${userId}`;
 
   const payload = {
     payment_type: method,
@@ -141,32 +143,41 @@ export const MidtransWebhookService = async (req) => {
   try {
     const isDonation = order_id.startsWith("DONATE");
     const isSubscription = order_id.startsWith("SUBS");
+    const userId = convertObjectId(order_id.split("-")[1]);
 
     if (
       transaction_status === "settlement" ||
       transaction_status === "capture"
     ) {
-      const updateData = {
-        $inc: {
-          totalSpent: Number(gross_amount),
-          totalDonations: isDonation ? Number(gross_amount) : 0,
-        },
-        $set: {},
-      };
-
       if (isDonation) {
-        updateData.$set.isDonated = true;
-        updateData.$set.lastDonationDate = new Date(settlement_time);
-        updateData.$set.latestDonation = {
-          order_id,
+        await UserModel.findOneAndUpdate(
+          { _id: userId },
+          {
+            isDonated: true,
+          },
+          { new: true }
+        );
+
+        const donationObj = {
+          order_id: order_id,
           amount: Number(gross_amount),
-          date: new Date(settlement_time),
           method: payment_type,
+          userId: userId,
         };
-        updateData.$set.latestPendingPayment = null;
+
+        await DonationsModel.create(donationObj);
       }
 
       if (isSubscription) {
+        await UserModel.findOneAndUpdate(
+          { _id: userId },
+          {
+            subscriptionType: "premium",
+            subscriptionStatus: "active",
+          },
+          { new: true }
+        );
+
         const startDate = new Date();
         startDate.setHours(0, 0, 0, 0);
 
@@ -174,37 +185,16 @@ export const MidtransWebhookService = async (req) => {
         endDate.setMonth(endDate.getMonth() + 1);
         endDate.setHours(23, 59, 59, 999);
 
-        Object.assign(updateData.$set, {
-          subscriptionType: "premium",
-          subscriptionStatus: "active",
-          subscriptionStartDate: startDate,
-          subscriptionEndDate: endDate,
-          subscriptionRenewalDate: endDate,
-          latestSubscription: {
-            order_id,
-            amount: Number(gross_amount),
-            startDate,
-            endDate,
-            method: payment_type,
-            status: "active",
-            date: new Date(settlement_time),
-          },
-          latestPendingPayment: null,
-        });
-      }
+        const subscriptionObj = {
+          order_id,
+          amount: Number(gross_amount),
+          startDate,
+          endDate,
+          method: payment_type,
+          status: "active",
+        };
 
-      const user = await UserModel.findOneAndUpdate(
-        { "latestPendingPayment.order_id": order_id },
-        updateData,
-        { new: true }
-      );
-
-      if (!user && isSubscription) {
-        await UserModel.findOneAndUpdate(
-          { "latestSubscription.order_id": order_id },
-          updateData,
-          { new: true }
-        );
+        await SubscriptionModel.create(subscriptionObj);
       }
     }
 

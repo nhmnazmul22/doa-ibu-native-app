@@ -59,12 +59,13 @@ export const CreateDoasService = async (req) => {
       return { status: 400, message: "Audio File not provided", data: null };
     }
 
+    const protocol = req.protocol === "http" ? "https" : req.protocol;
     const imageUrl = image
-      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
+      ? `${protocol}://${req.get("host")}/uploads/images/${image.filename}`
       : null;
 
     const audioUrl = audio
-      ? `${req.protocol}://${req.get("host")}/uploads/audio/${audio.filename}`
+      ? `${protocol}://${req.get("host")}/uploads/audio/${audio.filename}`
       : null;
 
     // Generate Audio Duration
@@ -241,6 +242,47 @@ export const DeleteDoaService = async (req) => {
     return {
       status: 500,
       message: "Error in delete doa route",
+      data: err.message || "Something Went Wrong!",
+    };
+  }
+};
+
+// Love mother Doa
+export const LoveDoaService = async (req) => {
+  try {
+    const doaId = convertObjectId(req.params.doaId);
+    const doa = await DoaModel.findById(doaId);
+    const { userId } = req.body;
+
+    if (!doa) {
+      return {
+        status: 404,
+        message: "Doa not found",
+        data: null,
+      };
+    }
+
+    const updateArray = [...doa.favoriteUsers, userId];
+
+    const updateDoa = await DoaModel.findOneAndUpdate(
+      { _id: doaId },
+      { favoriteUsers: updateArray },
+      { new: true }
+    );
+
+    if (!updateDoa) {
+      return { status: 500, message: "Server Issue", data: null };
+    }
+
+    return {
+      status: 201,
+      message: "User love added in doa info",
+      data: updateDoa,
+    };
+  } catch (err) {
+    return {
+      status: 500,
+      message: "Error in adding love in doa info route",
       data: err.message || "Something Went Wrong!",
     };
   }

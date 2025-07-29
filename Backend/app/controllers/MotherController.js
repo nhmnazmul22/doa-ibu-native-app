@@ -39,3 +39,11 @@ export const DeleteMotherController = async (req, res) => {
     .status(result.status)
     .json({ message: result.message, data: result.data });
 };
+
+// Delete Mother Controller
+export const FollowMotherController = async (req, res) => {
+  const result = await MotherServices.FollowMotherService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};

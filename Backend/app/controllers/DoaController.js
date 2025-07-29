@@ -32,7 +32,6 @@ export const GetDoaController = async (req, res) => {
     .json({ message: result.message, data: result.data });
 };
 
-
 // Get Doas By mother id Controller
 export const GetDoasByMotherIdController = async (req, res) => {
   const result = await DoaServices.GetDoasByMotherId(req);
@@ -41,10 +40,17 @@ export const GetDoasByMotherIdController = async (req, res) => {
     .json({ message: result.message, data: result.data });
 };
 
-
 // Delete Doa Controller
 export const DeleteDoaController = async (req, res) => {
   const result = await DoaServices.DeleteDoaService(req);
+  return res
+    .status(result.status)
+    .json({ message: result.message, data: result.data });
+};
+
+// Love doa controller
+export const LoveDoaController = async (req, res) => {
+  const result = await DoaServices.LoveDoaService(req);
   return res
     .status(result.status)
     .json({ message: result.message, data: result.data });

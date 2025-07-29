@@ -108,8 +108,9 @@ export const UpdateUsersService = async (req) => {
     }
 
     // Generating imgUrl
+    const protocol = req.protocol === "http" ? "https" : req.protocol;
     const imageUrl = image
-      ? `${req.protocol}://${req.get("host")}/uploads/images/${image.filename}`
+      ? `${protocol}://${req.get("host")}/uploads/images/${image.filename}`
       : user.profilePicture;
 
     const updatedObj = {
@@ -176,12 +177,10 @@ export const GetUserService = async (req) => {
     // Remove password field
     delete userObject.password;
 
-    const token = TokenEncoded(user._id, user.email);
     return {
       status: 200,
       message: "User found successful",
       data: userObject,
-      token: token,
     };
   } catch (err) {
     return {

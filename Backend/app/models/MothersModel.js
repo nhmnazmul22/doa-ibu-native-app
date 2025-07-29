@@ -7,21 +7,13 @@ const DataSchema = new Schema(
     email: { type: String, required: true, default: "" },
     password: { type: String, required: true },
     phone: { type: String, required: false },
-    gender: { type: String, required: false },
+    gender: { type: String, required: false, default: "female" },
     followers: {
       type: [mongoose.Schema.Types.ObjectId],
       required: false,
       default: [],
     },
-    following: {
-      type: [mongoose.Schema.Types.ObjectId],
-      required: false,
-      default: [],
-    },
-    profilePicture: {
-      type: String,
-      required: false,
-    },
+    profilePicture: { type: String, required: false },
     bio: { type: String, required: false, default: "" },
     role: { type: String, enum: ["mother"], default: "mother" },
   },
