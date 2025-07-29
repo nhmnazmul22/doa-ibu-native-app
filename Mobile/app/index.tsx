@@ -15,13 +15,11 @@ import {
   View,
 } from "react-native";
 import { getFormattedTimeAndGreeting } from "@/lib";
-import { useSubscriptionCountdown } from "@/hook/useSubscriptionCountdown";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { fetchUser } from "@/store/userSlice";
 import * as Notifications from "expo-notifications";
 import { setupNotificationPermissions } from "@/lib/notification";
-import { fetchDoa } from "@/store/doaSlice";
 import { fetchDoas } from "@/store/doasSlice";
 
 // 🔔 Configure notification handler
@@ -61,6 +59,7 @@ export default function HomePage() {
   useEffect(() => {
     setupNotificationPermissions();
   }, []);
+
 
   return (
     <ScrollView

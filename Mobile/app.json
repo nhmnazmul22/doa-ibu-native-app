@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "doaibu",
-    // "deepLinking": true,
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -30,8 +29,7 @@
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS",
-        "INTERNET"
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.nhmnazmul22.doaibu"
     },
