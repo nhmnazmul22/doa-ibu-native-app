@@ -159,12 +159,16 @@ export default function RegisterPage() {
       signInWithCredential(auth, credential)
         .then((userCredential) => {
           console.log("User signed in:", userCredential.user);
-          
         })
         .catch((error) => {
           console.error(error);
         });
+      return;
+    } else if (response?.type === "error") {
+      console.log("❌ Google Auth Error:", response.error);
+      return;
     }
+    return;
   }, [response]);
 
   return (
