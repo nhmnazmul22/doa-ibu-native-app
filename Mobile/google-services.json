@@ -1,44 +1,26 @@
 {
   "project_info": {
-    "project_number": "32893310341",
-    "project_id": "doaibu-c3ecb",
-    "storage_bucket": "doaibu-c3ecb.firebasestorage.app"
+    "project_number": "61111890879",
+    "project_id": "doaibu-f93d5",
+    "storage_bucket": "doaibu-f93d5.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:32893310341:android:e07e455224eae00c0360ec",
+        "mobilesdk_app_id": "1:61111890879:android:159e888a736bc21234270a",
         "android_client_info": {
-          "package_name": "com.nhmnazmul22.doaibu"
+          "package_name": "com.doaibu.doaibu"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "32893310341-5hdfmebl900lpr2g79qm77t3p5e9ccpi.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.nhmnazmul22.doaibu",
-            "certificate_hash": "785a61c08a5ea743afdc54f559891a1e859a208e"
-          }
-        },
-        {
-          "client_id": "32893310341-e56db12h25tjebm49rufto7s79hdan19.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCRYEBQJADjOAnPernPqeFrIQ3Ar_BHQsk"
+          "current_key": "AIzaSyDGxVye7HgMPuifHTXyABI0Pjih5sle6rc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "32893310341-e56db12h25tjebm49rufto7s79hdan19.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

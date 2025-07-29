@@ -8,8 +8,16 @@ const DataSchema = new Schema(
     password: { type: String, required: true },
     phone: { type: String, required: false },
     gender: { type: String, required: false },
-    followers: { type: String, required: false, default: "0" },
-    following: { type: String, required: false, default: "0" },
+    followers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      required: false,
+      default: [],
+    },
+    following: {
+      type: [mongoose.Schema.Types.ObjectId],
+      required: false,
+      default: [],
+    },
     profilePicture: {
       type: String,
       required: false,

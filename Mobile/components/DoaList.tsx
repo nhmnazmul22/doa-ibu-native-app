@@ -1,5 +1,4 @@
 import { useTheme } from "@/context/theme/ThemeContext";
-import doa from "@/data/dao.json";
 import { PresetsColors } from "@/types";
 import React, { useEffect } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
@@ -11,7 +10,6 @@ import LoadingComponents from "./LoadingComponents";
 const { width } = Dimensions.get("window");
 
 export default function DoaList() {
-  const data = doa;
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);

@@ -1,14 +1,18 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { validateEmail, validatePassword } from "@/lib";
+import { auth } from "@/lib/config/firebaseconfig";
 import { saveToken } from "@/lib/token";
 import { AppDispatch, RootState } from "@/store";
 import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { FontAwesome } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -18,6 +22,8 @@ import {
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 
+const googleIcon = require("@/assets/images/google-icon.png");
+const facebookIcon = require("@/assets/images/facebook-icon.png");
 const width = Dimensions.get("window").width;
 
 export default function LoginPage() {
@@ -28,7 +34,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.user);
 
   const reset = () => {
     setEmail("");
@@ -38,6 +43,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     try {
       setLoading(true);
+
       if (!email || !password) {
         Toast.show({
           type: "error",
@@ -69,25 +75,21 @@ export default function LoginPage() {
         });
         return;
       }
-      if (email) {
-        if (
-          user.loading === false &&
-          user.error === null &&
-          user.items?.token
-        ) {
-          saveToken(user.items?.token);
-          reset();
-          router.replace("/");
-        } else {
-          reset();
-          Toast.show({
-            type: "error",
-            text1: "Login failed, user not found.",
-            position: "bottom",
-            visibilityTime: 2000,
-          });
-          return;
-        }
+
+      // 🔐 Firebase login directly
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const token = await userCredential.user.getIdToken();
+
+      // Save token and dispatch the user
+      if (userCredential.user.email && token) {
+        dispatch(fetchUser(userCredential.user.email));
+        saveToken(token);
+        reset();
+        router.replace("/");
       }
     } catch (err: any) {
       console.error("Error", err);
@@ -102,12 +104,6 @@ export default function LoginPage() {
     }
   };
 
-  useEffect(() => {
-    if (email) {
-      dispatch(fetchUser(email));
-    }
-  }, [email]);
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign in</Text>
@@ -118,6 +114,7 @@ export default function LoginPage() {
           placeholder="Enter username or email"
           value={email}
           onChangeText={(text) => setEmail(text)}
+          placeholderTextColor="#000000c1"
         />
         <TextInput
           inputMode="text"
@@ -125,35 +122,34 @@ export default function LoginPage() {
           placeholder="Enter Password"
           value={password}
           onChangeText={(text) => setPassword(text)}
+          placeholderTextColor="#000000c1"
         />
         <Pressable style={styles.btn} onPress={handleLogin}>
           {loading && <ActivityIndicator size="small" color="#ffffff" />}
           {!loading && <Text style={styles.btnText}>Sign In</Text>}
         </Pressable>
       </View>
-      {/* <View style={styles.lineBox}>
+      <View style={styles.lineBox}>
         <View style={styles.line}></View>
         <Text>Or</Text>
         <View style={styles.line}></View>
       </View>
       <View style={styles.iconsBox}>
-        <Pressable onPress={() => router.push("/")}>
-          <FontAwesome
-            name="google"
-            size={38}
-            color={colors?.darkText}
-            style={{ marginHorizontal: "auto" }}
-          />
-        </Pressable>
-        <Pressable onPress={() => router.push("/")}>
-          <FontAwesome
-            name="facebook"
-            size={38}
-            color={colors?.darkText}
-            style={{ marginHorizontal: "auto" }}
-          />
-        </Pressable>
-      </View> */}
+        <View style={styles.iconsBox}>
+          <Pressable onPress={() => router.push("/")}>
+            <Image
+              source={googleIcon}
+              style={{ width: 45, height: 45, objectFit: "contain" }}
+            />
+          </Pressable>
+          <Pressable onPress={() => router.push("/")}>
+            <Image
+              source={facebookIcon}
+              style={{ width: 45, height: 45, objectFit: "contain" }}
+            />
+          </Pressable>
+        </View>
+      </View>
       <Text style={styles.registerText}>
         Not a member ?{" "}
         <Link
@@ -199,7 +195,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       height: 80,
       borderWidth: 1,
       borderRadius: 10,
-      borderColor: colors?.darkText,
+      borderColor: "#00000059",
       paddingHorizontal: 20,
       fontSize: 18,
       fontFamily: "Nunito",

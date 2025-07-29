@@ -1,13 +1,19 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { validateEmail, validatePassword } from "@/lib";
 import api from "@/lib/config/axios";
+import { auth } from "@/lib/config/firebaseconfig";
 import { PresetsColors } from "@/types";
-import Checkbox from "expo-checkbox";
 import { Link, router } from "expo-router";
-import React, { useState } from "react";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from "firebase/auth";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -15,8 +21,13 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
 
+const googleIcon = require("@/assets/images/google-icon.png");
+const facebookIcon = require("@/assets/images/facebook-icon.png");
 const width = Dimensions.get("window").width;
+WebBrowser.maybeCompleteAuthSession();
 
 export default function RegisterPage() {
   const theme = useTheme();
@@ -26,12 +37,20 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [type, setType] = useState<"user" | "mother">("user");
   const reset = () => {
     setFullName("");
     setEmail("");
     setPassword("");
   };
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId:
+      "71022976123-kl1r0s53q4rdeegn7ungf2occ93emajg.apps.googleusercontent.com",
+    androidClientId:
+      "71022976123-cj20o2208ik321sh8qcd0vnqepbadh49.apps.googleusercontent.com",
+    webClientId:
+      "61111890879-8ps0ab0l8goqu0hfk0i230bqivm63q1u.apps.googleusercontent.com",
+  });
 
   const handleRegistration = async (e: any) => {
     let createdUserId = null;
@@ -76,23 +95,28 @@ export default function RegisterPage() {
         password,
       };
 
-      // Call backend API
-      const res =
-        type === "user"
-          ? await api.post("/create-user", userObj)
-          : await api.post("/create-mother", userObj);
+      const res = await api.post("/create-user", userObj);
 
       if (res.status === 201) {
         createdUserId = res.data.data._id;
-        reset();
-        Toast.show({
-          type: "success",
-          text1: "Account Registration successful",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
-        router.push("/login");
-        return;
+
+        const fireBaseRes = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        if (fireBaseRes.user) {
+          reset();
+          Toast.show({
+            type: "success",
+            text1: "Account Registration successful",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.push("/login");
+          return;
+        }
       }
     } catch (err: any) {
       console.error("Registration Error:", err);
@@ -109,11 +133,7 @@ export default function RegisterPage() {
 
         if (createdUserId) {
           try {
-            await api.delete(
-              type === "user"
-                ? `/delete-user/${createdUserId}`
-                : `/delete-mother/${createdUserId}`
-            );
+            await api.delete(`/delete-user/${createdUserId}`);
           } catch (deleteErr) {
             console.error("Failed to delete user from backend:", deleteErr);
           }
@@ -131,6 +151,22 @@ export default function RegisterPage() {
     }
   };
 
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(auth, credential)
+        .then((userCredential) => {
+          console.log("User signed in:", userCredential.user);
+          
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [response]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Register Account</Text>
@@ -141,6 +177,7 @@ export default function RegisterPage() {
           placeholder="Full Name"
           value={fullName}
           onChangeText={(text) => setFullName(text)}
+          placeholderTextColor="#000000c1"
         />
         <TextInput
           inputMode="email"
@@ -148,6 +185,7 @@ export default function RegisterPage() {
           placeholder="Enter email"
           value={email}
           onChangeText={(text) => setEmail(text)}
+          placeholderTextColor="#000000c1"
         />
         <TextInput
           inputMode="text"
@@ -155,59 +193,36 @@ export default function RegisterPage() {
           placeholder="Enter Password"
           value={password}
           onChangeText={(text) => setPassword(text)}
+          placeholderTextColor="#000000c1"
         />
-        <View style={styles.checkboxContainer}>
-          <Text style={styles.checkBoxTitle}>Select account Type:</Text>
-          <View style={styles.checkBoxs}>
-            <Pressable style={styles.check} onPress={() => setType("user")}>
-              <Checkbox
-                value={type === "user"}
-                onValueChange={(value) => value && setType("user")}
-                color={type === "user" ? colors?.primary : undefined}
-              />
-              <Text style={styles.checkTitle}>User Account</Text>
-            </Pressable>
-            <Pressable style={styles.check} onPress={() => setType("mother")}>
-              <Checkbox
-                value={type === "mother"}
-                onValueChange={(value) => value && setType("mother")}
-                color={type === "mother" ? colors?.primary : undefined}
-              />
-              <Text style={styles.checkTitle}>Mother Account</Text>
-            </Pressable>
-          </View>
-        </View>
         <Pressable style={styles.btn} onPress={handleRegistration}>
           {loading && <ActivityIndicator size="small" color="#ffffff" />}
           {!loading && <Text style={styles.btnText}>Create Account</Text>}
         </Pressable>
       </View>
-      {/* <View style={styles.lineBox}>
+      <View style={styles.lineBox}>
         <View style={styles.line}></View>
         <Text>Or</Text>
         <View style={styles.line}></View>
       </View>
       <View style={styles.iconsBox}>
-        <Pressable onPress={() => router.push("/")}>
-          <View style={styles.socialLoginBtn}>
-            <FontAwesome
-              name="google"
-              size={38}
-              color={colors?.darkText}
-              style={{ marginHorizontal: "auto" }}
-            />
-            <Text>Continue with Google</Text>
-          </View>
-        </Pressable>
-        <Pressable onPress={() => router.push("/")}>
-          <FontAwesome
-            name="facebook"
-            size={38}
-            color={colors?.darkText}
-            style={{ marginHorizontal: "auto" }}
+        <Pressable
+          onPress={() => {
+            promptAsync();
+          }}
+        >
+          <Image
+            source={googleIcon}
+            style={{ width: 45, height: 45, objectFit: "contain" }}
           />
         </Pressable>
-      </View> */}
+        <Pressable onPress={() => router.push("/")}>
+          <Image
+            source={facebookIcon}
+            style={{ width: 45, height: 45, objectFit: "contain" }}
+          />
+        </Pressable>
+      </View>
       <Text style={styles.registerText}>
         Do you have an account?{" "}
         <Link
@@ -232,7 +247,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       justifyContent: "flex-start",
       alignItems: "center",
       width: width * 0.9,
-      paddingTop: 150,
+      paddingTop: 100,
     },
     title: {
       fontFamily: "Nunito",
@@ -253,7 +268,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       height: 80,
       borderWidth: 1,
       borderRadius: 10,
-      borderColor: colors?.darkText,
+      borderColor: "#00000059",
       paddingHorizontal: 20,
       fontSize: 18,
       fontFamily: "Nunito",
@@ -366,8 +381,5 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontFamily: "Nunito",
       color: colors?.darkText,
       fontSize: 14,
-    },
-    socialLoginBtn: {
-      backgroundColor: colors?.primary,
     },
   });
