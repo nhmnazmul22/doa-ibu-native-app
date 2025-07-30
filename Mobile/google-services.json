@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "61111890879-32p59h9dlk3mk4jrslho5u9blvhptb20.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.indo.doaibu",
+            "certificate_hash": "e96928ee92cfb1a314728f5f99740c746e907397"
+          }
+        },
+        {
           "client_id": "61111890879-8ps0ab0l8goqu0hfk0i230bqivm63q1u.apps.googleusercontent.com",
           "client_type": 3
         }
