@@ -49,7 +49,7 @@ export default function DoaList() {
             thumbnail={item.thumbnail || ""}
             title={item.title}
             shortDes={item.shortDes}
-            favorite={item.favorite || false}
+            favoriteUsers={item.favoriteUsers!}
             duration={item.duration || ""}
           />
         ))

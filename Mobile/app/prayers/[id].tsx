@@ -1,5 +1,7 @@
 import LoadingComponents from "@/components/LoadingComponents";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
+import api from "@/lib/config/axios";
 import { AppDispatch, RootState } from "@/store";
 import { fetchDoa } from "@/store/doaSlice";
 import { fetchDoas } from "@/store/doasSlice";
@@ -19,11 +21,12 @@ import {
   Text,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
 
-let audioTracks: (AudioSource | undefined)[] | { uri: string }[] = [];
+let audioTracks: (AudioSource | undefined)[] = [];
 
 export default function MotherDoa() {
   const theme = useTheme();
@@ -36,6 +39,7 @@ export default function MotherDoa() {
   const playerStatus = useAudioPlayerStatus(player);
   const [isLooping, setIsLooping] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
+  const userContext = useUserInfo();
   const dispatch = useDispatch<AppDispatch>();
   const {
     items: Doa,
@@ -86,6 +90,34 @@ export default function MotherDoa() {
     }
   };
 
+  const handelLoved = async () => {
+    try {
+      const body = {
+        userId: userContext?.user._id,
+      };
+      const res = await api.put(`/love-doa/${id}`, body);
+      if (res.status === 201) {
+        dispatch(fetchDoa(id));
+        Toast.show({
+          type: "success",
+          text1: "Thanks, for loved this doa",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      Toast.show({
+        type: "error",
+        text1: "Loved added filed",
+        position: "bottom",
+        visibilityTime: 2000,
+      });
+    } finally {
+    }
+  };
+
   useEffect(() => {
     if (playerStatus.didJustFinish && isLooping) {
       player.seekTo(0);
@@ -100,7 +132,7 @@ export default function MotherDoa() {
     if (id) {
       dispatch(fetchDoa(id));
     }
-  }, [id]);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchDoas("uploaded"));
@@ -109,9 +141,10 @@ export default function MotherDoa() {
   useEffect(() => {
     if (doas?.data) {
       doas.data.map((item, index) => {
-        if (item.audioLink) {
+        if (item.audioLink && item._id) {
           audioTracks.push({
             uri: item.audioLink,
+            assetId: index,
           });
         }
       });
@@ -121,6 +154,13 @@ export default function MotherDoa() {
   if (doaLoading) {
     return <LoadingComponents />;
   }
+
+  const isFavorite =
+    Doa?.data &&
+    Doa.data.favoriteUsers &&
+    Doa?.data.favoriteUsers.includes(userContext?.user._id);
+
+  console.log(audioTracks);
 
   return (
     <View style={styles.container}>
@@ -135,13 +175,17 @@ export default function MotherDoa() {
           <Text style={styles.doaInfoTitle}>{Doa?.data.title}</Text>
           <Text style={styles.doaInfoDes}>{Doa?.data.shortDes}</Text>
         </View>
-        <Pressable>
-          {Doa?.data.favorite ? (
-            <AntDesign name="heart" size={24} color={colors?.primary} />
+        <View>
+          {isFavorite ? (
+            <Pressable>
+              <AntDesign name="heart" size={24} color={colors?.primary} />
+            </Pressable>
           ) : (
-            <AntDesign name="hearto" size={24} color={colors?.darkText} />
+            <Pressable onPress={handelLoved}>
+              <AntDesign name="hearto" size={24} color={colors?.darkText} />
+            </Pressable>
           )}
-        </Pressable>
+        </View>
       </View>
 
       <View>

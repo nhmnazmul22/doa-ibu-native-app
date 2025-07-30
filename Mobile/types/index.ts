@@ -3,7 +3,7 @@ export interface Doa {
   thumbnail?: string;
   title: string;
   shortDes: string;
-  favorite?: boolean;
+  favoriteUsers?: [string];
   duration?: string;
   audioLink?: string;
   motherDetails?: Mother;
@@ -14,8 +14,7 @@ export interface Mother {
   profilePicture?: string;
   fullName: string;
   email: string;
-  following?: string;
-  followers?: string;
+  followers?: [string];
 }
 
 export interface PresetsColors {

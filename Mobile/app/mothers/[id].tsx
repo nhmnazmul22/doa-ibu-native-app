@@ -2,6 +2,8 @@ import ErrorComponents from "@/components/ErrorComponent";
 import LoadingComponents from "@/components/LoadingComponents";
 import MotherDoaList from "@/components/MotherDoaList";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
+import api from "@/lib/config/axios";
 import { AppDispatch, RootState } from "@/store";
 import { fetchDoasByMotherId } from "@/store/doasbyMother";
 import { fetchMotherById } from "@/store/motherIdSlice";
@@ -19,17 +21,20 @@ import {
   View,
   Button,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 
 const motherImg = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
 
 export default function MotherProfile() {
-  const theme = useTheme();
   const { id }: { id: string } = useLocalSearchParams();
+  const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const userContext = useUserInfo();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const {
     items: mother,
@@ -52,12 +57,42 @@ export default function MotherProfile() {
     }, 1500);
   }, []);
 
+  const handleFollowMother = async () => {
+    try {
+      setLoading(true);
+      const body = {
+        userId: userContext?.user._id,
+      };
+
+      const res = await api.put(`/follow-mother/${id}`, body);
+      if (res.status === 201) {
+        Toast.show({
+          type: "success",
+          text1: "Thanks, for follow mother",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        onRefresh();
+      }
+    } catch (err) {
+      console.error(err);
+      Toast.show({
+        type: "error",
+        text1: "Failed to follow mother",
+        position: "bottom",
+        visibilityTime: 2000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       dispatch(fetchMotherById(id));
       dispatch(fetchDoasByMotherId(id));
     }
-  }, [id]);
+  }, []);
 
   if (motherLoading) {
     return <LoadingComponents />;
@@ -66,6 +101,28 @@ export default function MotherProfile() {
   if (!motherLoading && !mother?.data && motherError) {
     return <ErrorComponents errorText={motherError} />;
   }
+
+  const loved =
+    doas?.data &&
+    doas?.data?.length > 0 &&
+    doas.data.reduce((prevValue, currentValue) => {
+      if (currentValue.favoriteUsers) {
+        return currentValue.favoriteUsers?.length + prevValue;
+      }
+      return prevValue;
+    }, 0);
+
+  const isFollowedUser = mother?.data.followers?.includes(
+    userContext?.user._id
+  );
+
+  const addedKBefore = (total: number) => {
+    if (total >= 1000) {
+      const newTotal = total / 1000;
+      return `${parseInt(newTotal.toString())}k`;
+    }
+    return total;
+  };
 
   return (
     <ScrollView
@@ -81,19 +138,22 @@ export default function MotherProfile() {
             <Text style={styles.normalText}>{mother?.data?.email}</Text>
             <View style={styles.followersInfoBox}>
               <View>
-                <Button title="Follow Me" color={colors?.primary} />
+                <Button
+                  title={isFollowedUser ? "Followed" : "Follow Me"}
+                  color={colors?.primary}
+                  onPress={handleFollowMother}
+                  disabled={loading || isFollowedUser}
+                />
               </View>
               <View style={styles.followersInfo}>
                 <Text style={styles.followingText}>
-                  {mother?.data?.followers}
+                  {addedKBefore(mother?.data?.followers?.length!)}
                 </Text>
                 <Text style={styles.normalText}>Followers</Text>
               </View>
               <View style={styles.followersInfo}>
-                <Text style={styles.followingText}>
-                  {mother?.data?.following}
-                </Text>
-                <Text style={styles.normalText}>Following</Text>
+                <Text style={styles.followingText}>{loved}</Text>
+                <Text style={styles.normalText}>Loved</Text>
               </View>
             </View>
           </View>
