@@ -41,7 +41,7 @@ export default function DoaList() {
 
   return (
     <View style={styles.container}>
-      {items?.data ? (
+      {items?.data && items?.data.length > 0 ? (
         items?.data.map((item, index) => (
           <DoaItem
             key={item?._id?.toString()}
@@ -54,7 +54,17 @@ export default function DoaList() {
           />
         ))
       ) : (
-        <Text>No Data Found</Text>
+        <Text
+          style={{
+            textAlign: "center",
+            fontFamily: "Nunito",
+            fontSize: 16,
+            fontStyle: "italic",
+            color: colors?.darkText,
+          }}
+        >
+          No Data Found
+        </Text>
       )}
     </View>
   );

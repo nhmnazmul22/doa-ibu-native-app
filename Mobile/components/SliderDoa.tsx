@@ -39,7 +39,7 @@ function SliderDoa() {
 
   return (
     <View style={{ flex: 1 }}>
-      {items?.data && items?.data.length > 0 && (
+      {items?.data && items?.data.length > 0 ? (
         <Carousel
           loop
           autoPlay
@@ -61,6 +61,19 @@ function SliderDoa() {
             />
           )}
         />
+      ) : (
+        <Text
+          style={{
+            textAlign: "center",
+            fontFamily: "Nunito",
+            fontSize: 16,
+            fontStyle: "italic",
+            color: "#000000",
+            width: width * 0.9,
+          }}
+        >
+          No Data Found
+        </Text>
       )}
     </View>
   );
