@@ -32,7 +32,6 @@ export default function MotherDoa() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-
   const { id }: { id: string } = useLocalSearchParams();
   const [trackIndex, setTrackIndex] = useState(0);
   const player = useAudioPlayer(audioTracks[trackIndex]);
@@ -66,12 +65,12 @@ export default function MotherDoa() {
 
   const handleNextTrack = () => {
     if (trackIndex < audioTracks.length - 1) {
-      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
+      // dispatch(fetchDoa(doas?.data[trackIndex]._id!));
       reset();
       player.seekTo(0);
       setTrackIndex(trackIndex + 1);
     } else {
-      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
+      // dispatch(fetchDoa(doas?.data[trackIndex]._id!));
       reset();
       player.seekTo(0);
       setTrackIndex(0);
@@ -135,6 +134,13 @@ export default function MotherDoa() {
   }, []);
 
   useEffect(() => {
+    if (trackIndex < audioTracks.length - 1) {
+      console.log("track:", trackIndex);
+      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
+    }
+  }, [trackIndex]);
+
+  useEffect(() => {
     dispatch(fetchDoas("uploaded"));
   }, []);
 
@@ -159,8 +165,6 @@ export default function MotherDoa() {
     Doa?.data &&
     Doa.data.favoriteUsers &&
     Doa?.data.favoriteUsers.includes(userContext?.user._id);
-
-  console.log(audioTracks);
 
   return (
     <View style={styles.container}>

@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:61111890879:android:159e888a736bc21234270a",
+        "mobilesdk_app_id": "1:61111890879:android:a1241e51f5485b7b34270a",
         "android_client_info": {
-          "package_name": "com.doaibu.doaibu"
+          "package_name": "com.indo.doaibu"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "61111890879-8ps0ab0l8goqu0hfk0i230bqivm63q1u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDGxVye7HgMPuifHTXyABI0Pjih5sle6rc"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "61111890879-8ps0ab0l8goqu0hfk0i230bqivm63q1u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
