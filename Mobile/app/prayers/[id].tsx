@@ -134,8 +134,7 @@ export default function MotherDoa() {
   }, []);
 
   useEffect(() => {
-    if (trackIndex < audioTracks.length - 1) {
-      console.log("track:", trackIndex);
+    if (trackIndex < audioTracks.length && trackIndex >= 0) {
       dispatch(fetchDoa(doas?.data[trackIndex]._id!));
     }
   }, [trackIndex]);

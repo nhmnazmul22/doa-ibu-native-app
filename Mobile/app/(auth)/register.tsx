@@ -27,24 +27,29 @@ import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
 import * as Facebook from "expo-auth-session/providers/facebook";
 
+WebBrowser.maybeCompleteAuthSession();
+
 const googleIcon = require("@/assets/images/google-icon.png");
 const facebookIcon = require("@/assets/images/facebook-icon.png");
 const width = Dimensions.get("window").width;
-WebBrowser.maybeCompleteAuthSession();
 
 export default function RegisterPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [fullName, setFullName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const reset = () => {
     setFullName("");
     setEmail("");
     setPassword("");
   };
+
+  // ✅ Set redirect URI for production
+  const redirectUri = "https://auth.expo.dev/@nhmnazmul22/doa-ibu";
 
   const [googleRequest, googleResponse, googlePromptAsync] =
     Google.useAuthRequest({
@@ -54,36 +59,36 @@ export default function RegisterPage() {
         "71022976123-cj20o2208ik321sh8qcd0vnqepbadh49.apps.googleusercontent.com",
       webClientId:
         "61111890879-8ps0ab0l8goqu0hfk0i230bqivm63q1u.apps.googleusercontent.com",
+      redirectUri,
     });
 
-  // 🧩 Facebook OAuth request
   const [fbRequest, fbResponse, fbPromptAsync] = Facebook.useAuthRequest({
     clientId: "720709907612444",
+    redirectUri,
   });
 
-  const handleRegistration = async (e: any) => {
+  const handleRegistration = async () => {
     let createdUserId = null;
+
     try {
       setLoading(true);
       if (!fullName || !password || !email) {
         Toast.show({
           type: "error",
-          text1: "Please, fill up all field",
+          text1: "Please, fill up all fields",
           position: "bottom",
-          visibilityTime: 2000,
         });
         return;
       }
 
-      // checking validation
       const isEmail = validateEmail(email);
       const isPassword = validatePassword(password);
+
       if (!isEmail) {
         Toast.show({
           type: "error",
-          text1: "Invalid Email address!",
+          text1: "Invalid email address!",
           position: "bottom",
-          visibilityTime: 2000,
         });
         return;
       }
@@ -93,43 +98,34 @@ export default function RegisterPage() {
           type: "error",
           text1: isPassword.message,
           position: "bottom",
-          visibilityTime: 2000,
         });
         return;
       }
 
-      const userObj = {
-        fullName,
-        email,
-        password,
-      };
-
-      const res = await api.post("/create-user", userObj);
+      const res = await api.post("/create-user", { fullName, email, password });
 
       if (res.status === 201) {
         createdUserId = res.data.data._id;
 
-        const fireBaseRes = await createUserWithEmailAndPassword(
+        const firebaseRes = await createUserWithEmailAndPassword(
           auth,
           email,
           password
         );
 
-        if (fireBaseRes.user) {
+        if (firebaseRes.user) {
           reset();
           Toast.show({
             type: "success",
-            text1: "Account Registration successful",
+            text1: "Account registration successful",
             position: "bottom",
-            visibilityTime: 2000,
           });
           router.push("/login");
           return;
         }
       }
     } catch (err: any) {
-      console.error("Registration Error:", err);
-      let message = "Account Registration failed";
+      let message = "Account registration failed";
 
       if (
         ["auth/email-already-in-use", "auth/invalid-email"].includes(err.code)
@@ -138,7 +134,10 @@ export default function RegisterPage() {
           err.code === "auth/email-already-in-use"
             ? "This email is already in use"
             : "Invalid email format";
+      } else if (err?.message) {
+        message = err.message;
       }
+
       if (createdUserId) {
         try {
           await api.delete(`/delete-user/${createdUserId}`);
@@ -151,7 +150,6 @@ export default function RegisterPage() {
         type: "error",
         text1: message,
         position: "bottom",
-        visibilityTime: 2000,
       });
     } finally {
       setLoading(false);
@@ -161,41 +159,33 @@ export default function RegisterPage() {
   useEffect(() => {
     if (googleResponse?.type === "success") {
       const { id_token } = googleResponse.params;
-
       const credential = GoogleAuthProvider.credential(id_token);
       signInWithCredential(auth, credential)
         .then((userCredential) => {
-          console.log("User signed in:", userCredential.user);
+          console.log("✅ Google login success:", userCredential.user);
+          router.replace("/");
         })
         .catch((error) => {
-          console.error(error);
+          console.error("❌ Google sign-in error:", error);
         });
-      return;
-    } else if (googleResponse?.type === "error") {
-      console.log("❌ Google Auth Error:", googleResponse.error);
-      return;
     }
-    return;
   }, [googleResponse]);
 
-  // 🧠 Handle the response
   useEffect(() => {
     if (
       fbResponse?.type === "success" &&
       fbResponse.authentication?.accessToken
     ) {
-      const { accessToken } = fbResponse.authentication;
-
-      const credential = FacebookAuthProvider.credential(accessToken);
-
-      // 🔐 Sign in to Firebase
+      const credential = FacebookAuthProvider.credential(
+        fbResponse.authentication.accessToken
+      );
       signInWithCredential(auth, credential)
         .then((userCredential) => {
-          console.log("✅ User signed in with Facebook:", userCredential.user);
-          router.replace("/"); // redirect after login
+          console.log("✅ Facebook login success:", userCredential.user);
+          router.replace("/");
         })
         .catch((error) => {
-          console.error("❌ Firebase sign-in error:", error);
+          console.error("❌ Facebook sign-in error:", error);
         });
     }
   }, [fbResponse]);
@@ -209,55 +199,63 @@ export default function RegisterPage() {
           style={styles.input}
           placeholder="Full Name"
           value={fullName}
-          onChangeText={(text) => setFullName(text)}
+          onChangeText={setFullName}
           placeholderTextColor="#000000c1"
         />
         <TextInput
           inputMode="email"
           style={styles.input}
-          placeholder="Enter email"
+          placeholder="Enter Email"
           value={email}
-          onChangeText={(text) => setEmail(text)}
+          onChangeText={setEmail}
           placeholderTextColor="#000000c1"
         />
         <TextInput
           inputMode="text"
+          secureTextEntry
           style={styles.input}
           placeholder="Enter Password"
           value={password}
-          onChangeText={(text) => setPassword(text)}
+          onChangeText={setPassword}
           placeholderTextColor="#000000c1"
         />
-        <Pressable style={styles.btn} onPress={handleRegistration}>
-          {loading && <ActivityIndicator size="small" color="#ffffff" />}
-          {!loading && <Text style={styles.btnText}>Create Account</Text>}
+        <Pressable
+          style={styles.btn}
+          onPress={handleRegistration}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <Text style={styles.btnText}>Create Account</Text>
+          )}
         </Pressable>
       </View>
+
       <View style={styles.lineBox}>
         <View style={styles.line}></View>
         <Text>Or</Text>
         <View style={styles.line}></View>
       </View>
+
       <View style={styles.iconsBox}>
-        <Pressable onPress={() => googlePromptAsync()}>
-          <Image
-            source={googleIcon}
-            style={{ width: 45, height: 45, objectFit: "contain" }}
-          />
+        <Pressable
+          disabled={!googleRequest}
+          onPress={() => googlePromptAsync()}
+        >
+          <Image source={googleIcon} style={{ width: 45, height: 45 }} />
         </Pressable>
-        <Pressable onPress={() => fbPromptAsync()}>
-          <Image
-            source={facebookIcon}
-            style={{ width: 45, height: 45, objectFit: "contain" }}
-          />
+        <Pressable disabled={!fbRequest} onPress={() => fbPromptAsync()}>
+          <Image source={facebookIcon} style={{ width: 45, height: 45 }} />
         </Pressable>
       </View>
+
       <Text style={styles.registerText}>
         Do you have an account?{" "}
         <Link
           style={{
             color: colors?.primary,
-            fontWeight: 600,
+            fontWeight: "600",
             textDecorationLine: "underline",
           }}
           href="/login"
@@ -268,7 +266,6 @@ export default function RegisterPage() {
     </View>
   );
 }
-
 const getStyles = (colors: PresetsColors | undefined) =>
   StyleSheet.create({
     container: {
