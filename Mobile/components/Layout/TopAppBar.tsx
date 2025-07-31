@@ -108,7 +108,7 @@ export default function TopAppBar() {
         ) : (
           <Image
             style={styles.logo}
-            source={require("../../assets/images/logo.png")}
+            source={require("../../assets/images/doa-transparent.png")}
           />
         )}
       </Link>
@@ -123,7 +123,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
   StyleSheet.create({
     container: {
       backgroundColor: colors?.bodyBackground,
-      paddingVertical: 30,
+      paddingVertical: 10,
       paddingHorizontal: 30,
       display: "flex",
       flexDirection: "row",
@@ -134,8 +134,8 @@ const getStyles = (colors: PresetsColors | undefined) =>
       zIndex: 5,
     },
     logo: {
-      width: 50,
-      height: 50,
+      width: 80,
+      height: 80,
     },
     pageTitle: {
       fontFamily: "Nunito",

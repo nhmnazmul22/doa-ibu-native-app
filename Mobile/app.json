@@ -4,12 +4,12 @@
     "slug": "doa-ibu",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/doa-transparent.png",
     "scheme": "doaibu",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/logo.png",
+      "image": "./assets/images/doa-transparent.png",
       "resizeMode": "cover",
       "backgroundColor": "#000000"
     },
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
+        "foregroundImage": "./assets/images/doa-transparent.png",
         "backgroundColor": "#FFF9F5"
       },
       "edgeToEdgeEnabled": true,
@@ -48,14 +48,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo.png"
+      "favicon": "./assets/images/doa.jpeg"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
+          "image": "./assets/images/doa-transparent.png",
           "resizeMode": "cover",
           "backgroundColor": "#000000"
         }
