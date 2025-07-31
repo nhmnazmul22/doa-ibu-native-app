@@ -94,7 +94,7 @@ export const UpdatePricingService = async (req) => {
 export const DeletePricingService = async (req) => {
   try {
     const pricingId = convertObjectId(req.params.pricingId);
-    const pricing = await DoaModel.findById(pricingId);
+    const pricing = await PricingModel.findById(pricingId);
 
     if (!pricing) {
       return {
