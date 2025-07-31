@@ -7,7 +7,7 @@ import { TokenEncoded } from "../utility/tokenUtility.js";
 // Get all User Service
 export const GetAllUsersService = async () => {
   try {
-    const users = await UserModel.find({}, { password: 0 });
+    const users = await UserModel.find({});
 
     if (users.length === 0) {
       return { status: 404, message: "Users not found", data: users };
@@ -26,7 +26,7 @@ export const GetAllUsersService = async () => {
 // Create User Service
 export const CreateUsersService = async (req) => {
   try {
-    const { fullName, email, password } = req.body;
+    const { fullName, email } = req.body;
 
     if (!fullName || !email) {
       return { status: 400, message: "Required Filed missing", data: null };
@@ -38,25 +38,13 @@ export const CreateUsersService = async (req) => {
       return { status: 400, message: "User already exists", data: null };
     }
 
-    let hashedPassword = "";
-    if (password) {
-      hashedPassword = await bcrypt.hash(password, 10);
-    }
-
     const user = await UserModel.create({
       ...req.body,
-      password: hashedPassword,
     });
 
     if (!user) {
       return { status: 500, message: "Server Issue", data: null };
     }
-
-    // Convert mongoose document to plain object
-    const userObject = user.toObject();
-
-    // Remove password field
-    delete userObject.password;
 
     return {
       status: 201,
@@ -75,7 +63,6 @@ export const CreateUsersService = async (req) => {
 // Update User Service
 export const UpdateUsersService = async (req) => {
   const userId = convertObjectId(req.params.userId);
-  const { password } = req.body;
   const image = req.file;
   let imagePath = image ? path.join("uploads/images", image.filename) : null;
   let prevImagePath = null;
@@ -94,15 +81,6 @@ export const UpdateUsersService = async (req) => {
       return {
         status: 404,
         message: "User not found",
-        data: null,
-      };
-    }
-
-    if (password) {
-      removeExistingFile(imagePath);
-      return {
-        status: 400,
-        message: "Can't update password directly",
         data: null,
       };
     }
@@ -129,17 +107,11 @@ export const UpdateUsersService = async (req) => {
       return { status: 500, message: "Server Issue", data: null };
     }
 
-    // Convert mongoose document to plain object
-    const userObject = updateUser.toObject();
-
-    // Remove password field
-    delete userObject.password;
-
     removeExistingFile(prevImagePath);
     return {
       status: 201,
       message: "User updated successful",
-      data: userObject,
+      data: updateUser,
     };
   } catch (err) {
     removeExistingFile(imagePath);
@@ -226,15 +198,10 @@ export const DeleteUserService = async (req) => {
     // Remove profile pic
     removeExistingFile(imagePath);
 
-    // Convert mongoose document to plain object
-    const userObject = deletedUser.toObject();
-    // Remove password field
-    delete userObject.password;
-
     return {
       status: 200,
       message: "User delete successful",
-      data: userObject,
+      data: deletedUser,
     };
   } catch (err) {
     return {

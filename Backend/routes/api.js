@@ -5,6 +5,7 @@ import * as DoaController from "../app/controllers/DoaController.js";
 import * as PaymentController from "../app/controllers/PaymentsController.js";
 import * as SubscriptionController from "../app/controllers/SubscriptionController.js";
 import * as DonationController from "../app/controllers/DonationController.js";
+import * as PricingController from "../app/controllers/PricingController.js";
 import { upload } from "../app/middlewares/uploadMiddleware.js";
 
 const router = express.Router();
@@ -77,5 +78,11 @@ router.get(
 // Donation Routes
 router.get("/get-all-donations", DonationController.GetAllDonationController);
 router.get("/get-donations/:donationId", DoaController.GetDoaController);
+
+// Pricing Routes
+router.get("/get-pricing", PricingController.GetPricingController);
+router.post("/create-pricing", PricingController.CreatePricingController);
+router.put("/update-pricing", PricingController.UpdatePricingController);
+router.get("/delete-pricing", PricingController.DeletePricingController);
 
 export default router;

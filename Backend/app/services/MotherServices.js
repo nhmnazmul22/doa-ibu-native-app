@@ -1,13 +1,11 @@
 import MotherModel from "../models/MothersModel.js";
-import bcrypt from "bcrypt";
 import { convertObjectId, removeExistingFile } from "../utility/lib.js";
 import path from "path";
-import { TokenEncoded } from "../utility/tokenUtility.js";
 
 // Get all Mother Service
 export const GetAllMotherService = async () => {
   try {
-    const mothers = await MotherModel.find({}, { password: 0 });
+    const mothers = await MotherModel.find({});
 
     if (mothers.length === 0) {
       return { status: 404, message: "Mothers not found", data: mothers };
@@ -26,9 +24,9 @@ export const GetAllMotherService = async () => {
 // Create Mother Service
 export const CreateMotherService = async (req) => {
   try {
-    const { fullName, email, password } = req.body;
+    const { fullName, email } = req.body;
 
-    if (!fullName || !email || !password) {
+    if (!fullName || !email) {
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
@@ -38,27 +36,18 @@ export const CreateMotherService = async (req) => {
       return { status: 400, message: "Mother already exists", data: null };
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const mother = await MotherModel.create({
       ...req.body,
-      password: hashedPassword,
     });
 
     if (!mother) {
       return { status: 500, message: "Server Issue", data: null };
     }
 
-    // Convert mongoose document to plain object
-    const motherObject = mother.toObject();
-
-    // Remove password field
-    delete motherObject.password;
-
     return {
       status: 201,
       message: "Mother create successful",
-      data: motherObject,
+      data: mother,
     };
   } catch (err) {
     return {
@@ -89,19 +78,11 @@ export const GetMotherService = async (req) => {
         data: null,
       };
     }
-    // Convert mongoose document to plain object
-    const motherObject = mother.toObject();
-
-    // Remove password field
-    delete motherObject.password;
-
-    const token = TokenEncoded(mother._id, mother.email);
 
     return {
       status: 200,
       message: "Mother found successful",
-      data: motherObject,
-      token: token,
+      data: mother,
     };
   } catch (err) {
     return {
@@ -128,22 +109,11 @@ export const UpdateMotherService = async (req) => {
   }
 
   try {
-    const { password } = req.body;
-
     if (!mother) {
       removeExistingFile(imagePath);
       return {
         status: 404,
         message: "Mother not found",
-        data: null,
-      };
-    }
-
-    if (password) {
-      removeExistingFile(imagePath);
-      return {
-        status: 400,
-        message: "Can't update password directly",
         data: null,
       };
     }
@@ -169,17 +139,11 @@ export const UpdateMotherService = async (req) => {
       return { status: 500, message: "Server Issue", data: null };
     }
 
-    // Convert mongoose document to plain object
-    const motherObject = updateMother.toObject();
-
-    // Remove password field
-    delete motherObject.password;
-
     removeExistingFile(prevImagePath);
     return {
       status: 201,
       message: "Mother updated successful",
-      data: motherObject,
+      data: updateMother,
     };
   } catch (err) {
     removeExistingFile(imagePath);
@@ -216,17 +180,11 @@ export const DeleteMotherService = async (req) => {
       };
     }
 
-    // Convert mongoose document to plain object
-    const motherObject = deletedMother.toObject();
-
-    // Remove password field
-    delete motherObject.password;
-
     removeExistingFile(imagePath);
     return {
       status: 200,
       message: "Mother delete successful",
-      data: motherObject,
+      data: deletedMother,
     };
   } catch (err) {
     return {
@@ -264,15 +222,10 @@ export const FollowMotherService = async (req) => {
       return { status: 500, message: "Server Issue", data: null };
     }
 
-    // Convert mongoose document to plain object
-    const motherObject = updateMother.toObject();
-
-    // Remove password field
-    delete motherObject.password;
     return {
       status: 201,
       message: "New follower added in mother profile",
-      data: motherObject,
+      data: updateMother,
     };
   } catch (err) {
     return {

@@ -5,7 +5,6 @@ const DataSchema = new Schema(
   {
     fullName: { type: String, required: true },
     email: { type: String, required: true, default: "" },
-    password: { type: String, required: true },
     phone: { type: String, required: false },
     gender: { type: String, required: false, default: "female" },
     followers: {
