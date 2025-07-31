@@ -34,6 +34,6 @@ const DataScheme = new Schema(
 );
 
 // Define Model (prevent overwrite in dev/watch)
-const SubscriptionModel =
-  mongoose.models.subscriptions || mongoose.model("subscriptions", DataScheme);
-export default SubscriptionModel;
+const PricingModel =
+  mongoose.models.pricing || mongoose.model("pricing", DataScheme);
+export default PricingModel;

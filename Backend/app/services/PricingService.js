@@ -29,12 +29,7 @@ export const CreatePricingService = async (req) => {
       return { status: 400, message: "Required Filed missing", data: null };
     }
 
-    const pridingObj = {
-      freePricing,
-      premiumPricing,
-    };
-
-    const NewPricing = await PricingModel.create(pridingObj);
+    const NewPricing = await PricingModel.create(req.body);
 
     if (!NewPricing) {
       return { status: 500, message: "Server Issue", data: null };
