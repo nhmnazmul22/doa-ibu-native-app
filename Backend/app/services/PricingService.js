@@ -52,7 +52,7 @@ export const CreatePricingService = async (req) => {
 // Update Pricing Service
 export const UpdatePricingService = async (req) => {
   try {
-    const pricingId = convertObjectId(req.params.pridingId);
+    const pricingId = convertObjectId(req.params.pricingId);
 
     const pricing = await PricingModel.findById(pricingId);
 
