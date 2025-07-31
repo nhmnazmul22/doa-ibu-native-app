@@ -87,7 +87,11 @@ export default function TopAppBar() {
             <MaterialIcons name="subscriptions" size={28} color="black" />
           </Pressable>
         ) : (
-          <Pressable onPress={() => router.back()}>
+          <Pressable
+            onPress={() =>
+              pathname === "/mother-panel" ? () => {} : router.back()
+            }
+          >
             <MaterialCommunityIcons
               name="arrow-left-thin"
               size={34}

@@ -135,7 +135,7 @@ export default function SettingPage() {
       if (imageFile?.uri) {
         formData.append("image", {
           uri: imageFile.uri,
-          name: imageFile.fileName || "upload.jpg",
+          name: imageFile.fileName?.split(" ").join("-") || "upload.jpg",
           type: imageFile.mimeType || "image/jpeg",
         } as any);
       }
@@ -151,14 +151,12 @@ export default function SettingPage() {
       }
 
       const response = await fetch(
-        `http://appdoaibu.my.id/api/update-user/${user._id}`,
+        `https://appdoaibu.my.id/api/update-user/${user._id}`,
         {
           method: "PUT",
           body: formData,
         }
       );
-
-      const result = await response.text();
 
       if (response.status === 201) {
         Toast.show({
@@ -240,14 +238,13 @@ export default function SettingPage() {
   const handleMotherPanel = async () => {
     try {
       setMotherLoading(true);
-      await signOut();
       Toast.show({
         type: "success",
         text1: "Mother panel access successful",
         position: "bottom",
         visibilityTime: 2000,
       });
-      router.replace("/login");
+      router.replace("/mother-panel");
     } catch (err: any) {
       Toast.show({
         type: "error",
@@ -273,7 +270,7 @@ export default function SettingPage() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "position"}
+      behavior={"padding"}
       keyboardVerticalOffset={40}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -328,7 +325,7 @@ export default function SettingPage() {
               )}
 
               <Text style={styles.secTitle}>Profile Settings,</Text>
-              <Pressable onPress={pickImage}>
+              <Pressable onPress={pickImage} style={{ width: 160 }}>
                 <View style={styles.imageBox}>
                   {image && (
                     <Image

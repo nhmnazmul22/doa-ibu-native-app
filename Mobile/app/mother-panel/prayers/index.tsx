@@ -1,24 +1,38 @@
 import DoaList from "@/components/DoaList";
+import MotherDoaList from "@/components/MotherDoaList";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
+import { AppDispatch, RootState } from "@/store";
+import { fetchDoasByMotherId } from "@/store/doasbyMother";
 import { PresetsColors } from "@/types";
-import React from "react";
+import React, { useEffect } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
 
 export default function PrayersPage() {
   const theme = useTheme();
   const colors = theme?.colors;
-
   const styles = getStyles(colors);
+  const userContext = useUserInfo();
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    items,
+    error,
+    loading: doasLoading,
+  } = useSelector((state: RootState) => state.doasByMother);
+
+  useEffect(() => {
+    if (userContext?.mother._id) {
+      dispatch(fetchDoasByMotherId(userContext?.mother._id));
+    }
+  }, []);
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <View style={styles.slider}>
-          <SliderDoa />
-        </View>
         <View style={styles.doaList}>
           <View style={styles.doaListHeader}>
             <View>
@@ -27,7 +41,11 @@ export default function PrayersPage() {
             </View>
           </View>
           <View>
-            <DoaList />
+            <MotherDoaList
+              doas={items?.data || []}
+              loading={doasLoading}
+              error={error || ""}
+            />
           </View>
         </View>
       </View>

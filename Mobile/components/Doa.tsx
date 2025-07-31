@@ -16,11 +16,15 @@ export default function Doa({ _id, thumbnail, title, shortDes }: DoaType) {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-
   return (
     <View>
       <View style={styles.thumbnail}>
-        <Image source={require("../assets/images/doa-bg.jpg")} />
+        {!thumbnail ? (
+          <Image source={require("../assets/images/doa-bg.jpg")} />
+        ) : (
+          <Image source={{ uri: thumbnail }} width={140} height={180} />
+        )}
+
         <View style={styles.playIcon}>
           <Link href={`/prayers/${_id}`}>
             <MaterialIcons
@@ -43,6 +47,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
   StyleSheet.create({
     thumbnail: {
       position: "relative",
+      height: 185,
     },
     playIcon: {
       position: "absolute",

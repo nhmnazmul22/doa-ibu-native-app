@@ -2,7 +2,7 @@ import { useTheme } from "@/context/theme/ThemeContext";
 import { formatTime } from "@/lib";
 import { Doa, PresetsColors } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Link, router } from "expo-router";
+import { Link, router, usePathname } from "expo-router";
 import { default as React } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -16,24 +16,50 @@ export default function MotherDoa({ doa }: MotherDoaProps) {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const pathname = usePathname();
 
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => router.push(`/prayers/${doa._id}`)}>
+      <Pressable
+        onPress={() =>
+          pathname.includes("/mother-panel")
+            ? {}
+            : router.push(`/prayers/${doa._id}`)
+        }
+      >
         <View style={styles.infoContainer}>
-          <Image source={doaImg} style={styles.doaImg} />
+          {!doa.thumbnail && <Image source={doaImg} style={styles.doaImg} />}
+          {doa.thumbnail && (
+            <Image source={{ uri: doa.thumbnail }} style={styles.doaImg} />
+          )}
           <View>
-            <Text style={styles.doaTitle}>{doa.title}</Text>
-            <Text style={styles.doaDes}>{doa.shortDes}</Text>
+            <Text style={styles.doaTitle}>
+              {doa.title.length > 30
+                ? doa.title.slice(0, 30) + "..."
+                : doa.title}
+            </Text>
+            <Text style={styles.doaDes}>
+              {doa.shortDes.length > 30
+                ? doa.shortDes.slice(0, 30) + "..."
+                : doa.shortDes}
+            </Text>
           </View>
         </View>
       </Pressable>
-      <Text style={styles.doaDes}>{formatTime(Number(doa.duration))}</Text>
-      <View style={styles.playIcon}>
-        <Link href={`/prayers/${doa._id}`}>
-          <MaterialIcons name="play-circle" size={48} color={colors?.primary} />
-        </Link>
-      </View>
+      <Text style={styles.doaDes}>
+        {formatTime(Number(doa.duration) * 1000)}
+      </Text>
+      {!pathname.includes("/mother-panel") && (
+        <View style={styles.playIcon}>
+          <Link href={`/prayers/${doa._id}`}>
+            <MaterialIcons
+              name="play-circle"
+              size={48}
+              color={colors?.primary}
+            />
+          </Link>
+        </View>
+      )}
     </View>
   );
 }

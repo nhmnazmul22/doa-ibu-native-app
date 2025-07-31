@@ -36,8 +36,8 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider tokenCache={tokenCache}>
-      <SafeAreaView style={styles.safeAreaView}>
+    <SafeAreaView style={styles.safeAreaView}>
+      <ClerkProvider tokenCache={tokenCache}>
         <Provider store={store}>
           <UserProvider>
             <ThemeProvider>
@@ -50,8 +50,8 @@ export default function RootLayout() {
             </ThemeProvider>
           </UserProvider>
         </Provider>
-      </SafeAreaView>
-    </ClerkProvider>
+      </ClerkProvider>
+    </SafeAreaView>
   );
 }
 

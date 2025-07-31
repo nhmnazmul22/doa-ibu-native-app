@@ -42,6 +42,13 @@ const motherSlice = createSlice({
       .addCase(fetchMother.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.items = {
+          message: "",
+          data: {
+            email: "",
+            fullName: "",
+          },
+        };
       })
       .addCase(
         fetchMother.fulfilled,
@@ -53,6 +60,13 @@ const motherSlice = createSlice({
       .addCase(fetchMother.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
+        state.items = {
+          message: "",
+          data: {
+            email: "",
+            fullName: "",
+          },
+        };
       });
   },
 });

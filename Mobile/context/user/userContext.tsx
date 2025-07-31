@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Toast from "react-native-toast-message";
 import { fetchUser } from "@/store/userSlice";
 import { useSession } from "@clerk/clerk-expo";
+import { fetchMother } from "@/store/motherSlice";
 
 interface UserContextType {
   user: any;
@@ -27,7 +28,7 @@ export default function UserProvider({
   useEffect(() => {
     if (session?.publicUserData.identifier) {
       dispatch(fetchUser(session?.publicUserData.identifier));
-      dispatch(fetchUser(session.publicUserData.identifier));
+      dispatch(fetchMother(session?.publicUserData.identifier));
     }
   }, [session]);
 

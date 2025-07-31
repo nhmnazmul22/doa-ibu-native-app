@@ -77,9 +77,13 @@ export default function DoaItem({
             />
           </Link>
         </View>
-        <View>
-          <Text style={styles.doaTitle}>{title}</Text>
-          <Text style={styles.doaDes}>{shortDes}</Text>
+        <View style={{ width: 140 }}>
+          <Text style={styles.doaTitle}>
+            {title.length > 30 ? title.slice(0, 30) + "..." : title}
+          </Text>
+          <Text style={styles.doaDes}>
+            {shortDes.length > 30 ? shortDes.slice(0, 30) + "..." : shortDes}
+          </Text>
         </View>
       </View>
       <Text style={styles.doaDes}>{formatTime(Number(duration) * 1000)}</Text>

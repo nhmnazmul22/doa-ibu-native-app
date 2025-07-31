@@ -18,6 +18,10 @@ export default function DoaList() {
     (state: RootState) => state.doas
   );
 
+  const { items: DoasRes } = useSelector(
+    (state: RootState) => state.doasByMother
+  );
+
   useEffect(() => {
     dispatch(fetchDoas("uploaded"));
   }, []);
@@ -38,6 +42,7 @@ export default function DoaList() {
       </View>
     );
   }
+
 
   return (
     <View style={styles.container}>

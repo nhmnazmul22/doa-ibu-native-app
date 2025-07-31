@@ -5,7 +5,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface Response {
   message: string;
   data: User;
-  token: string;
 }
 
 interface InitialState {
@@ -21,7 +20,6 @@ const initialState: InitialState = {
       fullName: "",
       email: "",
     },
-    token: "",
   },
   loading: false,
   error: null,
@@ -44,6 +42,13 @@ const userSlice = createSlice({
       .addCase(fetchUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.items = {
+          message: "",
+          data: {
+            fullName: "",
+            email: "",
+          },
+        };
       })
       .addCase(
         fetchUser.fulfilled,
@@ -55,6 +60,13 @@ const userSlice = createSlice({
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
+        state.items = {
+          message: "",
+          data: {
+            fullName: "",
+            email: "",
+          },
+        };
       });
   },
 });

@@ -5,23 +5,22 @@ import { generatePassword } from "@/lib";
 import api from "@/lib/config/axios";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/userSlice";
-import { fetchMother } from "@/store/motherSlice";
 
 const width = Dimensions.get("window").width;
 export default function Loading() {
   const { session } = useSession();
   const [statusText, setStatusText] = useState<string>("");
-  const dispatch = useDispatch<AppDispatch>();
-  const { items: userInfo } = useSelector((state: RootState) => state.user);
-  const { items: motherInfo } = useSelector((state: RootState) => state.mother);
 
   const CreateUserAccount = async () => {
     try {
-      if (userInfo?.data.email || motherInfo?.data.email) {
-        setStatusText("Redirecting home.....");
+      setStatusText("Redirecting home.....");
+      const userRes = await api.get(
+        `/get-user/${session?.publicUserData.identifier}`
+      );
+      const motherRes = await api.get(
+        `/get-mother/${session?.publicUserData.identifier}`
+      );
+      if (userRes.status === 200 || motherRes.status === 200) {
         Toast.show({
           type: "success",
           text1: "Sing in successful",
@@ -51,7 +50,7 @@ export default function Loading() {
         router.replace("/");
       }
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
       Toast.show({
         type: "error",
         text1: err.message || "Sign in failed",
@@ -65,13 +64,6 @@ export default function Loading() {
 
   useEffect(() => {
     if (session?.publicUserData) {
-      dispatch(fetchUser(session?.publicUserData.identifier));
-      dispatch(fetchMother(session?.publicUserData.identifier));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (session?.publicUserData) {
       CreateUserAccount();
     }
   }, [session]);
@@ -81,7 +73,6 @@ export default function Loading() {
       <Text style={styles.statusText}>Loading for sessions...</Text>
     </View>;
   }
-
   return (
     <View style={styles.container}>
       <Text style={styles.statusText}>{statusText}</Text>
