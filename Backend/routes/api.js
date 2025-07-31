@@ -82,7 +82,13 @@ router.get("/get-donations/:donationId", DoaController.GetDoaController);
 // Pricing Routes
 router.get("/get-pricing", PricingController.GetPricingController);
 router.post("/create-pricing", PricingController.CreatePricingController);
-router.put("/update-pricing", PricingController.UpdatePricingController);
-router.get("/delete-pricing", PricingController.DeletePricingController);
+router.put(
+  "/update-pricing/:pricingId",
+  PricingController.UpdatePricingController
+);
+router.get(
+  "/delete-pricing/:pricingId",
+  PricingController.DeletePricingController
+);
 
 export default router;
