@@ -5,14 +5,33 @@ import { generatePassword } from "@/lib";
 import api from "@/lib/config/axios";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { fetchUser } from "@/store/userSlice";
+import { fetchMother } from "@/store/motherSlice";
 
 const width = Dimensions.get("window").width;
 export default function Loading() {
   const { session } = useSession();
   const [statusText, setStatusText] = useState<string>("");
+  const dispatch = useDispatch<AppDispatch>();
+  const { items: userInfo } = useSelector((state: RootState) => state.user);
+  const { items: motherInfo } = useSelector((state: RootState) => state.mother);
 
   const CreateUserAccount = async () => {
     try {
+      if (userInfo?.data.email || motherInfo?.data.email) {
+        setStatusText("Redirecting home.....");
+        Toast.show({
+          type: "success",
+          text1: "Sing in successful",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        router.replace("/");
+        return;
+      }
+
       setStatusText("Creating Account.....");
       const userObj = {
         email: session?.publicUserData.identifier,
@@ -43,6 +62,13 @@ export default function Loading() {
       router.replace("/register");
     }
   };
+
+  useEffect(() => {
+    if (session?.publicUserData) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+      dispatch(fetchMother(session?.publicUserData.identifier));
+    }
+  }, []);
 
   useEffect(() => {
     if (session?.publicUserData) {

@@ -23,23 +23,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 const width = Dimensions.get("window").width;
 
-const freeFeatures = [
-  { label: "Dengarkan doa bawaan sistem (offline).", available: true },
-  { label: "Simpan hingga 2 rekaman pribadi.", available: true },
-  { label: "Simple daily reminder", available: true },
-  { label: "Koleksi audio eksklusif dan musik latar.", available: false },
-  { label: "Simpan hingga 30 pesan suara pribadi.", available: false },
-  { label: "Notifikasi personal dan tema visual premium.", available: false },
-];
-
-const premiumFeatures = [
-  { label: "Dengarkan doa bawaan sistem (offline).", available: true },
-  { label: "Simple daily reminder", available: true },
-  { label: "Koleksi audio eksklusif dan musik latar.", available: true },
-  { label: "Simpan hingga 30 pesan suara pribadi.", available: true },
-  { label: "Notifikasi personal dan tema visual premium.", available: true },
-];
-
 export default function SubscriptionPage() {
   const theme = useTheme();
   const colors = theme?.colors;
@@ -54,12 +37,10 @@ export default function SubscriptionPage() {
     (state: RootState) => state.pricing
   );
 
-
   useEffect(() => {
     dispatch(fetchPricing());
   }, []);
 
-  console.log(items?.data);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -135,19 +116,19 @@ export default function SubscriptionPage() {
                   <View style={styles.tabContents}>
                     <View style={styles.contentHeader}>
                       <Text style={styles.tabTitle}>
-                        {items?.data?.[0].title}
+                        {items?.data?.[1].title}
                       </Text>
                       <Text style={styles.tabTitle}>
-                        {items?.data?.[0].price} Rp
+                        {items?.data?.[1].price} Rp
                       </Text>
                     </View>
                     <Text style={styles.tabDes}>
-                      {items?.data?.[0].shortDes}
+                      {items?.data?.[1].shortDes}
                     </Text>
                     <View style={styles.featureContents}>
                       <Text style={styles.featureTitle}>Features:</Text>
                       <View style={styles.features}>
-                        {freeFeatures.map((feature, index) => (
+                        {items.data[1].features.map((feature, index) => (
                           <View key={index} style={styles.featureBox}>
                             {feature.available ? (
                               <AntDesign
@@ -163,7 +144,7 @@ export default function SubscriptionPage() {
                               />
                             )}
                             <Text style={styles.featureText}>
-                              {feature.label}
+                              {feature.text}
                             </Text>
                           </View>
                         ))}
@@ -174,24 +155,23 @@ export default function SubscriptionPage() {
                 {tab === "premium" && (
                   <View style={styles.tabContents}>
                     <View style={styles.contentHeader}>
-                      <Text style={styles.tabTitle}>Premium</Text>
                       <Text style={styles.tabTitle}>
-                        Rp 25rb/
+                        {items?.data?.[0].title}
+                      </Text>
+                      <Text style={styles.tabTitle}>
+                        Rp {items?.data?.[0].price}/
                         <Text style={{ fontSize: 14, fontWeight: "400" }}>
                           bulan
                         </Text>
                       </Text>
                     </View>
                     <Text style={styles.tabDes}>
-                      Unlock deeper moments with 30 personal voice messages,
-                      exclusive prayers, calming background music, and beautiful
-                      visual themes. For a more personal, heartfelt experience
-                      every day.
+                      {items?.data?.[0].shortDes}
                     </Text>
                     <View style={styles.featureContents}>
                       <Text style={styles.featureTitle}>Features:</Text>
                       <View style={styles.features}>
-                        {premiumFeatures.map((feature, index) => (
+                        {items.data[0].features.map((feature, index) => (
                           <View key={index} style={styles.featureBox}>
                             {feature.available ? (
                               <AntDesign
@@ -207,7 +187,7 @@ export default function SubscriptionPage() {
                               />
                             )}
                             <Text style={styles.featureText}>
-                              {feature.label}
+                              {feature.text}
                             </Text>
                           </View>
                         ))}

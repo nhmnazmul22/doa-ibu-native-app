@@ -397,6 +397,23 @@ export default function SettingPage() {
                   />
                 </View>
                 <View style={styles.btnBox}>
+                  <Pressable
+                    style={[
+                      styles.btnPrimary,
+                      { backgroundColor: "transparent" },
+                    ]}
+                    onPress={() => router.push("/forgot-password")}
+                  >
+                    <Text
+                      style={{
+                        ...styles.btnText,
+                        color: colors?.darkText,
+                        textDecorationLine: "underline",
+                      }}
+                    >
+                      Update Password
+                    </Text>
+                  </Pressable>
                   <Pressable style={styles.btnPrimary} onPress={handleUpdate}>
                     {loading && (
                       <ActivityIndicator size="small" color="#ffffff" />

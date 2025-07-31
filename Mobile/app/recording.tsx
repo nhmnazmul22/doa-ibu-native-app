@@ -1,9 +1,10 @@
+import RecordingList from "@/components/RecordingList";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
 import { formatTime } from "@/lib";
 import { PresetsColors } from "@/types";
+import { Entypo } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import Feather from "@expo/vector-icons/Feather";
-import Fontisto from "@expo/vector-icons/Fontisto";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import {
   AudioModule,
@@ -13,11 +14,13 @@ import {
   useAudioRecorderState,
 } from "expo-audio";
 import * as FileSystem from "expo-file-system";
-import React, { useEffect } from "react";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -29,34 +32,25 @@ export default function RecordingPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-
-  const [barHeights, setBarHeights] = React.useState(
-    new Array(25).fill(0).map(() => Math.floor(Math.random() * 200) + 20)
+  const userContext = useUserInfo();
+  const [barHeights, setBarHeights] = useState(
+    new Array(20).fill(0).map(() => Math.floor(Math.random() * 200) + 20)
   );
-
+  const [recordings, setRecordings] = useState<string[]>([]);
   const intervalRef = React.useRef<number | null>(null);
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recorderState = useAudioRecorderState(audioRecorder);
+  const user = userContext?.user;
+  const [isPremiumMember, setIsPremiumMember] = useState(
+    user.subscriptionType === "premium" || false
+  );
 
   const record = async () => {
     await audioRecorder.prepareToRecordAsync();
     audioRecorder.record();
   };
 
-  const listFiles = async () => {
-    if (FileSystem.documentDirectory === null) {
-      // Handle the case if documentDirectory is null
-      console.error("documentDirectory is null!");
-      return;
-    }
-    const files = await FileSystem.readDirectoryAsync(
-      FileSystem.documentDirectory
-    );
-    console.log("Files:", files);
-  };
-
   const stopRecording = async () => {
-    // The recording will be available on `audioRecorder.uri`.
     await audioRecorder.stop();
     if (audioRecorder.uri) {
       const fileName = `recording_${Date.now()}.m4a`;
@@ -69,11 +63,22 @@ export default function RecordingPage() {
         });
 
         console.log("Recording saved to:", newPath);
-        listFiles();
-        // Here, you can also update a list or database with this newPath
+        await listFiles(); // update recordings
       } catch (error) {
         console.error("Failed to save recording:", error);
       }
+    }
+  };
+
+  const listFiles = async () => {
+    try {
+      const files = await FileSystem.readDirectoryAsync(
+        FileSystem.documentDirectory || ""
+      );
+      const filteredFile = files.filter((file) => file.includes(".m4a"));
+      setRecordings(filteredFile);
+    } catch (err) {
+      console.error("Failed to list files:", err);
     }
   };
 
@@ -88,6 +93,8 @@ export default function RecordingPage() {
         playsInSilentMode: true,
         allowsRecording: true,
       });
+
+      await listFiles();
     })();
   }, []);
 
@@ -103,7 +110,7 @@ export default function RecordingPage() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      setBarHeights(new Array(25).fill(220));
+      setBarHeights(new Array(20).fill(150));
     }
 
     return () => {
@@ -114,50 +121,103 @@ export default function RecordingPage() {
     };
   }, [recorderState.isRecording]);
 
+  useEffect(() => {
+    if (user.subscriptionType) {
+      setIsPremiumMember(user.subscriptionType === "premium");
+    }
+  }, [user.subscriptionType]);
+
+  const canRecord = isPremiumMember ? 30 : 2;
   return (
-    <View style={styles.container}>
-      <View style={styles.stateLineContainer}>
-        <View style={styles.stateLineBox}>
-          {barHeights.map((height, index) => (
-            <View
-              key={index}
-              style={{
-                width: 3,
-                height: height,
-                backgroundColor: "#000",
-                borderRadius: 50,
-              }}
-            />
-          ))}
-        </View>
-      </View>
-      <View style={styles.recordActions}>
-        <Text style={styles.timingText}>
-          {formatTime(recorderState.durationMillis)}
-        </Text>
-        <View style={styles.iconsBox}>
-          <Pressable>
-            <Feather name="trash-2" size={40} color={colors?.darkText} />
-          </Pressable>
-          <Pressable
-            onPress={recorderState.isRecording ? stopRecording : record}
-          >
-            {recorderState.isRecording ? (
-              <AntDesign name="pause" size={70} color={colors?.darkText} />
-            ) : (
-              <MaterialCommunityIcons
-                name="record-circle"
-                size={80}
-                color={colors?.primary}
+    <ScrollView>
+      <View style={styles.container}>
+        {recordings.length >= canRecord && (
+          <View style={styles.blockBox}>
+            <View style={styles.blockContent}>
+              <Pressable>
+                <Entypo
+                  name="block"
+                  size={54}
+                  color="red"
+                  style={{ marginHorizontal: "auto" }}
+                />
+              </Pressable>
+              <Pressable onPress={() => router.push("/subscription")}>
+                <Text style={styles.blockMessage}>
+                  If you need access this feature, You need to become a premium
+                  member
+                </Text>
+              </Pressable>
+              <Pressable style={styles.btnMember}>
+                <Text
+                  style={{
+                    ...styles.blockMessage,
+                    color: colors?.bodyBackground,
+                  }}
+                  onPress={() => router.push("/subscription")}
+                >
+                  Become a Premium Member
+                </Text>
+              </Pressable>
+              <Pressable
+                style={{
+                  ...styles.btnMember,
+                  backgroundColor: colors?.darkText,
+                }}
+              >
+                <Text
+                  style={{
+                    ...styles.blockMessage,
+                    color: colors?.bodyBackground,
+                  }}
+                  onPress={() => router.push("/subscription")}
+                >
+                  🎁 Donate Something 🧡
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+        <View style={styles.stateLineContainer}>
+          <View style={styles.stateLineBox}>
+            {barHeights.map((height, index) => (
+              <View
+                key={index}
+                style={{
+                  width: 3,
+                  height: height,
+                  backgroundColor: "#000",
+                  borderRadius: 50,
+                }}
               />
-            )}
-          </Pressable>
-          <Pressable>
-            <Fontisto name="save" size={32} color={colors?.darkText} />
-          </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.recordActions}>
+          <Text style={styles.timingText}>
+            {formatTime(recorderState.durationMillis)}
+          </Text>
+
+          <View style={styles.iconsBox}>
+            <Pressable
+              onPress={recorderState.isRecording ? stopRecording : record}
+            >
+              {recorderState.isRecording ? (
+                <AntDesign name="pause" size={70} color={colors?.darkText} />
+              ) : (
+                <MaterialCommunityIcons
+                  name="record-circle"
+                  size={80}
+                  color={colors?.primary}
+                />
+              )}
+            </Pressable>
+          </View>
         </View>
       </View>
-    </View>
+      <RecordingList recordings={recordings} refreshRecordings={listFiles} />
+    </ScrollView>
   );
 }
 
@@ -174,7 +234,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       width: width * 1,
       borderTopWidth: 2,
       borderBottomWidth: 2,
-      paddingVertical: 80,
+      paddingVertical: 20,
       borderColor: colors?.primary,
       marginTop: 50,
     },
@@ -186,24 +246,6 @@ const getStyles = (colors: PresetsColors | undefined) =>
       width: width * 0.9,
       marginHorizontal: "auto",
       height: 220,
-    },
-    stateLine: {
-      width: 3,
-      height: 220,
-      backgroundColor: colors?.darkText,
-      borderRadius: 50,
-    },
-    stateLine2: {
-      width: 3,
-      height: 110,
-      backgroundColor: colors?.darkText,
-      borderRadius: 50,
-    },
-    stateLine3: {
-      width: 3,
-      height: 55,
-      backgroundColor: colors?.darkText,
-      borderRadius: 50,
     },
     recordActions: {
       width: width * 0.9,
@@ -225,6 +267,39 @@ const getStyles = (colors: PresetsColors | undefined) =>
       width: "100%",
       marginHorizontal: "auto",
       gap: 30,
-      marginTop: 150,
+      marginTop: 120,
+      paddingBottom: 30,
+    },
+    blockBox: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      backgroundColor: "#ffffffd2",
+      borderWidth: 3,
+      borderColor: colors?.primary,
+      borderRadius: 10,
+      zIndex: 10,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    blockContent: {
+      width: "80%",
+      marginHorizontal: "auto",
+      gap: 10,
+    },
+    blockMessage: {
+      fontFamily: "Nunito",
+      fontSize: 16,
+      fontWeight: 700,
+      textAlign: "center",
+    },
+    btnMember: {
+      width: "100%",
+      paddingVertical: 20,
+      paddingHorizontal: 10,
+      borderRadius: 50,
+      backgroundColor: colors?.primary,
     },
   });

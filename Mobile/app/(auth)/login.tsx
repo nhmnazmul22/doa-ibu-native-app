@@ -178,6 +178,16 @@ export default function LoginPage() {
           onChangeText={(text) => setPassword(text)}
           placeholderTextColor="#000000c1"
         />
+        <Link
+          style={{
+            color: colors?.darkText,
+            fontWeight: 400,
+            textDecorationLine: "underline",
+          }}
+          href="/forgot-password"
+        >
+          Forgot Password
+        </Link>
         <Pressable style={styles.btn} onPress={onSignInPress}>
           {loading && <ActivityIndicator size="small" color="#ffffff" />}
           {!loading && <Text style={styles.btnText}>Sign In</Text>}
