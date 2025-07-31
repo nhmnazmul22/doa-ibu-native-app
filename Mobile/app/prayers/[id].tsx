@@ -26,20 +26,24 @@ import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
 
-let audioTracks: (AudioSource | undefined)[] = [];
-
 export default function MotherDoa() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
   const { id }: { id: string } = useLocalSearchParams();
+
   const [trackIndex, setTrackIndex] = useState(0);
-  const player = useAudioPlayer(audioTracks[trackIndex]);
-  const playerStatus = useAudioPlayerStatus(player);
+  const [audioTracks, setAudioTracks] = useState<AudioSource[]>([]);
   const [isLooping, setIsLooping] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
+
+  const currentTrack = audioTracks[trackIndex];
+  const player = useAudioPlayer(currentTrack);
+  const playerStatus = useAudioPlayerStatus(player);
+
   const userContext = useUserInfo();
   const dispatch = useDispatch<AppDispatch>();
+
   const {
     items: Doa,
     loading: doaLoading,
@@ -64,27 +68,26 @@ export default function MotherDoa() {
   };
 
   const handleNextTrack = () => {
+    if (audioTracks.length === 0) return;
+
+    reset();
+    player.seekTo(0);
+
     if (trackIndex < audioTracks.length - 1) {
-      // dispatch(fetchDoa(doas?.data[trackIndex]._id!));
-      reset();
-      player.seekTo(0);
       setTrackIndex(trackIndex + 1);
     } else {
-      // dispatch(fetchDoa(doas?.data[trackIndex]._id!));
-      reset();
-      player.seekTo(0);
       setTrackIndex(0);
     }
   };
 
   const handlePrevTrack = () => {
+    if (audioTracks.length === 0) return;
+
+    reset();
+
     if (trackIndex > 0) {
-      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
-      reset();
       setTrackIndex(trackIndex - 1);
     } else {
-      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
-      reset();
       setTrackIndex(audioTracks.length - 1);
     }
   };
@@ -103,17 +106,15 @@ export default function MotherDoa() {
           position: "bottom",
           visibilityTime: 2000,
         });
-        return;
       }
     } catch (err) {
       console.error(err);
       Toast.show({
         type: "error",
-        text1: "Loved added filed",
+        text1: "Loved added failed",
         position: "bottom",
         visibilityTime: 2000,
       });
-    } finally {
     }
   };
 
@@ -121,23 +122,10 @@ export default function MotherDoa() {
     if (playerStatus.didJustFinish && isLooping) {
       player.seekTo(0);
       player.play();
-    }
-    if (playerStatus.didJustFinish && !isLooping) {
+    } else if (playerStatus.didJustFinish && !isLooping) {
       handleNextTrack();
     }
   }, [playerStatus.didJustFinish]);
-
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchDoa(id));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (trackIndex < audioTracks.length && trackIndex >= 0) {
-      dispatch(fetchDoa(doas?.data[trackIndex]._id!));
-    }
-  }, [trackIndex]);
 
   useEffect(() => {
     dispatch(fetchDoas("uploaded"));
@@ -145,25 +133,50 @@ export default function MotherDoa() {
 
   useEffect(() => {
     if (doas?.data) {
-      doas.data.map((item, index) => {
-        if (item.audioLink && item._id) {
-          audioTracks.push({
-            uri: item.audioLink,
-            assetId: index,
-          });
-        }
-      });
+      const tracks = doas.data
+        .filter((item) => item.audioLink && item._id)
+        .map((item, index) => ({
+          uri: item.audioLink,
+          assetId: index,
+        }));
+      setAudioTracks(tracks);
+
+      // ✅ Sync the track index to the ID from route
+      const foundIndex = doas.data.findIndex((item) => item._id === id);
+      if (foundIndex !== -1) {
+        setTrackIndex(foundIndex);
+      }
+    }
+  }, [doas]);
+
+  useEffect(() => {
+    if (
+      audioTracks.length > 0 &&
+      trackIndex >= 0 &&
+      trackIndex < audioTracks.length
+    ) {
+      const doaId = doas?.data?.[trackIndex]?._id;
+      if (doaId) {
+        console.log("track:", trackIndex);
+        dispatch(fetchDoa(doaId));
+      }
+    }
+  }, [trackIndex, audioTracks]);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchDoa(id));
     }
   }, []);
 
-  if (doaLoading) {
+  if (doaLoading || doasLoading) {
     return <LoadingComponents />;
   }
 
   const isFavorite =
     Doa?.data &&
     Doa.data.favoriteUsers &&
-    Doa?.data.favoriteUsers.includes(userContext?.user._id);
+    Doa.data.favoriteUsers.includes(userContext?.user._id);
 
   return (
     <View style={styles.container}>
@@ -249,12 +262,11 @@ export default function MotherDoa() {
           />
         </Pressable>
 
-        <Pressable>
+        <Pressable onPress={() => setIsLooping(!isLooping)}>
           <Ionicons
             name="shuffle"
             size={34}
             color={isLooping ? colors?.primary : colors?.darkText}
-            onPress={() => setIsLooping(!isLooping)}
           />
         </Pressable>
       </View>
