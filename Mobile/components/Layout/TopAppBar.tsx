@@ -14,7 +14,8 @@ import {
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
-import { deleteToken } from "@/lib/token";
+import { isClerkAPIResponseError, useClerk } from "@clerk/clerk-expo";
+
 const { width } = Dimensions.get("window");
 
 export default function TopAppBar() {
@@ -41,23 +42,40 @@ export default function TopAppBar() {
     pathname === "/login-signup" ||
     pathname === "/login" ||
     pathname === "/register" ||
-    pathname === "/forgot-password"
+    pathname === "/forgot-password" ||
+    pathname === "/loading"
   ) {
     return null;
   }
 
-  const handelLogout = () => {
+  const { signOut } = useClerk();
+  const handleSignOut = async () => {
     try {
-      deleteToken();
-      router.replace("/login");
-    } catch (err) {
-      console.log(err);
+      await signOut();
       Toast.show({
-        type: "error",
-        text1: "Log out filed",
+        type: "success",
+        text1: "Sign out successful",
         position: "bottom",
         visibilityTime: 2000,
       });
+      router.replace("/login");
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
     }
   };
 
@@ -90,7 +108,7 @@ export default function TopAppBar() {
           />
         )}
       </Link>
-      <Pressable onPress={handelLogout}>
+      <Pressable onPress={handleSignOut}>
         <MaterialCommunityIcons name="logout" size={28} color="black" />
       </Pressable>
     </View>

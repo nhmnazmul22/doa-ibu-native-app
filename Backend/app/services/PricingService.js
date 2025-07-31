@@ -23,9 +23,9 @@ export const GetPricingService = async () => {
 // Create Pricing Service
 export const CreatePricingService = async (req) => {
   try {
-    const { pricing } = req.body;
+    const { title, type, price, features } = req.body;
 
-    if (!pricing) {
+    if (!title || !type || !price || !features) {
       return { status: 400, message: "Required Filed missing", data: null };
     }
 

@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
-const PricingSchema = new Schema(
+// Define Data Schema
+const DataScheme = new Schema(
   {
     title: { type: String, required: true },
     type: { type: String, required: true },
@@ -13,17 +14,6 @@ const PricingSchema = new Schema(
           available: { type: Boolean },
         },
       ],
-      required: true,
-    },
-  },
-  { versionKey: false, timestamps: true }
-);
-
-// Define Data Schema
-const DataScheme = new Schema(
-  {
-    pricing: {
-      type: PricingSchema,
       required: true,
     },
   },

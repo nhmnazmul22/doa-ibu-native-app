@@ -4,7 +4,7 @@ import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
 import { checkTokenValidity } from "@/lib/token";
 import { PresetsColors } from "@/types";
-import { Link } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
@@ -21,6 +21,7 @@ import { fetchUser } from "@/store/userSlice";
 import * as Notifications from "expo-notifications";
 import { setupNotificationPermissions } from "@/lib/notification";
 import { fetchDoas } from "@/store/doasSlice";
+import { useSession } from "@clerk/clerk-expo";
 
 // 🔔 Configure notification handler
 Notifications.setNotificationHandler({
@@ -38,6 +39,7 @@ export default function HomePage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const { isSignedIn, isLoaded, session } = useSession();
   const userContext = useUserInfo();
   const { dateTime, greeting } = getFormattedTimeAndGreeting();
   const [refreshing, setRefreshing] = useState(false);
@@ -53,13 +55,16 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    checkTokenValidity();
-  }, []);
-
-  useEffect(() => {
     setupNotificationPermissions();
   }, []);
 
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href={"/login-signup"} />;
+  }
 
   return (
     <ScrollView

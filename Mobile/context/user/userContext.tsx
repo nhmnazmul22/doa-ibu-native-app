@@ -1,18 +1,9 @@
 import { AppDispatch, RootState } from "@/store";
-import { User } from "@/types";
-import {
-  createContext,
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { decodedToken } from "@/lib/token";
 import Toast from "react-native-toast-message";
 import { fetchUser } from "@/store/userSlice";
+import { useSession, } from "@clerk/clerk-expo";
 
 interface UserContextType {
   user: any;
@@ -25,27 +16,15 @@ export default function UserProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [email, setEmail] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
+  const { session } = useSession();
   const userInfo = useSelector((state: RootState) => state.user.items?.data);
 
-  const checkToken = async () => {
-    const token = await AsyncStorage.getItem("authToken");
-    if (token) {
-      const obj = decodedToken(token);
-      setEmail(obj.email);
-    }
-  };
-
   useEffect(() => {
-    checkToken();
-  }, []);
-
-  useEffect(() => {
-    if (email) {
-      dispatch(fetchUser(email));
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
     }
-  }, [email]);
+  }, [session]);
 
   return <UserContext value={{ user: userInfo }}>{children}</UserContext>;
 }

@@ -8,6 +8,7 @@ import doaByMotherReducer from "@/store/doasbyMother";
 import mothersReducer from "@/store/mothersSlice";
 import motherByEmailReducer from "@/store/motherSlice";
 import motherByIdReducer from "@/store/motherIdSlice";
+import pricingReducer from "@/store/PricingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     mothers: mothersReducer,
     mother: motherByEmailReducer,
     motherById: motherByIdReducer,
+    pricing: pricingReducer,
   },
 });
 

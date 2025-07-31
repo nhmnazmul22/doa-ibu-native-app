@@ -78,3 +78,14 @@ export interface User {
   pendingPayments?: PendingPayment[];
   subscriptions?: Subscription[];
 }
+
+export interface Pricing {
+  title: string;
+  shortDes: string;
+  type: string;
+  price: string;
+  features: {
+    text: string;
+    available: boolean;
+  }[];
+}

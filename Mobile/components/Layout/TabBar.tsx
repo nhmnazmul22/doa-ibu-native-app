@@ -22,7 +22,8 @@ export default function TabBar() {
     pathname === "/login-signup" ||
     pathname === "/login" ||
     pathname === "/register" ||
-    pathname === "/forgot-password"
+    pathname === "/forgot-password" ||
+    pathname === "/loading"
   ) {
     return null;
   }

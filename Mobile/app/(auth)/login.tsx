@@ -1,13 +1,6 @@
 import { useTheme } from "@/context/theme/ThemeContext";
-import { validateEmail, validatePassword } from "@/lib";
-import { auth } from "@/lib/config/firebaseconfig";
-import { saveToken } from "@/lib/token";
-import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
-import { FontAwesome } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -20,87 +13,148 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { useDispatch, useSelector } from "react-redux";
+import { isClerkAPIResponseError, useSignIn, useSSO } from "@clerk/clerk-expo";
+import * as AuthSession from "expo-auth-session";
+import * as WebBrowser from "expo-web-browser";
 
 const googleIcon = require("@/assets/images/google-icon.png");
 const facebookIcon = require("@/assets/images/facebook-icon.png");
 const width = Dimensions.get("window").width;
 
+export const useWarmUpBrowser = () => {
+  useEffect(() => {
+    return () => {
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+};
+
+// Handle any pending authentication sessions
+WebBrowser.maybeCompleteAuthSession();
+
 export default function LoginPage() {
+  useWarmUpBrowser();
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const [emailAddress, setEmailAddress] = useState("");
+  const [password, setPassword] = React.useState("");
   const [loading, setLoading] = useState<boolean>(false);
-  const dispatch = useDispatch<AppDispatch>();
+  const { startSSOFlow } = useSSO();
 
-  const reset = () => {
-    setEmail("");
-    setPassword("");
-  };
+  const redirectUrl = AuthSession.makeRedirectUri({
+    scheme: "doaibu", // from your app.json
+  });
 
-  const handleLogin = async () => {
+  // Handle the submission of the sign-in form
+  const onSignInPress = async () => {
+    if (!isLoaded) return;
     try {
       setLoading(true);
-
-      if (!email || !password) {
-        Toast.show({
-          type: "error",
-          text1: "Please, fill up all field",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
-        return;
-      }
-
-      const isEmail = validateEmail(email);
-      const isPassword = validatePassword(password);
-      if (!isEmail) {
-        Toast.show({
-          type: "error",
-          text1: "Invalid Email address!",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
-        return;
-      }
-
-      if (!isPassword.success) {
-        Toast.show({
-          type: "error",
-          text1: isPassword.message,
-          position: "bottom",
-          visibilityTime: 2000,
-        });
-        return;
-      }
-
-      // 🔐 Firebase login directly
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const token = await userCredential.user.getIdToken();
-
-      // Save token and dispatch the user
-      if (userCredential.user.email && token) {
-        dispatch(fetchUser(userCredential.user.email));
-        saveToken(token);
-        reset();
-        router.replace("/");
-      }
-    } catch (err: any) {
-      console.error("Error", err);
-      Toast.show({
-        type: "error",
-        text1: err.message || "Login failed, try again",
-        position: "bottom",
-        visibilityTime: 2000,
+      const signInAttempt = await signIn.create({
+        identifier: emailAddress,
+        password,
       });
+
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        Toast.show({
+          type: "success",
+          text1: "Login successful",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+        router.replace("/");
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Login failed, try again",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { setActive, createdSessionId } = await startSSOFlow({
+        strategy: "oauth_google",
+        redirectUrl,
+      });
+
+      if (createdSessionId) {
+        await setActive?.({ session: createdSessionId });
+        router.replace("/loading");
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    try {
+      const { setActive, createdSessionId } = await startSSOFlow({
+        strategy: "oauth_facebook",
+        redirectUrl,
+      });
+
+      if (createdSessionId) {
+        await setActive?.({ session: createdSessionId });
+        router.replace("/loading");
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
     }
   };
 
@@ -111,9 +165,9 @@ export default function LoginPage() {
         <TextInput
           inputMode="email"
           style={styles.input}
-          placeholder="Enter username or email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
+          placeholder="Enter email"
+          value={emailAddress}
+          onChangeText={(text) => setEmailAddress(text)}
           placeholderTextColor="#000000c1"
         />
         <TextInput
@@ -124,7 +178,7 @@ export default function LoginPage() {
           onChangeText={(text) => setPassword(text)}
           placeholderTextColor="#000000c1"
         />
-        <Pressable style={styles.btn} onPress={handleLogin}>
+        <Pressable style={styles.btn} onPress={onSignInPress}>
           {loading && <ActivityIndicator size="small" color="#ffffff" />}
           {!loading && <Text style={styles.btnText}>Sign In</Text>}
         </Pressable>
@@ -136,13 +190,13 @@ export default function LoginPage() {
       </View>
       <View style={styles.iconsBox}>
         <View style={styles.iconsBox}>
-          <Pressable onPress={() => router.push("/")}>
+          <Pressable onPress={() => handleGoogleSignIn()}>
             <Image
               source={googleIcon}
               style={{ width: 45, height: 45, objectFit: "contain" }}
             />
           </Pressable>
-          <Pressable onPress={() => router.push("/")}>
+          <Pressable onPress={() => handleFacebookSignIn()}>
             <Image
               source={facebookIcon}
               style={{ width: 45, height: 45, objectFit: "contain" }}

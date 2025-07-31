@@ -1,9 +1,11 @@
 import SubscriptionModal from "@/components/SubscriptionModal";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
+import { AppDispatch, RootState } from "@/store";
+import { fetchPricing } from "@/store/PricingSlice";
 import { PresetsColors } from "@/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Keyboard,
@@ -17,6 +19,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 const width = Dimensions.get("window").width;
 
@@ -45,7 +48,18 @@ export default function SubscriptionPage() {
   const [tab, setTab] = useState<"free" | "premium" | "donate">("free");
   const [price, setPrice] = useState<string>("5000");
   const [visibleModal, setVisibleModal] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
 
+  const { items, loading, error } = useSelector(
+    (state: RootState) => state.pricing
+  );
+
+
+  useEffect(() => {
+    dispatch(fetchPricing());
+  }, []);
+
+  console.log(items?.data);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -115,255 +129,259 @@ export default function SubscriptionPage() {
                 </Text>
               </Pressable>
             </View>
-            <View style={{ marginTop: 30 }}>
-              {tab === "free" && (
-                <View style={styles.tabContents}>
-                  <View style={styles.contentHeader}>
-                    <Text style={styles.tabTitle}>Gratis</Text>
-                    <Text style={styles.tabTitle}>0.0 Rp</Text>
-                  </View>
-                  <Text style={styles.tabDes}>
-                    Enjoy a simple connection with your loved ones through
-                    preloaded prayers. Record up to 2 personal voice messages
-                    and receive gentle daily reminders.
-                  </Text>
-                  <View style={styles.featureContents}>
-                    <Text style={styles.featureTitle}>Features:</Text>
-                    <View style={styles.features}>
-                      {freeFeatures.map((feature, index) => (
-                        <View key={index} style={styles.featureBox}>
-                          {feature.available ? (
-                            <AntDesign
-                              name="checkcircle"
-                              size={24}
-                              color={colors?.success}
-                            />
-                          ) : (
-                            <AntDesign
-                              name="closecircle"
-                              size={24}
-                              color={colors?.primary}
-                            />
-                          )}
-                          <Text style={styles.featureText}>
-                            {feature.label}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                </View>
-              )}
-              {tab === "premium" && (
-                <View style={styles.tabContents}>
-                  <View style={styles.contentHeader}>
-                    <Text style={styles.tabTitle}>Premium</Text>
-                    <Text style={styles.tabTitle}>
-                      Rp 15rb–25rb/
-                      <Text style={{ fontSize: 14, fontWeight: "400" }}>
-                        bulan
+            {items?.data && items?.data.length > 0 && (
+              <View style={{ marginTop: 30 }}>
+                {tab === "free" && (
+                  <View style={styles.tabContents}>
+                    <View style={styles.contentHeader}>
+                      <Text style={styles.tabTitle}>
+                        {items?.data?.[0].title}
                       </Text>
-                    </Text>
-                  </View>
-                  <Text style={styles.tabDes}>
-                    Unlock deeper moments with 30 personal voice messages,
-                    exclusive prayers, calming background music, and beautiful
-                    visual themes. For a more personal, heartfelt experience
-                    every day.
-                  </Text>
-                  <View style={styles.featureContents}>
-                    <Text style={styles.featureTitle}>Features:</Text>
-                    <View style={styles.features}>
-                      {premiumFeatures.map((feature, index) => (
-                        <View key={index} style={styles.featureBox}>
-                          {feature.available ? (
-                            <AntDesign
-                              name="checkcircle"
-                              size={24}
-                              color={colors?.success}
-                            />
-                          ) : (
-                            <AntDesign
-                              name="closecircle"
-                              size={24}
-                              color={colors?.primary}
-                            />
-                          )}
-                          <Text style={styles.featureText}>
-                            {feature.label}
-                          </Text>
-                        </View>
-                      ))}
+                      <Text style={styles.tabTitle}>
+                        {items?.data?.[0].price} Rp
+                      </Text>
                     </View>
-                  </View>
-                  {userContext?.user.subscriptionType !== "premium" &&
-                    userContext?.user.subscriptionStatus !== "active" && (
-                      <View style={styles.btnBox}>
-                        <Pressable
-                          style={[styles.buyBtn]}
-                          onPress={() => setVisibleModal(true)}
-                        >
-                          <Text style={styles.btnText}>Pembelian</Text>
-                        </Pressable>
+                    <Text style={styles.tabDes}>
+                      {items?.data?.[0].shortDes}
+                    </Text>
+                    <View style={styles.featureContents}>
+                      <Text style={styles.featureTitle}>Features:</Text>
+                      <View style={styles.features}>
+                        {freeFeatures.map((feature, index) => (
+                          <View key={index} style={styles.featureBox}>
+                            {feature.available ? (
+                              <AntDesign
+                                name="checkcircle"
+                                size={24}
+                                color={colors?.success}
+                              />
+                            ) : (
+                              <AntDesign
+                                name="closecircle"
+                                size={24}
+                                color={colors?.primary}
+                              />
+                            )}
+                            <Text style={styles.featureText}>
+                              {feature.label}
+                            </Text>
+                          </View>
+                        ))}
                       </View>
-                    )}
-                </View>
-              )}
-              {tab === "donate" && (
-                <View style={styles.tabContents}>
-                  <View>
-                    <Text
-                      style={{
-                        ...styles.tabTitle,
-                        textAlign: "center",
-                        marginBottom: 10,
-                      }}
-                    >
-                      🎁 Donasi (Pendukung) – 🧡
-                    </Text>
-                    <Text
-                      style={{
-                        ...styles.tabDes,
-                        textAlign: "center",
-                        marginBottom: 5,
-                      }}
-                    >
-                      🧡️ “Dukung Aplikasi Ini” dengan Midtrans
-                    </Text>
-                    <Text style={{ ...styles.tabDes, textAlign: "center" }}>
-                      Dukunglah jiwa aplikasi ini dengan kebaikan Anda. Setiap
-                      donasi membantu doa-doa tetap hidup — dan Anda akan
-                      mendapatkan lencana "Pendukung Doa" khusus dengan cinta
-                      dan rasa syukur.
-                    </Text>
-                    <View style={{ ...styles.featureBox, marginVertical: 5 }}>
-                      <AntDesign
-                        name="checkcircle"
-                        size={24}
-                        color={colors?.success}
-                      />
-                      <Text style={styles.featureText}>
-                        Dapatkan lencana "Pendukung Doa" di profil Anda
-                      </Text>
                     </View>
                   </View>
-                  <View style={{ marginTop: 10 }}>
+                )}
+                {tab === "premium" && (
+                  <View style={styles.tabContents}>
+                    <View style={styles.contentHeader}>
+                      <Text style={styles.tabTitle}>Premium</Text>
+                      <Text style={styles.tabTitle}>
+                        Rp 25rb/
+                        <Text style={{ fontSize: 14, fontWeight: "400" }}>
+                          bulan
+                        </Text>
+                      </Text>
+                    </View>
+                    <Text style={styles.tabDes}>
+                      Unlock deeper moments with 30 personal voice messages,
+                      exclusive prayers, calming background music, and beautiful
+                      visual themes. For a more personal, heartfelt experience
+                      every day.
+                    </Text>
+                    <View style={styles.featureContents}>
+                      <Text style={styles.featureTitle}>Features:</Text>
+                      <View style={styles.features}>
+                        {premiumFeatures.map((feature, index) => (
+                          <View key={index} style={styles.featureBox}>
+                            {feature.available ? (
+                              <AntDesign
+                                name="checkcircle"
+                                size={24}
+                                color={colors?.success}
+                              />
+                            ) : (
+                              <AntDesign
+                                name="closecircle"
+                                size={24}
+                                color={colors?.primary}
+                              />
+                            )}
+                            <Text style={styles.featureText}>
+                              {feature.label}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                    {userContext?.user.subscriptionType !== "premium" &&
+                      userContext?.user.subscriptionStatus !== "active" && (
+                        <View style={styles.btnBox}>
+                          <Pressable
+                            style={[styles.buyBtn]}
+                            onPress={() => setVisibleModal(true)}
+                          >
+                            <Text style={styles.btnText}>Pembelian</Text>
+                          </Pressable>
+                        </View>
+                      )}
+                  </View>
+                )}
+                {tab === "donate" && (
+                  <View style={styles.tabContents}>
                     <View>
-                      <Text style={styles.donationText}>
-                        Dukung Aplikasi Ini,
+                      <Text
+                        style={{
+                          ...styles.tabTitle,
+                          textAlign: "center",
+                          marginBottom: 10,
+                        }}
+                      >
+                        🎁 Donasi (Pendukung) – 🧡
                       </Text>
-                      <View style={{ ...styles.tabsList, gap: 5 }}>
-                        <Pressable
-                          style={[
-                            styles.tabBtnPrimary,
-                            price === "5000" && styles.activeBtn,
-                            { paddingHorizontal: 10 },
-                          ]}
-                          onPress={() => setPrice("5000")}
-                        >
-                          <Text
-                            style={[
-                              styles.tabBtnText,
-                              price === "5000" && styles.activeBtnText,
-                              { fontSize: 12 },
-                            ]}
-                          >
-                            5k/Rp
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          style={[
-                            styles.tabBtnPrimary,
-                            price === "10000" && styles.activeBtn,
-                            { paddingHorizontal: 10 },
-                          ]}
-                          onPress={() => setPrice("10000")}
-                        >
-                          <Text
-                            style={[
-                              styles.tabBtnText,
-                              price === "10000" && styles.activeBtnText,
-                              { fontSize: 12 },
-                            ]}
-                          >
-                            10k/Rp
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          style={[
-                            styles.tabBtnPrimary,
-                            price === "20000" && styles.activeBtn,
-                            { paddingHorizontal: 10 },
-                          ]}
-                          onPress={() => setPrice("20000")}
-                        >
-                          <Text
-                            style={[
-                              styles.tabBtnText,
-                              price === "20000" && styles.activeBtnText,
-                              { fontSize: 12 },
-                            ]}
-                          >
-                            20k/Rp
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          style={[
-                            styles.tabBtnPrimary,
-                            price === "50000" && styles.activeBtn,
-                            { paddingHorizontal: 10 },
-                          ]}
-                          onPress={() => setPrice("50000")}
-                        >
-                          <Text
-                            style={[
-                              styles.tabBtnText,
-                              price === "50000" && styles.activeBtnText,
-                              { fontSize: 12 },
-                            ]}
-                          >
-                            50k/Rp
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          style={[
-                            styles.tabBtnPrimary,
-                            price === "100000" && styles.activeBtn,
-                            { paddingHorizontal: 10 },
-                          ]}
-                          onPress={() => setPrice("100000")}
-                        >
-                          <Text
-                            style={[
-                              styles.tabBtnText,
-                              price === "100000" && styles.activeBtnText,
-                              { fontSize: 12 },
-                            ]}
-                          >
-                            100k/Rp
-                          </Text>
-                        </Pressable>
+                      <Text
+                        style={{
+                          ...styles.tabDes,
+                          textAlign: "center",
+                          marginBottom: 5,
+                        }}
+                      >
+                        🧡️ “Dukung Aplikasi Ini” dengan Midtrans
+                      </Text>
+                      <Text style={{ ...styles.tabDes, textAlign: "center" }}>
+                        Dukunglah jiwa aplikasi ini dengan kebaikan Anda. Setiap
+                        donasi membantu doa-doa tetap hidup — dan Anda akan
+                        mendapatkan lencana "Pendukung Doa" khusus dengan cinta
+                        dan rasa syukur.
+                      </Text>
+                      <View style={{ ...styles.featureBox, marginVertical: 5 }}>
+                        <AntDesign
+                          name="checkcircle"
+                          size={24}
+                          color={colors?.success}
+                        />
+                        <Text style={styles.featureText}>
+                          Dapatkan lencana "Pendukung Doa" di profil Anda
+                        </Text>
                       </View>
                     </View>
-                    <Text style={styles.orText}>Or</Text>
-                    <TextInput
-                      style={styles.input}
-                      value={price}
-                      onChangeText={(text) => setPrice(text)}
-                      placeholder="Enter donation price"
-                    />
+                    <View style={{ marginTop: 10 }}>
+                      <View>
+                        <Text style={styles.donationText}>
+                          Dukung Aplikasi Ini,
+                        </Text>
+                        <View style={{ ...styles.tabsList, gap: 5 }}>
+                          <Pressable
+                            style={[
+                              styles.tabBtnPrimary,
+                              price === "5000" && styles.activeBtn,
+                              { paddingHorizontal: 10 },
+                            ]}
+                            onPress={() => setPrice("5000")}
+                          >
+                            <Text
+                              style={[
+                                styles.tabBtnText,
+                                price === "5000" && styles.activeBtnText,
+                                { fontSize: 12 },
+                              ]}
+                            >
+                              5k/Rp
+                            </Text>
+                          </Pressable>
+                          <Pressable
+                            style={[
+                              styles.tabBtnPrimary,
+                              price === "10000" && styles.activeBtn,
+                              { paddingHorizontal: 10 },
+                            ]}
+                            onPress={() => setPrice("10000")}
+                          >
+                            <Text
+                              style={[
+                                styles.tabBtnText,
+                                price === "10000" && styles.activeBtnText,
+                                { fontSize: 12 },
+                              ]}
+                            >
+                              10k/Rp
+                            </Text>
+                          </Pressable>
+                          <Pressable
+                            style={[
+                              styles.tabBtnPrimary,
+                              price === "20000" && styles.activeBtn,
+                              { paddingHorizontal: 10 },
+                            ]}
+                            onPress={() => setPrice("20000")}
+                          >
+                            <Text
+                              style={[
+                                styles.tabBtnText,
+                                price === "20000" && styles.activeBtnText,
+                                { fontSize: 12 },
+                              ]}
+                            >
+                              20k/Rp
+                            </Text>
+                          </Pressable>
+                          <Pressable
+                            style={[
+                              styles.tabBtnPrimary,
+                              price === "50000" && styles.activeBtn,
+                              { paddingHorizontal: 10 },
+                            ]}
+                            onPress={() => setPrice("50000")}
+                          >
+                            <Text
+                              style={[
+                                styles.tabBtnText,
+                                price === "50000" && styles.activeBtnText,
+                                { fontSize: 12 },
+                              ]}
+                            >
+                              50k/Rp
+                            </Text>
+                          </Pressable>
+                          <Pressable
+                            style={[
+                              styles.tabBtnPrimary,
+                              price === "100000" && styles.activeBtn,
+                              { paddingHorizontal: 10 },
+                            ]}
+                            onPress={() => setPrice("100000")}
+                          >
+                            <Text
+                              style={[
+                                styles.tabBtnText,
+                                price === "100000" && styles.activeBtnText,
+                                { fontSize: 12 },
+                              ]}
+                            >
+                              100k/Rp
+                            </Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                      <Text style={styles.orText}>Or</Text>
+                      <TextInput
+                        style={styles.input}
+                        value={price}
+                        onChangeText={(text) => setPrice(text)}
+                        placeholder="Enter donation price"
+                      />
+                    </View>
+                    <View style={styles.btnBox}>
+                      <Pressable
+                        style={[styles.buyBtn]}
+                        onPress={() => setVisibleModal(true)}
+                      >
+                        <Text style={styles.btnText}>Dukung Aplikasi Ini</Text>
+                      </Pressable>
+                    </View>
                   </View>
-                  <View style={styles.btnBox}>
-                    <Pressable
-                      style={[styles.buyBtn]}
-                      onPress={() => setVisibleModal(true)}
-                    >
-                      <Text style={styles.btnText}>Dukung Aplikasi Ini</Text>
-                    </Pressable>
-                  </View>
-                </View>
-              )}
-            </View>
+                )}
+              </View>
+            )}
           </View>
 
           <SubscriptionModal

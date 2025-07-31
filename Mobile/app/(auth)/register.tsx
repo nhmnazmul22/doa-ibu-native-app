@@ -1,194 +1,241 @@
-import { useTheme } from "@/context/theme/ThemeContext";
-import { validateEmail, validatePassword } from "@/lib";
-import api from "@/lib/config/axios";
-import { auth } from "@/lib/config/firebaseconfig";
-import { PresetsColors } from "@/types";
-import { Link, router } from "expo-router";
-import {
-  createUserWithEmailAndPassword,
-  FacebookAuthProvider,
-  GoogleAuthProvider,
-  signInWithCredential,
-} from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   Image,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
+import { Link, router } from "expo-router";
+import { useTheme } from "@/context/theme/ThemeContext";
+import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
+import { useSSO, useSession } from "@clerk/clerk-expo";
+import { PresetsColors } from "@/types";
 import Toast from "react-native-toast-message";
-import * as Google from "expo-auth-session/providers/google";
+import api from "@/lib/config/axios";
+import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import * as Facebook from "expo-auth-session/providers/facebook";
-
-WebBrowser.maybeCompleteAuthSession();
 
 const googleIcon = require("@/assets/images/google-icon.png");
 const facebookIcon = require("@/assets/images/facebook-icon.png");
 const width = Dimensions.get("window").width;
 
+export const useWarmUpBrowser = () => {
+  useEffect(() => {
+    return () => {
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+};
+
+// Handle any pending authentication sessions
+WebBrowser.maybeCompleteAuthSession();
+
 export default function RegisterPage() {
+  useWarmUpBrowser();
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
+  const { isLoaded, signUp, setActive } = useSignUp();
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [emailAddress, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [pendingVerification, setPendingVerification] = React.useState(false);
+  const [code, setCode] = useState("");
+  const { startSSOFlow } = useSSO();
+  const { session } = useSession();
 
-  const reset = () => {
-    setFullName("");
-    setEmail("");
-    setPassword("");
-  };
-
-  // ✅ Set redirect URI for production
-  const redirectUri = "https://auth.expo.dev/@nhmnazmul22/doa-ibu";
-
-  const [googleRequest, googleResponse, googlePromptAsync] =
-    Google.useAuthRequest({
-      clientId:
-        "71022976123-kl1r0s53q4rdeegn7ungf2occ93emajg.apps.googleusercontent.com",
-      androidClientId:
-        "71022976123-cj20o2208ik321sh8qcd0vnqepbadh49.apps.googleusercontent.com",
-      webClientId:
-        "61111890879-8ps0ab0l8goqu0hfk0i230bqivm63q1u.apps.googleusercontent.com",
-      redirectUri,
-    });
-
-  const [fbRequest, fbResponse, fbPromptAsync] = Facebook.useAuthRequest({
-    clientId: "720709907612444",
-    redirectUri,
+  const redirectUrl = AuthSession.makeRedirectUri({
+    scheme: "doaibu",
   });
 
-  const handleRegistration = async () => {
-    let createdUserId = null;
+  // Handle submission of sign-up form
+  const onSignUpPress = async () => {
+    if (!isLoaded) return;
 
     try {
       setLoading(true);
-      if (!fullName || !password || !email) {
-        Toast.show({
-          type: "error",
-          text1: "Please, fill up all fields",
-          position: "bottom",
-        });
-        return;
-      }
-
-      const isEmail = validateEmail(email);
-      const isPassword = validatePassword(password);
-
-      if (!isEmail) {
-        Toast.show({
-          type: "error",
-          text1: "Invalid email address!",
-          position: "bottom",
-        });
-        return;
-      }
-
-      if (!isPassword.success) {
-        Toast.show({
-          type: "error",
-          text1: isPassword.message,
-          position: "bottom",
-        });
-        return;
-      }
-
-      const res = await api.post("/create-user", { fullName, email, password });
-
-      if (res.status === 201) {
-        createdUserId = res.data.data._id;
-
-        const firebaseRes = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-        if (firebaseRes.user) {
-          reset();
-          Toast.show({
-            type: "success",
-            text1: "Account registration successful",
-            position: "bottom",
-          });
-          router.push("/login");
-          return;
-        }
-      }
-    } catch (err: any) {
-      let message = "Account registration failed";
-
-      if (
-        ["auth/email-already-in-use", "auth/invalid-email"].includes(err.code)
-      ) {
-        message =
-          err.code === "auth/email-already-in-use"
-            ? "This email is already in use"
-            : "Invalid email format";
-      } else if (err?.message) {
-        message = err.message;
-      }
-
-      if (createdUserId) {
-        try {
-          await api.delete(`/delete-user/${createdUserId}`);
-        } catch (deleteErr) {
-          console.error("Failed to delete user from backend:", deleteErr);
-        }
-      }
-
-      Toast.show({
-        type: "error",
-        text1: message,
-        position: "bottom",
+      await signUp.create({
+        emailAddress,
+        password,
       });
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setPendingVerification(true);
+      Toast.show({
+        type: "info",
+        text1: "Please, verify your email account",
+        position: "bottom",
+        visibilityTime: 2000,
+      });
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (googleResponse?.type === "success") {
-      const { id_token } = googleResponse.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
-        .then((userCredential) => {
-          console.log("✅ Google login success:", userCredential.user);
-          router.replace("/");
-        })
-        .catch((error) => {
-          console.error("❌ Google sign-in error:", error);
-        });
-    }
-  }, [googleResponse]);
+  // Handle submission of verification form
+  const onVerifyPress = async () => {
+    if (!isLoaded) return;
 
-  useEffect(() => {
-    if (
-      fbResponse?.type === "success" &&
-      fbResponse.authentication?.accessToken
-    ) {
-      const credential = FacebookAuthProvider.credential(
-        fbResponse.authentication.accessToken
-      );
-      signInWithCredential(auth, credential)
-        .then((userCredential) => {
-          console.log("✅ Facebook login success:", userCredential.user);
-          router.replace("/");
-        })
-        .catch((error) => {
-          console.error("❌ Facebook sign-in error:", error);
+    try {
+      setLoading(true);
+      const signUpAttempt = await signUp.attemptEmailAddressVerification({
+        code,
+      });
+      if (signUpAttempt.status === "complete") {
+        const userData = {
+          fullName: fullName,
+          email: emailAddress,
+          password: password,
+        };
+        const res = await api.post("/create-user", userData);
+
+        if (res.status === 201) {
+          await setActive({ session: signUpAttempt.createdSessionId });
+          Toast.show({
+            type: "success",
+            text1: "Registration Successful, Now Login",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/login");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: "Registration Failed, Pleaser try again",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Verification failed, Please try again",
+          position: "bottom",
+          visibilityTime: 2000,
         });
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
+    } finally {
+      setLoading(false);
     }
-  }, [fbResponse]);
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { setActive, createdSessionId } = await startSSOFlow({
+        strategy: "oauth_google",
+        redirectUrl,
+      });
+
+      if (createdSessionId) {
+        await setActive?.({ session: createdSessionId });
+        router.replace("/loading");
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    try {
+      const { setActive, createdSessionId } = await startSSOFlow({
+        strategy: "oauth_facebook",
+        redirectUrl,
+      });
+
+      if (createdSessionId) {
+        await setActive?.({ session: createdSessionId });
+        router.replace("/loading");
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        const errors = err.errors;
+        Toast.show({
+          type: "error",
+          text1: errors[0].message || "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          position: "bottom",
+          visibilityTime: 2000,
+        });
+      }
+    }
+  };
+
+  if (pendingVerification) {
+    return (
+      <View style={[styles.container, { paddingTop: 200 }]}>
+        <Text style={styles.title}>Verify your email</Text>
+        <TextInput
+          value={code}
+          style={[styles.input, { marginVertical: 30 }]}
+          placeholder="Enter your verification code"
+          onChangeText={(code) => setCode(code)}
+        />
+        <TouchableOpacity style={styles.btn} onPress={onVerifyPress}>
+          <Text style={styles.btnText}>Verify</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -206,7 +253,7 @@ export default function RegisterPage() {
           inputMode="email"
           style={styles.input}
           placeholder="Enter Email"
-          value={email}
+          value={emailAddress}
           onChangeText={setEmail}
           placeholderTextColor="#000000c1"
         />
@@ -221,7 +268,7 @@ export default function RegisterPage() {
         />
         <Pressable
           style={styles.btn}
-          onPress={handleRegistration}
+          onPress={onSignUpPress}
           disabled={loading}
         >
           {loading ? (
@@ -239,13 +286,10 @@ export default function RegisterPage() {
       </View>
 
       <View style={styles.iconsBox}>
-        <Pressable
-          disabled={!googleRequest}
-          onPress={() => googlePromptAsync()}
-        >
+        <Pressable onPress={() => handleGoogleSignIn()}>
           <Image source={googleIcon} style={{ width: 45, height: 45 }} />
         </Pressable>
-        <Pressable disabled={!fbRequest} onPress={() => fbPromptAsync()}>
+        <Pressable onPress={() => handleFacebookSignIn()}>
           <Image source={facebookIcon} style={{ width: 45, height: 45 }} />
         </Pressable>
       </View>
@@ -266,6 +310,7 @@ export default function RegisterPage() {
     </View>
   );
 }
+
 const getStyles = (colors: PresetsColors | undefined) =>
   StyleSheet.create({
     container: {
@@ -279,7 +324,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontFamily: "Nunito",
       fontSize: 30,
       color: colors?.primary,
-      fontWeight: 700,
+      fontWeight: "700",
       textAlign: "center",
     },
     inputContainer: {
@@ -300,13 +345,6 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontFamily: "Nunito",
       color: colors?.darkText,
     },
-    forgotLink: {
-      fontSize: 16,
-      fontWeight: 600,
-      fontFamily: "Nunito",
-      color: colors?.darkText,
-      textDecorationLine: "underline",
-    },
     btn: {
       width: width * 0.5,
       backgroundColor: colors?.primary,
@@ -318,7 +356,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
     },
     btnText: {
       fontSize: 16,
-      fontWeight: 600,
+      fontWeight: "600",
       fontFamily: "Nunito",
       color: colors?.bodyBackground,
       textAlign: "center",
@@ -346,66 +384,12 @@ const getStyles = (colors: PresetsColors | undefined) =>
       marginTop: 10,
       gap: 50,
     },
-
     registerText: {
       marginTop: 40,
       fontSize: 16,
-      fontWeight: 600,
+      fontWeight: "600",
       fontFamily: "Nunito",
       color: colors?.darkText,
       textAlign: "center",
-    },
-    tabsList: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 20,
-      justifyContent: "center",
-      alignItems: "center",
-      marginBottom: 30,
-    },
-    tabBtnPrimary: {
-      backgroundColor: colors?.bodyBackground,
-      borderWidth: 1,
-      borderColor: colors?.primary,
-      paddingHorizontal: 30,
-      paddingVertical: 10,
-      borderRadius: 10,
-    },
-    activeBtn: {
-      backgroundColor: colors?.primary,
-      borderWidth: 0,
-    },
-    tabBtnText: {
-      fontFamily: "Nunito",
-      fontSize: 14,
-      textAlign: "center",
-      color: colors?.darkText,
-      fontWeight: "700",
-    },
-    activeBtnText: {
-      color: colors?.bodyBackground,
-    },
-    checkboxContainer: {
-      marginTop: 10,
-    },
-    checkBoxTitle: {
-      fontSize: 16,
-      fontWeight: 700,
-      marginBottom: 10,
-      fontFamily: "Nunito",
-      color: colors?.darkText,
-    },
-    checkBoxs: {
-      flexDirection: "row",
-      gap: 10,
-    },
-    check: {
-      flexDirection: "row",
-      gap: 10,
-    },
-    checkTitle: {
-      fontFamily: "Nunito",
-      color: colors?.darkText,
-      fontSize: 14,
     },
   });

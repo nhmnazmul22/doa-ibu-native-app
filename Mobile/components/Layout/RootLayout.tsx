@@ -8,10 +8,12 @@ import { PresetsColors } from "@/types";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { useEffect, useState } from "react";
-import {  StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -34,20 +36,22 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaView style={styles.safeAreaView}>
-      <Provider store={store}>
-        <UserProvider>
-          <ThemeProvider>
-            <View style={styles.container}>
-              <TopAppBar />
-              <Slot />
-              <TabBar />
-            </View>
-            <Toast swipeable />
-          </ThemeProvider>
-        </UserProvider>
-      </Provider>
-    </SafeAreaView>
+    <ClerkProvider tokenCache={tokenCache}>
+      <SafeAreaView style={styles.safeAreaView}>
+        <Provider store={store}>
+          <UserProvider>
+            <ThemeProvider>
+              <View style={styles.container}>
+                <TopAppBar />
+                <Slot />
+                <TabBar />
+              </View>
+              <Toast swipeable />
+            </ThemeProvider>
+          </UserProvider>
+        </Provider>
+      </SafeAreaView>
+    </ClerkProvider>
   );
 }
 
