@@ -86,7 +86,7 @@ router.put(
   "/update-pricing/:pricingId",
   PricingController.UpdatePricingController
 );
-router.get(
+router.delete(
   "/delete-pricing/:pricingId",
   PricingController.DeletePricingController
 );
