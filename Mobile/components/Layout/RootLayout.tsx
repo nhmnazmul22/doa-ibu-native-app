@@ -37,7 +37,10 @@ export default function RootLayout() {
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
-      <ClerkProvider tokenCache={tokenCache}>
+      <ClerkProvider
+        tokenCache={tokenCache}
+        publishableKey="pk_live_Y2xlcmsuYXBwZG9haWJ1Lm15LmlkJA"
+      >
         <Provider store={store}>
           <UserProvider>
             <ThemeProvider>
