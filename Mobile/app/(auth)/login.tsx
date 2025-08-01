@@ -45,6 +45,7 @@ export default function LoginPage() {
 
   const redirectUrl = AuthSession.makeRedirectUri({
     scheme: "doaibu", // from your app.json
+    path: "sso-callback",
   });
 
   // Handle the submission of the sign-in form
