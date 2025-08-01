@@ -49,7 +49,7 @@ export const CreateUsersService = async (req) => {
     return {
       status: 201,
       message: "Users create successful",
-      data: userObject,
+      data: user,
     };
   } catch (err) {
     return {
@@ -143,16 +143,11 @@ export const GetUserService = async (req) => {
         data: null,
       };
     }
-    // Convert mongoose document to plain object
-    const userObject = user.toObject();
-
-    // Remove password field
-    delete userObject.password;
 
     return {
       status: 200,
       message: "User found successful",
-      data: userObject,
+      data: user,
     };
   } catch (err) {
     return {
