@@ -4,14 +4,14 @@
     "slug": "doa-ibu",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/doa-transparent.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "doaibu",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/doa-transparent.png",
       "resizeMode": "cover",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/doa-transparent.png",
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFF9F5"
       },
       "edgeToEdgeEnabled": true,
