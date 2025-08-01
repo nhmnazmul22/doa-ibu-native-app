@@ -4,7 +4,7 @@ import { isClerkAPIResponseError, useSignIn, useSSO } from "@clerk/clerk-expo";
 import * as AuthSession from "expo-auth-session";
 import { Link, router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import React, { useState,useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -78,7 +78,7 @@ export default function LoginPage() {
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        if (errors[0].code === "session_exist") {
+        if (errors[0].code == "session_exists") {
           console.log(errors[0].code);
           Toast.show({
             type: "success",
@@ -116,12 +116,14 @@ export default function LoginPage() {
       });
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
+      } else {
+        router.back();
       }
     } catch (err) {
       console.log(err);
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        if (errors[0].code === "session_exist") {
+        if (errors[0].code == "session_exists") {
           Toast.show({
             type: "success",
             text1: "Redirecting home....",
@@ -156,12 +158,14 @@ export default function LoginPage() {
       });
 
       if (createdSessionId) {
-        await setActive?.({ session: createdSessionId })
+        await setActive?.({ session: createdSessionId });
+      } else {
+        router.back();
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        if (errors[0].code === "session_exist") {
+        if (errors[0].code == "session_exists") {
           Toast.show({
             type: "success",
             text1: "Redirecting home....",

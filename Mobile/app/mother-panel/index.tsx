@@ -267,12 +267,12 @@ const getStyles = (colors: PresetsColors | undefined) =>
       marginBottom: 20,
     },
     profileImage: {
-      width: 150,
-      height: 150,
-      borderRadius: 100,
+      width: 220,
+      height: 180,
+      borderRadius: 10,
       marginBottom: 20,
-      borderWidth: 2,
-      borderColor: colors?.darkText,
+      borderWidth: 1,
+      borderColor: "#b1b1b1ff"
     },
     imageBox: {
       width: 150,

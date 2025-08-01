@@ -1,9 +1,16 @@
 import DoaList from "@/components/DoaList";
+import LoadingComponents from "@/components/LoadingComponents";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
-import { checkTokenValidity } from "@/lib/token";
+import { getFormattedTimeAndGreeting } from "@/lib";
+import { setupNotificationPermissions } from "@/lib/notification";
+import { AppDispatch } from "@/store";
+import { fetchDoas } from "@/store/doasSlice";
+import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { useSession } from "@clerk/clerk-expo";
+import * as Notifications from "expo-notifications";
 import { Link, Redirect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -14,14 +21,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { getFormattedTimeAndGreeting } from "@/lib";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { fetchUser } from "@/store/userSlice";
-import * as Notifications from "expo-notifications";
-import { setupNotificationPermissions } from "@/lib/notification";
-import { fetchDoas } from "@/store/doasSlice";
-import { useSession } from "@clerk/clerk-expo";
 
 // 🔔 Configure notification handler
 Notifications.setNotificationHandler({
@@ -67,10 +67,10 @@ export default function HomePage() {
   }, [session]);
 
   if (!isLoaded) {
-    return null;
+    return <LoadingComponents />;
   }
 
-  if (!isSignedIn) {
+  if (!isSignedIn && !session) {
     return <Redirect href={"/login-signup"} />;
   }
 

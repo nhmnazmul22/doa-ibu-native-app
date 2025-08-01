@@ -1,3 +1,15 @@
+import { useTheme } from "@/context/theme/ThemeContext";
+import api from "@/lib/config/axios";
+import { PresetsColors } from "@/types";
+import {
+  isClerkAPIResponseError,
+  useSSO,
+  useSession,
+  useSignUp,
+} from "@clerk/clerk-expo";
+import * as AuthSession from "expo-auth-session";
+import { Link, router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -10,15 +22,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Link, router } from "expo-router";
-import { useTheme } from "@/context/theme/ThemeContext";
-import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
-import { useSSO, useSession } from "@clerk/clerk-expo";
-import { PresetsColors } from "@/types";
 import Toast from "react-native-toast-message";
-import api from "@/lib/config/axios";
-import * as AuthSession from "expo-auth-session";
-import * as WebBrowser from "expo-web-browser";
 
 const googleIcon = require("@/assets/images/google-icon.png");
 const facebookIcon = require("@/assets/images/facebook-icon.png");
@@ -75,8 +79,7 @@ export default function RegisterPage() {
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        console.log(errors[0].code);
-        if (errors[0].code === "session_exist") {
+        if (errors[0].code == "session_exists") {
           Toast.show({
             type: "success",
             text1: "Redirecting home....",
@@ -149,7 +152,7 @@ export default function RegisterPage() {
     } catch (err: any) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        if (errors[0].code === "session_exist") {
+        if (errors[0].code == "session_exists") {
           Toast.show({
             type: "success",
             text1: "Redirecting home....",
@@ -187,11 +190,13 @@ export default function RegisterPage() {
 
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
+      } else {
+        router.back();
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        if (errors[0].code === "session_exist") {
+        if (errors[0].code == "session_exists") {
           Toast.show({
             type: "success",
             text1: "Redirecting home....",
@@ -225,13 +230,16 @@ export default function RegisterPage() {
         redirectUrl,
       });
 
+      console.log(createdSessionId);
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
+      } else {
+        router.back();
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        if (errors[0].code === "session_exist") {
+        if (errors[0].code == "session_exists") {
           Toast.show({
             type: "success",
             text1: "Redirecting home....",

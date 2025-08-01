@@ -7,11 +7,12 @@ import api from "@/lib/config/axios";
 import { AppDispatch, RootState } from "@/store";
 import { fetchDoasByMotherId } from "@/store/doasbyMother";
 import { fetchMotherById } from "@/store/motherIdSlice";
-import { Mother, PresetsColors } from "@/types";
+import { PresetsColors } from "@/types";
 
 import { useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Button,
   Dimensions,
   Image,
   RefreshControl,
@@ -19,7 +20,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
@@ -152,7 +152,9 @@ export default function MotherProfile() {
                 <Text style={styles.normalText}>Followers</Text>
               </View>
               <View style={styles.followersInfo}>
-                <Text style={styles.followingText}>{loved}</Text>
+                <Text style={styles.followingText}>
+                  {loved ? addedKBefore(loved) : 0}
+                </Text>
                 <Text style={styles.normalText}>Loved</Text>
               </View>
             </View>

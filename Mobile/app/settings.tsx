@@ -180,7 +180,9 @@ export default function SettingPage() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    dispatch(fetchUser(user.email));
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
@@ -261,6 +263,13 @@ export default function SettingPage() {
     getNotification();
   }, []);
 
+  useEffect(() => {
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
+  }, [session?.publicUserData.identifier]);
+
+  console.log(userContext?.user);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

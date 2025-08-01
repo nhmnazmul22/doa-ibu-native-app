@@ -2,7 +2,7 @@ import { ThemePresets } from "@/context/theme/presets";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
 import { AppDispatch } from "@/store";
-import { fetchUser } from "@/store/userSlice";
+import { fetchMother } from "@/store/motherSlice";
 import { PresetsColors } from "@/types";
 import { useSession } from "@clerk/clerk-expo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
@@ -114,7 +114,7 @@ export default function SettingPage() {
       }
 
       const response = await fetch(
-        `http://appdoaibu.my.id/api/update-mother/${user._id}`,
+        `https://appdoaibu.my.id/api/update-mother/${user._id}`,
         {
           method: "PUT",
           body: formData,
@@ -127,7 +127,7 @@ export default function SettingPage() {
           position: "bottom",
           visibilityTime: 2000,
         });
-        dispatch(fetchUser(user._id));
+        dispatch(fetchMother(user._id));
         return;
       }
     } catch (err: any) {
@@ -144,7 +144,7 @@ export default function SettingPage() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    dispatch(fetchUser(user.email));
+    dispatch(fetchMother(user.email));
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
@@ -174,10 +174,11 @@ export default function SettingPage() {
 
   useEffect(() => {
     if (session?.publicUserData.identifier) {
-      dispatch(fetchUser(session?.publicUserData.identifier));
+      dispatch(fetchMother(session?.publicUserData.identifier));
     }
-  }, [session]);
+  }, [session?.publicUserData.identifier]);
 
+  console.log(user);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
