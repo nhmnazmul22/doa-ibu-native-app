@@ -51,9 +51,9 @@ export default function RegisterPage() {
   const { session } = useSession();
 
   const redirectUrl = AuthSession.makeRedirectUri({
-    scheme: "doaibu",
+    scheme: "doaibu", // from your app.json
+    path: "sso-callback",
   });
-
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
     if (!isLoaded) return;
