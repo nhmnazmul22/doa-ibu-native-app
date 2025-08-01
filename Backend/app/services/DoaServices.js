@@ -220,13 +220,13 @@ export const DeleteDoaService = async (req) => {
     if (doa.thumbnail) {
       const linkArray = doa.thumbnail.split("/");
       const fileName = linkArray[linkArray.length - 1];
-      imagePath = image ? path.join("uploads/images", fileName) : null;
+      imagePath = path.join("uploads/images", fileName);
     }
 
     if (doa.audioLink) {
       const linkArray = doa.audioLink.split("/");
       const fileName = linkArray[linkArray.length - 1];
-      audioPath = audio ? path.join("uploads/audio", fileName) : null;
+      audioPath = path.join("uploads/audio", fileName);
     }
 
     const deleteDoa = await DoaModel.findOneAndDelete({ _id: doaId });
