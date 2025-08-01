@@ -1,27 +1,29 @@
 import { ThemePresets } from "@/context/theme/presets";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
+import { getNotificationSetting } from "@/lib";
 import api from "@/lib/config/axios";
+import { scheduleDailyNotification } from "@/lib/notification";
 import { AppDispatch } from "@/store";
 import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { useClerk, useSession } from "@clerk/clerk-expo";
 import Entypo from "@expo/vector-icons/Entypo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -29,11 +31,7 @@ import {
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
-import { useDispatch, useSelector } from "react-redux";
-import * as ImagePicker from "expo-image-picker";
-import { getNotificationSetting } from "@/lib";
-import { scheduleDailyNotification } from "@/lib/notification";
-import { useClerk, useSession } from "@clerk/clerk-expo";
+import { useDispatch } from "react-redux";
 
 const profileImage = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
@@ -169,10 +167,6 @@ export default function SettingPage() {
         return;
       }
     } catch (err: any) {
-      console.log("🔥 Full Error:", JSON.stringify(err, null, 2));
-      console.log("🔥 Error response:", err.response?.data);
-      console.log("🔥 Error message:", err.message);
-
       Toast.show({
         type: "error",
         text1: err.message || "Profile info update failed",
@@ -267,7 +261,6 @@ export default function SettingPage() {
     getNotification();
   }, []);
 
-  console.log(user);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

@@ -1,7 +1,8 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
-import { FontAwesome } from "@expo/vector-icons";
+import { isClerkAPIResponseError, useClerk } from "@clerk/clerk-expo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link, router, usePathname } from "expo-router";
 import React from "react";
 import {
@@ -12,9 +13,7 @@ import {
   Text,
   View,
 } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Toast from "react-native-toast-message";
-import { isClerkAPIResponseError, useClerk } from "@clerk/clerk-expo";
 
 const { width } = Dimensions.get("window");
 
@@ -43,7 +42,7 @@ export default function TopAppBar() {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/forgot-password" ||
-    pathname === "/loading"
+    pathname === "/sso-callback"
   ) {
     return null;
   }

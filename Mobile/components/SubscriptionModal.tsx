@@ -1,3 +1,9 @@
+import { useTheme } from "@/context/theme/ThemeContext";
+import { useUserInfo } from "@/context/user/userContext";
+import api from "@/lib/config/axios";
+import { PresetsColors } from "@/types";
+import Checkbox from "expo-checkbox";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -9,14 +15,8 @@ import {
   TextInput,
   View,
 } from "react-native";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useTheme } from "@/context/theme/ThemeContext";
-import { PresetsColors } from "@/types";
-import Checkbox from "expo-checkbox";
-import api from "@/lib/config/axios";
-import { useUserInfo } from "@/context/user/userContext";
 import Toast from "react-native-toast-message";
-import * as Clipboard from "expo-clipboard";
+import LoadingComponents from "./LoadingComponents";
 
 interface SubscriptionModalType {
   price?: string;
@@ -75,7 +75,7 @@ export default function SubscriptionModal({
         });
       }
     } catch (err: any) {
-      console.log("Error", err);
+      console.log("Error", err.response.data);
       setVisibleModal(false);
       Toast.show({
         type: "error",
@@ -87,24 +87,6 @@ export default function SubscriptionModal({
       setLoading(false);
     }
   };
-
-  const copyToClipboard = async () => {
-    if (qrUrl) {
-      await Clipboard.setStringAsync(qrUrl);
-    }
-  };
-
-  useEffect(() => {
-    if (type === "premium") {
-      if (paymentMethod === "qris") {
-        setAmount("15000");
-        return;
-      } else {
-        setAmount("25000");
-        return;
-      }
-    }
-  }, [paymentMethod, type]);
 
   useEffect(() => {
     if (price && type === "donate") {
@@ -124,19 +106,12 @@ export default function SubscriptionModal({
         {qrUrl && (
           <View style={styles.qrContainer}>
             <Text style={styles.qrContainerTitle}>Scan the QR code</Text>
-            <Image source={{ uri: qrUrl }} style={{ height: 300 }} />
-            <Pressable onPress={copyToClipboard}>
-              <Text style={styles.qrCodeNoteText}>
-                <Text
-                  style={{
-                    fontWeight: 700,
-                  }}
-                >
-                  QR Code URI:
-                </Text>{" "}
-                {qrUrl}
-              </Text>
-            </Pressable>
+            {!qrUrl && (
+              <View style={{ height: 300 }}>
+                <LoadingComponents />
+              </View>
+            )}
+            {qrUrl && <Image source={{ uri: qrUrl }} style={{ height: 300 }} />}
 
             <Text style={styles.qrCodeNoteText}>
               <Text

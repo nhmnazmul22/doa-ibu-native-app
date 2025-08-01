@@ -1,3 +1,4 @@
+import LoadingComponents from "@/components/LoadingComponents";
 import SubscriptionModal from "@/components/SubscriptionModal";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
@@ -29,7 +30,7 @@ export default function SubscriptionPage() {
   const styles = getStyles(colors);
   const userContext = useUserInfo();
   const [tab, setTab] = useState<"free" | "premium" | "donate">("free");
-  const [price, setPrice] = useState<string>("5000");
+  const [price, setPrice] = useState<string>("25000");
   const [visibleModal, setVisibleModal] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -40,6 +41,9 @@ export default function SubscriptionPage() {
   useEffect(() => {
     dispatch(fetchPricing());
   }, []);
+
+  const customBtn =
+    price !== "20000" && price !== "50000" && price !== "100000";
 
   return (
     <KeyboardAvoidingView
@@ -110,7 +114,7 @@ export default function SubscriptionPage() {
                 </Text>
               </Pressable>
             </View>
-            {items?.data && items?.data.length > 0 && (
+            {items?.data && items?.data.length > 0 ? (
               <View style={{ marginTop: 30 }}>
                 {tab === "free" && (
                   <View style={styles.tabContents}>
@@ -253,42 +257,6 @@ export default function SubscriptionPage() {
                           <Pressable
                             style={[
                               styles.tabBtnPrimary,
-                              price === "5000" && styles.activeBtn,
-                              { paddingHorizontal: 10 },
-                            ]}
-                            onPress={() => setPrice("5000")}
-                          >
-                            <Text
-                              style={[
-                                styles.tabBtnText,
-                                price === "5000" && styles.activeBtnText,
-                                { fontSize: 12 },
-                              ]}
-                            >
-                              5k/Rp
-                            </Text>
-                          </Pressable>
-                          <Pressable
-                            style={[
-                              styles.tabBtnPrimary,
-                              price === "10000" && styles.activeBtn,
-                              { paddingHorizontal: 10 },
-                            ]}
-                            onPress={() => setPrice("10000")}
-                          >
-                            <Text
-                              style={[
-                                styles.tabBtnText,
-                                price === "10000" && styles.activeBtnText,
-                                { fontSize: 12 },
-                              ]}
-                            >
-                              10k/Rp
-                            </Text>
-                          </Pressable>
-                          <Pressable
-                            style={[
-                              styles.tabBtnPrimary,
                               price === "20000" && styles.activeBtn,
                               { paddingHorizontal: 10 },
                             ]}
@@ -340,6 +308,24 @@ export default function SubscriptionPage() {
                               100k/Rp
                             </Text>
                           </Pressable>
+                          <Pressable
+                            style={[
+                              styles.tabBtnPrimary,
+                              customBtn && styles.activeBtn,
+                              { paddingHorizontal: 10 },
+                            ]}
+                            onPress={() => setPrice("")}
+                          >
+                            <Text
+                              style={[
+                                styles.tabBtnText,
+                                customBtn && styles.activeBtnText,
+                                { fontSize: 12 },
+                              ]}
+                            >
+                              Custom
+                            </Text>
+                          </Pressable>
                         </View>
                       </View>
                       <Text style={styles.orText}>Or</Text>
@@ -361,6 +347,8 @@ export default function SubscriptionPage() {
                   </View>
                 )}
               </View>
+            ) : (
+              <LoadingComponents />
             )}
           </View>
 

@@ -1,10 +1,9 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { Doa, PresetsColors } from "@/types";
 import React from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
-import MotherDoa from "./MotherDoa";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import LoadingComponents from "./LoadingComponents";
-import ErrorComponents from "./ErrorComponent";
+import MotherDoa from "./MotherDoa";
 
 interface MotherDoaListProps {
   loading?: boolean;
@@ -14,11 +13,7 @@ interface MotherDoaListProps {
 
 const { width } = Dimensions.get("window");
 
-export default function MotherDoaList({
-  doas,
-  loading,
-  error,
-}: MotherDoaListProps) {
+export default function MotherDoaList({ doas, loading }: MotherDoaListProps) {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
@@ -27,16 +22,24 @@ export default function MotherDoaList({
     return <LoadingComponents />;
   }
 
-  if (!loading && doas.length === 0 && error) {
-    return <ErrorComponents errorText={error} />;
-  }
-
   return (
     <View style={styles.container}>
       <View style={styles.doaList}>
-        {doas.map((doa) => (
-          <MotherDoa key={doa._id} doa={doa} />
-        ))}
+        {doas.length > 0 ? (
+          doas.map((doa) => <MotherDoa key={doa._id} doa={doa} />)
+        ) : (
+          <Text
+            style={{
+              textAlign: "center",
+              fontFamily: "Nunito",
+              fontSize: 16,
+              fontStyle: "italic",
+              color: colors?.darkText,
+            }}
+          >
+            No Data Found
+          </Text>
+        )}
       </View>
     </View>
   );

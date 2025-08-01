@@ -1,32 +1,29 @@
-import DoaList from "@/components/DoaList";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
+import { AppDispatch, RootState } from "@/store";
+import { fetchDoasByMotherId } from "@/store/doasbyMother";
 import { PresetsColors } from "@/types";
-import { Link, Redirect } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import { fetchUser } from "@/store/userSlice";
-import { fetchDoas } from "@/store/doasSlice";
-import * as ImagePicker from "expo-image-picker";
-import * as DocumentPicker from "expo-document-picker";
-import { Feather } from "@expo/vector-icons"; // or any other icon set
 import Toast from "react-native-toast-message";
-import api from "@/lib/config/axios";
-import { fetchDoasByMotherId } from "@/store/doasbyMother";
-import MotherDoaList from "@/components/MotherDoaList";
+import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
 const demoImg = require("@/assets/images/doa-bg.jpg");
@@ -160,78 +157,98 @@ export default function MotherHomePage() {
   }, []);
 
   return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={"padding"}
+      keyboardVerticalOffset={40}
     >
-      <View style={styles.container}>
-        <View style={styles.doaCarouselBox}>
-          <Pressable onPress={pickImage} style={{ width: 160 }}>
-            <View style={styles.imageBox}>
-              {image && (
-                <Image source={{ uri: image }} style={styles.profileImage} />
-              )}
-              {!image && <Image source={demoImg} style={styles.profileImage} />}
-            </View>
-          </Pressable>
-          <View style={styles.inputContainer}>
-            <Pressable
-              onPress={pickDocument}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                padding: 15,
-                backgroundColor: "#e7e7e7ff",
-                borderRadius: 8,
-              }}
-            >
-              <Feather
-                name="file"
-                size={20}
-                color="black"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.inputLabelText}>
-                {audioFile?.name !== undefined
-                  ? `${audioFile?.name.slice(0, 30)}...`
-                  : "Select Audio"}
-              </Text>
-            </Pressable>
-            <View style={styles.inputBox}>
-              <Text style={styles.inputLabelText}>Doa Title:</Text>
-              <TextInput
-                style={styles.input}
-                inputMode="text"
-                value={title}
-                onChangeText={(text) => setTitle(text)}
-                placeholder="Doa Title"
-              />
-            </View>
-            <View style={styles.inputBox}>
-              <Text style={styles.inputLabelText}>Short Description:</Text>
-              <TextInput
-                style={styles.input}
-                inputMode="text"
-                value={shortDes}
-                onChangeText={(text) => setShortDec(text)}
-                placeholder="Short Description"
-              />
-            </View>
-            <View style={styles.btnBox}>
-              <Pressable style={styles.btnPrimary} onPress={handleDoaCreate}>
-                {loading && <ActivityIndicator size="small" color="#ffffff" />}
-                {!loading && (
-                  <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
-                    Create
-                  </Text>
-                )}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <View style={styles.container}>
+            <View style={styles.doaCarouselBox}>
+              <Pressable onPress={pickImage} style={{ width: 160 }}>
+                <View style={styles.imageBox}>
+                  {image && (
+                    <Image
+                      source={{ uri: image }}
+                      style={styles.profileImage}
+                    />
+                  )}
+                  {!image && (
+                    <Image source={demoImg} style={styles.profileImage} />
+                  )}
+                </View>
               </Pressable>
+              <View style={styles.inputContainer}>
+                <Pressable
+                  onPress={pickDocument}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    padding: 15,
+                    backgroundColor: "#e7e7e7ff",
+                    borderRadius: 8,
+                  }}
+                >
+                  <Feather
+                    name="file"
+                    size={20}
+                    color="black"
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text style={styles.inputLabelText}>
+                    {audioFile?.name !== undefined
+                      ? `${audioFile?.name.slice(0, 30)}...`
+                      : "Select Audio"}
+                  </Text>
+                </Pressable>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputLabelText}>Doa Title:</Text>
+                  <TextInput
+                    style={styles.input}
+                    inputMode="text"
+                    value={title}
+                    onChangeText={(text) => setTitle(text)}
+                    placeholder="Doa Title"
+                  />
+                </View>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputLabelText}>Short Description:</Text>
+                  <TextInput
+                    style={styles.input}
+                    inputMode="text"
+                    value={shortDes}
+                    onChangeText={(text) => setShortDec(text)}
+                    placeholder="Short Description"
+                  />
+                </View>
+                <View style={styles.btnBox}>
+                  <Pressable
+                    style={styles.btnPrimary}
+                    onPress={handleDoaCreate}
+                  >
+                    {loading && (
+                      <ActivityIndicator size="small" color="#ffffff" />
+                    )}
+                    {!loading && (
+                      <Text
+                        style={{ ...styles.btnText, ...styles.primaryBtnText }}
+                      >
+                        Create
+                      </Text>
+                    )}
+                  </Pressable>
+                </View>
+              </View>
             </View>
           </View>
-        </View>
-      </View>
-    </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 

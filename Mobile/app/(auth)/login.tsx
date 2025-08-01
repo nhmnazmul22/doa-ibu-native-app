@@ -1,7 +1,10 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
+import { isClerkAPIResponseError, useSignIn, useSSO } from "@clerk/clerk-expo";
+import * as AuthSession from "expo-auth-session";
 import { Link, router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import * as WebBrowser from "expo-web-browser";
+import React, { useState,useEffect } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -13,9 +16,6 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { isClerkAPIResponseError, useSignIn, useSSO } from "@clerk/clerk-expo";
-import * as AuthSession from "expo-auth-session";
-import * as WebBrowser from "expo-web-browser";
 
 const googleIcon = require("@/assets/images/google-icon.png");
 const facebookIcon = require("@/assets/images/facebook-icon.png");
@@ -116,7 +116,6 @@ export default function LoginPage() {
       });
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
-        router.replace("/loading");
       }
     } catch (err) {
       console.log(err);
@@ -157,8 +156,7 @@ export default function LoginPage() {
       });
 
       if (createdSessionId) {
-        await setActive?.({ session: createdSessionId });
-        router.replace("/loading");
+        await setActive?.({ session: createdSessionId })
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {

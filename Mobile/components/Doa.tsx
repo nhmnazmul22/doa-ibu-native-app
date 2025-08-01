@@ -1,9 +1,9 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 interface DoaType {
   _id: string;
@@ -19,11 +19,13 @@ export default function Doa({ _id, thumbnail, title, shortDes }: DoaType) {
   return (
     <View>
       <View style={styles.thumbnail}>
-        {!thumbnail ? (
-          <Image source={require("../assets/images/doa-bg.jpg")} />
-        ) : (
-          <Image source={{ uri: thumbnail }} width={140} height={180} />
-        )}
+        <Pressable onPress={() => router.push(`/prayers/${_id}`)}>
+          {!thumbnail ? (
+            <Image source={require("../assets/images/doa-bg.jpg")} />
+          ) : (
+            <Image source={{ uri: thumbnail }} width={140} height={180} />
+          )}
+        </Pressable>
 
         <View style={styles.playIcon}>
           <Link href={`/prayers/${_id}`}>

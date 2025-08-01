@@ -1,25 +1,24 @@
 import { ThemePresets } from "@/context/theme/presets";
-import { StatusBar as RNStatusBar } from "react-native";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { useUserInfo } from "@/context/user/userContext";
 import { AppDispatch } from "@/store";
 import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { useSession } from "@clerk/clerk-expo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableWithoutFeedback,
@@ -28,8 +27,6 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
-import * as ImagePicker from "expo-image-picker";
-import { useSession } from "@clerk/clerk-expo";
 
 const width = Dimensions.get("window").width;
 const data = [
@@ -174,6 +171,12 @@ export default function SettingPage() {
       setMotherLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
+  }, [session]);
 
   return (
     <KeyboardAvoidingView

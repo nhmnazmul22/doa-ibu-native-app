@@ -187,7 +187,6 @@ export default function RegisterPage() {
 
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
-        router.replace("/loading");
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
@@ -228,7 +227,6 @@ export default function RegisterPage() {
 
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
-        router.replace("/loading");
       }
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
