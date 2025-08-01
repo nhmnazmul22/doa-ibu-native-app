@@ -47,7 +47,9 @@ export default function HomePage() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    dispatch(fetchUser(userContext?.user.email));
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
     dispatch(fetchDoas("uploaded"));
     setTimeout(() => {
       setRefreshing(false);
@@ -57,6 +59,12 @@ export default function HomePage() {
   useEffect(() => {
     setupNotificationPermissions();
   }, []);
+
+  useEffect(() => {
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
+  }, [session]);
 
   if (!isLoaded) {
     return null;

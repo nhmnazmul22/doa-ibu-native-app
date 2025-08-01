@@ -51,7 +51,7 @@ export default function RegisterPage() {
   const { session } = useSession();
 
   const redirectUrl = AuthSession.makeRedirectUri({
-    scheme: "doaibu", // from your app.json
+    scheme: "doaibu",
     path: "sso-callback",
   });
   // Handle submission of sign-up form
@@ -75,12 +75,23 @@ export default function RegisterPage() {
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        Toast.show({
-          type: "error",
-          text1: errors[0].message || "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
+        console.log(errors[0].code);
+        if (errors[0].code === "session_exist") {
+          Toast.show({
+            type: "success",
+            text1: "Redirecting home....",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: errors[0].message || "Something went wrong",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
       } else {
         Toast.show({
           type: "error",
@@ -107,7 +118,6 @@ export default function RegisterPage() {
         const userData = {
           fullName: fullName,
           email: emailAddress,
-          password: password,
         };
         const res = await api.post("/create-user", userData);
 
@@ -115,11 +125,11 @@ export default function RegisterPage() {
           await setActive({ session: signUpAttempt.createdSessionId });
           Toast.show({
             type: "success",
-            text1: "Registration Successful, Now Login",
+            text1: "Registration Successful",
             position: "bottom",
             visibilityTime: 2000,
           });
-          router.replace("/login");
+          router.replace("/");
         } else {
           Toast.show({
             type: "error",
@@ -136,19 +146,29 @@ export default function RegisterPage() {
           visibilityTime: 2000,
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        Toast.show({
-          type: "error",
-          text1: errors[0].message || "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
+        if (errors[0].code === "session_exist") {
+          Toast.show({
+            type: "success",
+            text1: "Redirecting home....",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/login");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: errors[0].message || "Something went wrong",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
       } else {
         Toast.show({
           type: "error",
-          text1: "Something went wrong",
+          text1: err.message || "Something went wrong",
           position: "bottom",
           visibilityTime: 2000,
         });
@@ -172,12 +192,22 @@ export default function RegisterPage() {
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        Toast.show({
-          type: "error",
-          text1: errors[0].message || "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
+        if (errors[0].code === "session_exist") {
+          Toast.show({
+            type: "success",
+            text1: "Redirecting home....",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: errors[0].message || "Something went wrong",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
       } else {
         Toast.show({
           type: "error",
@@ -203,12 +233,22 @@ export default function RegisterPage() {
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        Toast.show({
-          type: "error",
-          text1: errors[0].message || "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
+        if (errors[0].code === "session_exist") {
+          Toast.show({
+            type: "success",
+            text1: "Redirecting home....",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: errors[0].message || "Something went wrong",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
       } else {
         Toast.show({
           type: "error",
@@ -225,13 +265,19 @@ export default function RegisterPage() {
       <View style={[styles.container, { paddingTop: 200 }]}>
         <Text style={styles.title}>Verify your email</Text>
         <TextInput
+          inputMode="text"
           value={code}
           style={[styles.input, { marginVertical: 30 }]}
           placeholder="Enter your verification code"
           onChangeText={(code) => setCode(code)}
+          placeholderTextColor="#000000c1"
         />
         <TouchableOpacity style={styles.btn} onPress={onVerifyPress}>
-          <Text style={styles.btnText}>Verify</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <Text style={styles.btnText}>Verify</Text>
+          )}
         </TouchableOpacity>
       </View>
     );

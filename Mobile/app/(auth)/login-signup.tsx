@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 
-const logo = require("@/assets/images/logo.png");
+const logo = require("@/assets/images/doa-transparent.png");
 const width = Dimensions.get("window").width;
 
 export default function LoginSignupPage() {
@@ -55,8 +55,8 @@ const getStyles = (colors: PresetsColors | undefined) =>
       width: width * 0.9,
     },
     logo: {
-      width: 250,
-      height: 250,
+      width: 300,
+      height: 300,
     },
     title: {
       fontSize: 24,

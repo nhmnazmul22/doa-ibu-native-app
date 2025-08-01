@@ -78,12 +78,23 @@ export default function LoginPage() {
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        Toast.show({
-          type: "error",
-          text1: errors[0].message || "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
+        if (errors[0].code === "session_exist") {
+          console.log(errors[0].code);
+          Toast.show({
+            type: "success",
+            text1: "Redirecting home....",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: errors[0].message || "Something went wrong",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
       } else {
         Toast.show({
           type: "error",
@@ -103,20 +114,30 @@ export default function LoginPage() {
         strategy: "oauth_google",
         redirectUrl,
       });
-
       if (createdSessionId) {
         await setActive?.({ session: createdSessionId });
         router.replace("/loading");
       }
     } catch (err) {
+      console.log(err);
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        Toast.show({
-          type: "error",
-          text1: errors[0].message || "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
+        if (errors[0].code === "session_exist") {
+          Toast.show({
+            type: "success",
+            text1: "Redirecting home....",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: errors[0].message || "Something went wrong",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
       } else {
         Toast.show({
           type: "error",
@@ -142,12 +163,22 @@ export default function LoginPage() {
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         const errors = err.errors;
-        Toast.show({
-          type: "error",
-          text1: errors[0].message || "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
+        if (errors[0].code === "session_exist") {
+          Toast.show({
+            type: "success",
+            text1: "Redirecting home....",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+          router.replace("/");
+        } else {
+          Toast.show({
+            type: "error",
+            text1: errors[0].message || "Something went wrong",
+            position: "bottom",
+            visibilityTime: 2000,
+          });
+        }
       } else {
         Toast.show({
           type: "error",

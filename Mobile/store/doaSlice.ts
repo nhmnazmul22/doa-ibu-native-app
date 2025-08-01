@@ -42,13 +42,7 @@ const doaSlice = createSlice({
       .addCase(fetchDoa.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.items = {
-          message: "",
-          data: {
-            title: "",
-            shortDes: "",
-          },
-        };
+        state.items = initialState.items;
       })
       .addCase(fetchDoa.fulfilled, (state, action: PayloadAction<Response>) => {
         state.loading = false;
@@ -57,13 +51,7 @@ const doaSlice = createSlice({
       .addCase(fetchDoa.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
-        state.items = {
-          message: "",
-          data: {
-            title: "",
-            shortDes: "",
-          },
-        };
+        state.items = initialState.items;
       });
   },
 });

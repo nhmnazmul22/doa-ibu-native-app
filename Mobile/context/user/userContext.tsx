@@ -27,10 +27,11 @@ export default function UserProvider({
 
   useEffect(() => {
     if (session?.publicUserData.identifier) {
+      console.log(session?.publicUserData.identifier);
       dispatch(fetchUser(session?.publicUserData.identifier));
       dispatch(fetchMother(session?.publicUserData.identifier));
     }
-  }, [session]);
+  }, [session?.publicUserData.identifier]);
 
   return (
     <UserContext value={{ user: userInfo, mother: motherInfo }}>

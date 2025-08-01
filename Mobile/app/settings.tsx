@@ -267,6 +267,7 @@ export default function SettingPage() {
     getNotification();
   }, []);
 
+  console.log(user);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

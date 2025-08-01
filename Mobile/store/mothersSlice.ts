@@ -39,6 +39,7 @@ const mothersSlice = createSlice({
       .addCase(fetchMothers.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.items = initialState.items;
       })
       .addCase(
         fetchMothers.fulfilled,
@@ -50,6 +51,7 @@ const mothersSlice = createSlice({
       .addCase(fetchMothers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
+        state.items = initialState.items;
       });
   },
 });

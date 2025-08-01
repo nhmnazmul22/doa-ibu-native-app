@@ -39,10 +39,7 @@ const doaByMotherIdSlice = createSlice({
       .addCase(fetchDoasByMotherId.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.items = {
-          message: "",
-          data: [],
-        };
+        state.items = initialState.items;
       })
       .addCase(
         fetchDoasByMotherId.fulfilled,
@@ -54,10 +51,7 @@ const doaByMotherIdSlice = createSlice({
       .addCase(fetchDoasByMotherId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
-        state.items = {
-          message: "",
-          data: [],
-        };
+        state.items = initialState.items;
       });
   },
 });

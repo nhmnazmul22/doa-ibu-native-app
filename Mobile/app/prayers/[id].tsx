@@ -285,8 +285,9 @@ const getStyles = (colors: PresetsColors | undefined) =>
     },
     doaImgBox: {
       width: width * 0.9,
-      height: 400,
+      height: "40%",
       borderRadius: 20,
+      elevation: 2,
     },
     doaInfo: {
       width: width * 0.9,
