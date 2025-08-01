@@ -1,4 +1,5 @@
 import TabBar from "@/components/Layout/TabBar";
+import Constants from "expo-constants";
 import TopAppBar from "@/components/Layout/TopAppBar";
 import Splash from "@/components/Splash";
 import { ThemeProvider, useTheme } from "@/context/theme/ThemeContext";
@@ -14,6 +15,8 @@ import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 import { ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
+
+const clerkKey = Constants.expoConfig?.extra?.clerkPublishableKey;
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -39,7 +42,7 @@ export default function RootLayout() {
     <SafeAreaView style={styles.safeAreaView}>
       <ClerkProvider
         tokenCache={tokenCache}
-        publishableKey="pk_live_Y2xlcmsuYXBwZG9haWJ1Lm15LmlkJA"
+        publishableKey={clerkKey || "pk_live_Y2xlcmsuYXBwZG9haWJ1Lm15LmlkJA"}
       >
         <Provider store={store}>
           <UserProvider>

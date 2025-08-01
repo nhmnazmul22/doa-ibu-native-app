@@ -70,9 +70,9 @@
     },
     "extra": {
       "router": {},
+      "clerkPublishableKey": "pk_live_Y2xlcmsuYXBwZG9haWJ1Lm15LmlkJA",
       "eas": {
-        "projectId": "7596594f-37b6-4a3f-8339-889951f4c88e",
-        "clerkPublishableKey": "pk_live_Y2xlcmsuYXBwZG9haWJ1Lm15LmlkJA"
+        "projectId": "7596594f-37b6-4a3f-8339-889951f4c88e"
       }
     }
   }
