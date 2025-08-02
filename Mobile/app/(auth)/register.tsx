@@ -4,7 +4,6 @@ import { PresetsColors } from "@/types";
 import {
   isClerkAPIResponseError,
   useSSO,
-  useSession,
   useSignUp,
 } from "@clerk/clerk-expo";
 import * as AuthSession from "expo-auth-session";
@@ -25,7 +24,6 @@ import {
 import Toast from "react-native-toast-message";
 
 const googleIcon = require("@/assets/images/google-icon.png");
-const facebookIcon = require("@/assets/images/facebook-icon.png");
 const width = Dimensions.get("window").width;
 
 export const useWarmUpBrowser = () => {
@@ -52,7 +50,6 @@ export default function RegisterPage() {
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = useState("");
   const { startSSOFlow } = useSSO();
-  const { session } = useSession();
 
   const redirectUrl = AuthSession.makeRedirectUri({
     scheme: "doaibu",
@@ -223,49 +220,6 @@ export default function RegisterPage() {
     }
   };
 
-  const handleFacebookSignIn = async () => {
-    try {
-      const { setActive, createdSessionId } = await startSSOFlow({
-        strategy: "oauth_facebook",
-        redirectUrl,
-      });
-
-      console.log(createdSessionId);
-      if (createdSessionId) {
-        await setActive?.({ session: createdSessionId });
-      } else {
-        router.back();
-      }
-    } catch (err) {
-      if (isClerkAPIResponseError(err)) {
-        const errors = err.errors;
-        if (errors[0].code == "session_exists") {
-          Toast.show({
-            type: "success",
-            text1: "Redirecting home....",
-            position: "bottom",
-            visibilityTime: 2000,
-          });
-          router.replace("/");
-        } else {
-          Toast.show({
-            type: "error",
-            text1: errors[0].message || "Something went wrong",
-            position: "bottom",
-            visibilityTime: 2000,
-          });
-        }
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
-      }
-    }
-  };
-
   if (pendingVerification) {
     return (
       <View style={[styles.container, { paddingTop: 200 }]}>
@@ -339,10 +293,15 @@ export default function RegisterPage() {
 
       <View style={styles.iconsBox}>
         <Pressable onPress={() => handleGoogleSignIn()}>
-          <Image source={googleIcon} style={{ width: 45, height: 45 }} />
-        </Pressable>
-        <Pressable onPress={() => handleFacebookSignIn()}>
-          <Image source={facebookIcon} style={{ width: 45, height: 45 }} />
+          <View style={styles.googleBtn}>
+            <Image
+              source={googleIcon}
+              style={{ width: 30, height: 30, objectFit: "contain" }}
+            />
+            <Text style={[styles.btnText, { color: colors?.darkText }]}>
+              Continue with google
+            </Text>
+          </View>
         </Pressable>
       </View>
 
@@ -443,5 +402,13 @@ const getStyles = (colors: PresetsColors | undefined) =>
       fontFamily: "Nunito",
       color: colors?.darkText,
       textAlign: "center",
+    },
+    googleBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      backgroundColor: "#eaeaeaff",
+      padding: 15,
+      borderRadius: 50,
     },
   });

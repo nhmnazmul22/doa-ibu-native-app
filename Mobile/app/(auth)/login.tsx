@@ -18,7 +18,6 @@ import {
 import Toast from "react-native-toast-message";
 
 const googleIcon = require("@/assets/images/google-icon.png");
-const facebookIcon = require("@/assets/images/facebook-icon.png");
 const width = Dimensions.get("window").width;
 
 export const useWarmUpBrowser = () => {
@@ -150,48 +149,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleFacebookSignIn = async () => {
-    try {
-      const { setActive, createdSessionId } = await startSSOFlow({
-        strategy: "oauth_facebook",
-        redirectUrl,
-      });
-
-      if (createdSessionId) {
-        await setActive?.({ session: createdSessionId });
-      } else {
-        router.back();
-      }
-    } catch (err) {
-      if (isClerkAPIResponseError(err)) {
-        const errors = err.errors;
-        if (errors[0].code == "session_exists") {
-          Toast.show({
-            type: "success",
-            text1: "Redirecting home....",
-            position: "bottom",
-            visibilityTime: 2000,
-          });
-          router.replace("/");
-        } else {
-          Toast.show({
-            type: "error",
-            text1: errors[0].message || "Something went wrong",
-            position: "bottom",
-            visibilityTime: 2000,
-          });
-        }
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Something went wrong",
-          position: "bottom",
-          visibilityTime: 2000,
-        });
-      }
-    }
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign in</Text>
@@ -236,16 +193,15 @@ export default function LoginPage() {
       <View style={styles.iconsBox}>
         <View style={styles.iconsBox}>
           <Pressable onPress={() => handleGoogleSignIn()}>
-            <Image
-              source={googleIcon}
-              style={{ width: 45, height: 45, objectFit: "contain" }}
-            />
-          </Pressable>
-          <Pressable onPress={() => handleFacebookSignIn()}>
-            <Image
-              source={facebookIcon}
-              style={{ width: 45, height: 45, objectFit: "contain" }}
-            />
+            <View style={styles.googleBtn}>
+              <Image
+                source={googleIcon}
+                style={{ width: 30, height: 30, objectFit: "contain" }}
+              />
+              <Text style={[styles.btnText, { color: colors?.darkText }]}>
+                Continue with google
+              </Text>
+            </View>
           </Pressable>
         </View>
       </View>
@@ -383,5 +339,13 @@ const getStyles = (colors: PresetsColors | undefined) =>
     },
     activeBtnText: {
       color: colors?.bodyBackground,
+    },
+    googleBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      backgroundColor: "#eaeaeaff",
+      padding: 15,
+      borderRadius: 50,
     },
   });
