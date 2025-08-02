@@ -60,7 +60,6 @@ export default function SettingPage() {
   const [isPremiumMember, setIsPremiumMember] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [motherLoading, setMotherLoading] = useState(false);
-  const { signOut } = useClerk();
   const dispatch = useDispatch<AppDispatch>();
   const { items } = useSelector((state: RootState) => state.user);
   const { items: mother, loading: mLoading } = useSelector(
@@ -216,8 +215,7 @@ export default function SettingPage() {
           position: "bottom",
           visibilityTime: 2000,
         });
-        await signOut();
-        router.replace("/login");
+        router.replace("/mother-panel");
       }
     } catch (err: any) {
       Toast.show({

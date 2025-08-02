@@ -1,21 +1,23 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import React, { useState, useRef, useEffect } from "react";
-import * as FileSystem from "expo-file-system";
 import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
 import { FontAwesome } from "@expo/vector-icons";
-import LoadingComponents from "./LoadingComponents";
-import Toast from "react-native-toast-message";
+import * as FileSystem from "expo-file-system";
 import { requireNativeModule } from "expo-modules-core";
+import React, { useEffect, useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Toast from "react-native-toast-message";
+import LoadingComponents from "./LoadingComponents";
 
 const { AudioPlayer } = requireNativeModule("ExpoAudio");
 
 export default function RecordingList({
   recordings,
   refreshRecordings,
+  userId,
 }: {
   recordings: string[];
   refreshRecordings: () => void;
+  userId: string;
 }) {
   const theme = useTheme();
   const colors = theme?.colors;
@@ -119,7 +121,8 @@ export default function RecordingList({
   const deleteRecording = async (fileName: string) => {
     try {
       setLoading(true);
-      const fileUri = FileSystem.documentDirectory + fileName;
+      const fileUri = `${FileSystem.documentDirectory}recordings/${userId}/${fileName}`;
+      console.log(fileUri);
       await FileSystem.deleteAsync(fileUri, { idempotent: true });
       Toast.show({
         type: "success",

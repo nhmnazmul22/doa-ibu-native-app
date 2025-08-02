@@ -54,18 +54,28 @@ export default function RecordingPage() {
 
   const stopRecording = async () => {
     await audioRecorder.stop();
+
     if (audioRecorder.uri) {
+      const userId = items?.data._id; // Your current user's ID
+      const userDir = `${FileSystem.documentDirectory}recordings/${userId}/`;
       const fileName = `recording_${Date.now()}.m4a`;
-      const newPath = FileSystem.documentDirectory + fileName;
+      const newPath = `${userDir}${fileName}`;
 
       try {
+        // Create user-specific directory if it doesn't exist
+        const dirInfo = await FileSystem.getInfoAsync(userDir);
+        if (!dirInfo.exists) {
+          await FileSystem.makeDirectoryAsync(userDir, { intermediates: true });
+        }
+
+        // Move the recorded file to the user directory
         await FileSystem.moveAsync({
           from: audioRecorder.uri,
           to: newPath,
         });
 
         console.log("Recording saved to:", newPath);
-        await listFiles(); // update recordings
+        await listFiles(); // Refresh UI or state with new files
       } catch (error) {
         console.error("Failed to save recording:", error);
       }
@@ -73,12 +83,15 @@ export default function RecordingPage() {
   };
 
   const listFiles = async () => {
+    const userId = items?.data._id;
+    const userDir = `${FileSystem.documentDirectory}recordings/${userId}/`;
     try {
-      const files = await FileSystem.readDirectoryAsync(
-        FileSystem.documentDirectory || ""
-      );
-      const filteredFile = files.filter((file) => file.includes(".m4a"));
-      setRecordings(filteredFile);
+      const getInfo = await FileSystem.getInfoAsync(userDir);
+      if (getInfo.exists) {
+        const files = await FileSystem.readDirectoryAsync(userDir);
+        const filteredFile = files.filter((file) => file.includes(".m4a"));
+        setRecordings(filteredFile);
+      }
     } catch (err) {
       console.error("Failed to list files:", err);
     }
@@ -224,7 +237,11 @@ export default function RecordingPage() {
           </View>
         </View>
       </View>
-      <RecordingList recordings={recordings} refreshRecordings={listFiles} />
+      <RecordingList
+        recordings={recordings}
+        refreshRecordings={listFiles}
+        userId={items?.data._id!}
+      />
     </ScrollView>
   );
 }
