@@ -1,20 +1,45 @@
 import DoaList from "@/components/DoaList";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { AppDispatch } from "@/store";
+import { fetchDoas } from "@/store/doasSlice";
 import { PresetsColors } from "@/types";
-import React from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSession } from "@clerk/clerk-expo";
+import React, { useCallback, useState } from "react";
+import {
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useDispatch } from "react-redux";
 
 const { width } = Dimensions.get("window");
 
 export default function PrayersPage() {
   const theme = useTheme();
   const colors = theme?.colors;
-
   const styles = getStyles(colors);
+  const { session } = useSession();
+  const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchDoas("uploaded"));
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
+  }, []);
 
   return (
-    <ScrollView>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.container}>
         <View style={styles.slider}>
           <SliderDoa />

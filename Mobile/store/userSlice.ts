@@ -42,6 +42,7 @@ const userSlice = createSlice({
       .addCase(fetchUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.items = initialState.items;
       })
       .addCase(
         fetchUser.fulfilled,
@@ -53,6 +54,7 @@ const userSlice = createSlice({
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Something went wrong";
+        state.items = initialState.items;
       });
   },
 });

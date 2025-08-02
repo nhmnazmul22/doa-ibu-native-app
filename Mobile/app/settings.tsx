@@ -13,7 +13,7 @@ import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -63,7 +63,9 @@ export default function SettingPage() {
   const { signOut } = useClerk();
   const dispatch = useDispatch<AppDispatch>();
   const { items } = useSelector((state: RootState) => state.user);
-  const { items: mother } = useSelector((state: RootState) => state.mother);
+  const { items: mother, loading: mLoading } = useSelector(
+    (state: RootState) => state.mother
+  );
 
   const themeData = Object.keys(ThemePresets).map((value) => {
     return {
@@ -72,14 +74,16 @@ export default function SettingPage() {
     };
   });
 
-  const updateNotification = async () => {
+  const updateNotification = async (toast?: boolean) => {
+    console.log("I am calling");
     await scheduleDailyNotification(notificationText, date);
-    Toast.show({
-      type: "success",
-      text1: `Notification Setting Updated!`,
-      position: "bottom",
-      visibilityTime: 2000,
-    });
+    toast &&
+      Toast.show({
+        type: "success",
+        text1: `Notification Setting Updated!`,
+        position: "bottom",
+        visibilityTime: 2000,
+      });
     getNotification();
     return;
   };
@@ -114,7 +118,7 @@ export default function SettingPage() {
     }
   };
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = () => {
     setRefreshing(true);
     if (session?.publicUserData.identifier) {
       dispatch(fetchUser(session?.publicUserData.identifier));
@@ -123,7 +127,7 @@ export default function SettingPage() {
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
-  }, []);
+  };
 
   const handleUpdate = async () => {
     try {
@@ -244,7 +248,7 @@ export default function SettingPage() {
   };
 
   useEffect(() => {
-    getNotification();
+    updateNotification(false);
   }, []);
 
   useEffect(() => {
@@ -260,7 +264,6 @@ export default function SettingPage() {
     }
   }, [session?.publicUserData.identifier]);
 
-  console.log(mother);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -277,47 +280,40 @@ export default function SettingPage() {
         >
           <View style={styles.container}>
             <View>
-              {mother?.data.email && (
+              {mLoading ? (
                 <Pressable
                   style={[
                     styles.btnPrimary,
                     { marginBottom: 30, elevation: 3 },
                   ]}
-                  onPress={() => handleMotherPanel()}
                 >
-                  {motherLoading && (
-                    <ActivityIndicator size="small" color="#ffffff" />
-                  )}
-                  {!motherLoading && (
-                    <Text
-                      style={{ ...styles.btnText, ...styles.primaryBtnText }}
-                    >
-                      Mother Panel
-                    </Text>
-                  )}
+                  <ActivityIndicator size="small" color="#ffffff" />
                 </Pressable>
-              )}
-              {!mother?.data.email && (
+              ) : mother?.data?.email ? (
                 <Pressable
                   style={[
                     styles.btnPrimary,
                     { marginBottom: 30, elevation: 3 },
                   ]}
-                  onPress={() => handleBecomeMother()}
+                  onPress={handleMotherPanel}
                 >
-                  {motherLoading && (
-                    <ActivityIndicator size="small" color="#ffffff" />
-                  )}
-                  {!motherLoading && (
-                    <Text
-                      style={{ ...styles.btnText, ...styles.primaryBtnText }}
-                    >
-                      Become Mother
-                    </Text>
-                  )}
+                  <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
+                    Mother Panel
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  style={[
+                    styles.btnPrimary,
+                    { marginBottom: 30, elevation: 3 },
+                  ]}
+                  onPress={handleBecomeMother}
+                >
+                  <Text style={{ ...styles.btnText, ...styles.primaryBtnText }}>
+                    Become Mother
+                  </Text>
                 </Pressable>
               )}
-
               <Text style={styles.secTitle}>Profile Settings,</Text>
               <Pressable onPress={pickImage} style={{ width: 160 }}>
                 <View style={styles.imageBox}>
@@ -501,7 +497,7 @@ export default function SettingPage() {
                   <View style={{ width: "50%", marginBottom: 20 }}>
                     <Pressable
                       style={styles.btnPrimary}
-                      onPress={updateNotification}
+                      onPress={() => updateNotification(true)}
                     >
                       <Text
                         style={{

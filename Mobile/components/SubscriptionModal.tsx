@@ -123,7 +123,6 @@ export default function SubscriptionModal({
               </View>
             )}
             {qrUrl && <Image source={{ uri: qrUrl }} style={{ height: 300 }} />}
-
             <Text style={styles.qrCodeNoteText}>
               <Text
                 style={{

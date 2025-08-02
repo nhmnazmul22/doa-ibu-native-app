@@ -23,19 +23,17 @@ import {
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 
+const demyImg = require("@/assets/images/doa-banner.jpg");
 const { width } = Dimensions.get("window");
-
 export default function MotherDoa() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
   const { id }: { id: string } = useLocalSearchParams();
-
   const [trackIndex, setTrackIndex] = useState(0);
   const [audioTracks, setAudioTracks] = useState<AudioSource[]>([]);
   const [isLooping, setIsLooping] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
-
   const currentTrack = audioTracks[trackIndex];
   const player = useAudioPlayer(currentTrack);
   const playerStatus = useAudioPlayerStatus(player);
@@ -178,11 +176,15 @@ export default function MotherDoa() {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: Doa?.data.thumbnail }}
-        style={styles.doaImgBox}
-        resizeMode="cover"
-      />
+      {Doa?.data.thumbnail ? (
+        <Image
+          source={{ uri: Doa?.data.thumbnail }}
+          style={styles.doaImgBox}
+          resizeMode="cover"
+        />
+      ) : (
+        <Image source={demyImg} style={styles.doaImgBox} resizeMode="cover" />
+      )}
 
       <View style={styles.doaInfo}>
         <View>
