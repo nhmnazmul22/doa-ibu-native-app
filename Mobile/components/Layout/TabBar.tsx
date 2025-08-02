@@ -17,7 +17,6 @@ export default function TabBar() {
   const colors = theme?.colors;
   const userContext = useUserInfo();
   const mother = userContext?.mother;
-  const { isLoaded } = useSession();
 
   const styles = getStyles(colors);
 
@@ -28,8 +27,7 @@ export default function TabBar() {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/forgot-password" ||
-    pathname === "/sso-callback" ||
-    !isLoaded
+    pathname === "/sso-callback" 
   ) {
     return null;
   }
