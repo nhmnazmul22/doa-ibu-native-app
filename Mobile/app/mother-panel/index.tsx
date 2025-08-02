@@ -272,7 +272,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       borderRadius: 10,
       marginBottom: 20,
       borderWidth: 1,
-      borderColor: "#b1b1b1ff"
+      borderColor: "#b1b1b1ff",
     },
     imageBox: {
       width: 150,

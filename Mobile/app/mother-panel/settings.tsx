@@ -84,6 +84,16 @@ export default function SettingPage() {
     }
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchMother(session?.publicUserData.identifier));
+    }
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
+  }, []);
+
   const handleUpdate = async () => {
     try {
       setLoading(true);
@@ -127,7 +137,7 @@ export default function SettingPage() {
           position: "bottom",
           visibilityTime: 2000,
         });
-        dispatch(fetchMother(user._id));
+        onRefresh();
         return;
       }
     } catch (err: any) {
@@ -141,14 +151,6 @@ export default function SettingPage() {
       setLoading(false);
     }
   };
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    dispatch(fetchMother(user.email));
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
-  }, []);
 
   const handleUserPanel = async () => {
     try {
@@ -178,7 +180,6 @@ export default function SettingPage() {
     }
   }, [session?.publicUserData.identifier]);
 
-  console.log(user);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

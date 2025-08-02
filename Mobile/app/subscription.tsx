@@ -269,7 +269,7 @@ export default function SubscriptionPage() {
                                 { fontSize: 12 },
                               ]}
                             >
-                              20k/Rp
+                              Rp. 20,000
                             </Text>
                           </Pressable>
                           <Pressable
@@ -287,7 +287,7 @@ export default function SubscriptionPage() {
                                 { fontSize: 12 },
                               ]}
                             >
-                              50k/Rp
+                              Rp. 50,000
                             </Text>
                           </Pressable>
                           <Pressable
@@ -305,7 +305,7 @@ export default function SubscriptionPage() {
                                 { fontSize: 12 },
                               ]}
                             >
-                              100k/Rp
+                              Rp. 100,000
                             </Text>
                           </Pressable>
                           <Pressable
@@ -323,7 +323,7 @@ export default function SubscriptionPage() {
                                 { fontSize: 12 },
                               ]}
                             >
-                              Custom
+                              Custome
                             </Text>
                           </Pressable>
                         </View>

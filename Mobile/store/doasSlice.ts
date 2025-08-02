@@ -1,5 +1,5 @@
 import api from "@/lib/config/axios";
-import { Doa, User } from "@/types";
+import { Doa } from "@/types";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Response {

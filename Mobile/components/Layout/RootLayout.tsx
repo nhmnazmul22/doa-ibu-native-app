@@ -1,11 +1,13 @@
 import TabBar from "@/components/Layout/TabBar";
-import Constants from "expo-constants";
 import TopAppBar from "@/components/Layout/TopAppBar";
 import Splash from "@/components/Splash";
 import { ThemeProvider, useTheme } from "@/context/theme/ThemeContext";
 import UserProvider from "@/context/user/userContext";
 import { store } from "@/store";
 import { PresetsColors } from "@/types";
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import Constants from "expo-constants";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { useEffect, useState } from "react";
@@ -13,8 +15,6 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
-import { ClerkProvider } from "@clerk/clerk-expo";
-import { tokenCache } from "@clerk/clerk-expo/token-cache";
 
 const clerkKey = Constants.expoConfig?.extra?.clerkPublishableKey;
 

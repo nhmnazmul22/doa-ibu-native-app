@@ -119,6 +119,16 @@ export default function SettingPage() {
     }
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
+  }, []);
+
   const handleUpdate = async () => {
     try {
       setLoading(true);
@@ -163,7 +173,7 @@ export default function SettingPage() {
           position: "bottom",
           visibilityTime: 2000,
         });
-        dispatch(fetchUser(user._id));
+        onRefresh();
         return;
       }
     } catch (err: any) {
@@ -177,16 +187,6 @@ export default function SettingPage() {
       setLoading(false);
     }
   };
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    if (session?.publicUserData.identifier) {
-      dispatch(fetchUser(session?.publicUserData.identifier));
-    }
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
-  }, []);
 
   const getNotification = async () => {
     const settings = await getNotificationSetting();
@@ -269,7 +269,6 @@ export default function SettingPage() {
     }
   }, [session?.publicUserData.identifier]);
 
-  console.log(userContext?.user);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

@@ -16,7 +16,6 @@ export default function TabBar() {
   const theme = useTheme();
   const colors = theme?.colors;
   const userContext = useUserInfo();
-  const mother = userContext?.mother;
 
   const styles = getStyles(colors);
 
