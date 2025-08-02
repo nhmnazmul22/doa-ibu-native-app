@@ -2,7 +2,6 @@ import TabBar from "@/components/Layout/TabBar";
 import TopAppBar from "@/components/Layout/TopAppBar";
 import Splash from "@/components/Splash";
 import { ThemeProvider, useTheme } from "@/context/theme/ThemeContext";
-import UserProvider from "@/context/user/userContext";
 import { store } from "@/store";
 import { PresetsColors } from "@/types";
 import { ClerkProvider } from "@clerk/clerk-expo";
@@ -45,16 +44,14 @@ export default function RootLayout() {
         publishableKey={clerkKey || "pk_live_Y2xlcmsuYXBwZG9haWJ1Lm15LmlkJA"}
       >
         <Provider store={store}>
-          <UserProvider>
-            <ThemeProvider>
-              <View style={styles.container}>
-                <TopAppBar />
-                <Slot />
-                <TabBar />
-              </View>
-              <Toast swipeable />
-            </ThemeProvider>
-          </UserProvider>
+          <ThemeProvider>
+            <View style={styles.container}>
+              <TopAppBar />
+              <Slot />
+              <TabBar />
+            </View>
+            <Toast swipeable />
+          </ThemeProvider>
         </Provider>
       </ClerkProvider>
     </SafeAreaView>

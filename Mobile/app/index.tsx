@@ -2,10 +2,9 @@ import DoaList from "@/components/DoaList";
 import LoadingComponents from "@/components/LoadingComponents";
 import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { getFormattedTimeAndGreeting } from "@/lib";
 import { setupNotificationPermissions } from "@/lib/notification";
-import { AppDispatch } from "@/store";
+import { AppDispatch, RootState } from "@/store";
 import { fetchDoas } from "@/store/doasSlice";
 import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
@@ -21,7 +20,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // 🔔 Configure notification handler
 Notifications.setNotificationHandler({
@@ -40,10 +39,10 @@ export default function HomePage() {
   const colors = theme?.colors;
   const styles = getStyles(colors);
   const { isSignedIn, isLoaded, session } = useSession();
-  const userContext = useUserInfo();
   const { dateTime, greeting } = getFormattedTimeAndGreeting();
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const { items: user } = useSelector((state: RootState) => state.user);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -64,7 +63,7 @@ export default function HomePage() {
     if (session?.publicUserData.identifier) {
       dispatch(fetchUser(session?.publicUserData.identifier));
     }
-  }, [session]);
+  }, [session?.publicUserData.identifier]);
 
   if (!isLoaded) {
     return <LoadingComponents />;
@@ -83,7 +82,7 @@ export default function HomePage() {
       <View style={styles.container}>
         <View style={styles.greeting}>
           <Text style={styles.greetingTitle}>
-            {greeting}, {userContext?.user?.fullName}
+            {greeting}, {user?.data?.fullName}
           </Text>
           <Text style={styles.greetingDes}>{dateTime}</Text>
         </View>

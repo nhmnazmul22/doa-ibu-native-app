@@ -1,8 +1,10 @@
 import RecordingList from "@/components/RecordingList";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { formatTime } from "@/lib";
+import { AppDispatch, RootState } from "@/store";
+import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { useSession } from "@clerk/clerk-expo";
 import { Entypo } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -25,6 +27,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 const width = Dimensions.get("window").width;
 
@@ -32,7 +35,6 @@ export default function RecordingPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
   const [barHeights, setBarHeights] = useState(
     new Array(20).fill(0).map(() => Math.floor(Math.random() * 200) + 20)
   );
@@ -40,10 +42,10 @@ export default function RecordingPage() {
   const intervalRef = React.useRef<number | null>(null);
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recorderState = useAudioRecorderState(audioRecorder);
-  const user = userContext?.user;
-  const [isPremiumMember, setIsPremiumMember] = useState(
-    user.subscriptionType === "premium" || false
-  );
+  const [isPremiumMember, setIsPremiumMember] = useState(false);
+  const { session } = useSession();
+  const dispatch = useDispatch<AppDispatch>();
+  const { items } = useSelector((state: RootState) => state.user);
 
   const record = async () => {
     await audioRecorder.prepareToRecordAsync();
@@ -122,10 +124,16 @@ export default function RecordingPage() {
   }, [recorderState.isRecording]);
 
   useEffect(() => {
-    if (user.subscriptionType) {
-      setIsPremiumMember(user.subscriptionType === "premium");
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
     }
-  }, [user.subscriptionType]);
+  }, [session?.publicUserData.identifier]);
+
+  useEffect(() => {
+    if (items?.data.subscriptionType) {
+      setIsPremiumMember(items?.data.subscriptionType === "premium");
+    }
+  }, [items?.data.subscriptionType]);
 
   const canRecord = isPremiumMember ? 30 : 2;
   return (

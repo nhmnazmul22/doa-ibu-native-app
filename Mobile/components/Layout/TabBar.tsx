@@ -1,7 +1,5 @@
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { PresetsColors } from "@/types";
-import { useSession } from "@clerk/clerk-expo";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -15,7 +13,6 @@ export default function TabBar() {
   const pathname = usePathname();
   const theme = useTheme();
   const colors = theme?.colors;
-  const userContext = useUserInfo();
 
   const styles = getStyles(colors);
 
@@ -26,7 +23,7 @@ export default function TabBar() {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/forgot-password" ||
-    pathname === "/sso-callback" 
+    pathname === "/sso-callback"
   ) {
     return null;
   }

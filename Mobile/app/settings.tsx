@@ -1,10 +1,10 @@
 import { ThemePresets } from "@/context/theme/presets";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { getNotificationSetting } from "@/lib";
 import api from "@/lib/config/axios";
 import { scheduleDailyNotification } from "@/lib/notification";
-import { AppDispatch } from "@/store";
+import { AppDispatch, RootState } from "@/store";
+import { fetchMother } from "@/store/motherSlice";
 import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
 import { useClerk, useSession } from "@clerk/clerk-expo";
@@ -31,7 +31,7 @@ import {
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const profileImage = require("@/assets/images/doa-banner.jpg");
 const width = Dimensions.get("window").width;
@@ -46,29 +46,24 @@ export default function SettingPage() {
   const setColor = theme?.applyPreset;
   const currentTheme = theme?.currentTheme;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
-  const user = userContext?.user;
   const { session } = useSession();
-  const [name, setName] = useState<string>(user.fullName || "");
-  const [phone, setPhone] = useState<string>(user.phone || "");
-  const [email, setEmail] = useState<string>(user.email || "");
-  const [gender, setGender] = useState<string>(user.gender || "");
-  const [image, setImage] = useState<string | null>(
-    user.profilePicture || null
-  );
+  const [name, setName] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
+  const [image, setImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<ImagePicker.ImagePickerAsset>();
   const [loading, setLoading] = useState<boolean>(false);
   const [notificationText, setNotificationText] = useState<string>("");
   const [date, setDate] = useState("");
   const [show, setShow] = useState(false);
-  const [isPremiumMember, setIsPremiumMember] = useState(
-    user.subscriptionType !== "premium" || false
-  );
+  const [isPremiumMember, setIsPremiumMember] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [motherLoading, setMotherLoading] = useState(false);
   const { signOut } = useClerk();
-
   const dispatch = useDispatch<AppDispatch>();
+  const { items } = useSelector((state: RootState) => state.user);
+  const { items: mother } = useSelector((state: RootState) => state.mother);
 
   const themeData = Object.keys(ThemePresets).map((value) => {
     return {
@@ -123,6 +118,7 @@ export default function SettingPage() {
     setRefreshing(true);
     if (session?.publicUserData.identifier) {
       dispatch(fetchUser(session?.publicUserData.identifier));
+      dispatch(fetchMother(session?.publicUserData.identifier));
     }
     setTimeout(() => {
       setRefreshing(false);
@@ -148,7 +144,7 @@ export default function SettingPage() {
         } as any);
       }
 
-      if (!user._id) {
+      if (!items?.data._id) {
         Toast.show({
           type: "error",
           text1: "User Id not found",
@@ -159,7 +155,7 @@ export default function SettingPage() {
       }
 
       const response = await fetch(
-        `https://appdoaibu.my.id/api/update-user/${user._id}`,
+        `https://appdoaibu.my.id/api/update-user/${items?.data._id}`,
         {
           method: "PUT",
           body: formData,
@@ -205,8 +201,8 @@ export default function SettingPage() {
     try {
       setMotherLoading(true);
       const motherObj = {
-        fullName: userContext?.user.fullName,
-        email: userContext?.user.email,
+        fullName: items?.data.fullName,
+        email: items?.data.email,
       };
       const res = await api.post("/create-mother", motherObj);
       if (res.status === 201) {
@@ -234,17 +230,11 @@ export default function SettingPage() {
   const handleMotherPanel = async () => {
     try {
       setMotherLoading(true);
-      Toast.show({
-        type: "success",
-        text1: "Mother panel access successful",
-        position: "bottom",
-        visibilityTime: 2000,
-      });
       router.replace("/mother-panel");
     } catch (err: any) {
       Toast.show({
         type: "error",
-        text1: err.message || "Mother account create failed",
+        text1: err.message || "Something went wrong!!",
         position: "bottom",
         visibilityTime: 2000,
       });
@@ -254,21 +244,23 @@ export default function SettingPage() {
   };
 
   useEffect(() => {
-    if (user.subscriptionType) {
-      setIsPremiumMember(user.subscriptionType !== "premium");
-    }
-  }, [user.subscriptionType]);
-
-  useEffect(() => {
     getNotification();
   }, []);
 
   useEffect(() => {
     if (session?.publicUserData.identifier) {
       dispatch(fetchUser(session?.publicUserData.identifier));
+      dispatch(fetchMother(session?.publicUserData.identifier));
+      setName(items?.data.fullName || "");
+      setEmail(items?.data.email || "");
+      setGender(items?.data.gender || "");
+      setPhone(items?.data.phone || "");
+      setImage(items?.data.profilePicture || null);
+      setIsPremiumMember(items?.data.subscriptionType !== "premium");
     }
   }, [session?.publicUserData.identifier]);
 
+  console.log(mother);
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -285,7 +277,7 @@ export default function SettingPage() {
         >
           <View style={styles.container}>
             <View>
-              {userContext?.mother.email && (
+              {mother?.data.email && (
                 <Pressable
                   style={[
                     styles.btnPrimary,
@@ -305,7 +297,7 @@ export default function SettingPage() {
                   )}
                 </Pressable>
               )}
-              {!userContext?.mother.email && (
+              {!mother?.data.email && (
                 <Pressable
                   style={[
                     styles.btnPrimary,
@@ -341,7 +333,7 @@ export default function SettingPage() {
                       style={styles.profileImage}
                     />
                   )}
-                  {user.isDonated && (
+                  {items?.data.isDonated && (
                     <View style={{ ...styles.badgeImgBox }}>
                       <SimpleLineIcons
                         name="badge"
@@ -361,6 +353,7 @@ export default function SettingPage() {
                     value={name}
                     onChangeText={(text) => setName(text)}
                     placeholder="Enter your name"
+                    placeholderTextColor="#000000c1"
                   />
                 </View>
                 <View style={styles.inputBox}>
@@ -371,6 +364,7 @@ export default function SettingPage() {
                     value={phone}
                     onChangeText={(text) => setPhone(text)}
                     placeholder="Enter your phone number"
+                    placeholderTextColor="#000000c1"
                   />
                 </View>
                 <View style={styles.inputBox}>
@@ -381,6 +375,7 @@ export default function SettingPage() {
                     value={email}
                     onChangeText={(text) => setEmail(text)}
                     placeholder="Enter your email"
+                    placeholderTextColor="#000000c1"
                   />
                 </View>
                 <View style={styles.inputBox}>

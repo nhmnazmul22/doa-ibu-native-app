@@ -15,6 +15,8 @@ export interface Mother {
   fullName: string;
   email: string;
   followers?: [string];
+  gender?: string;
+  phone?: string;
 }
 
 export interface PresetsColors {

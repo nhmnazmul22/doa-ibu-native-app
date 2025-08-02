@@ -1,13 +1,21 @@
-import DoaList from "@/components/DoaList";
 import MotherDoaList from "@/components/MotherDoaList";
-import SliderDoa from "@/components/SliderDoa";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { AppDispatch, RootState } from "@/store";
 import { fetchDoasByMotherId } from "@/store/doasbyMother";
+import { fetchMother } from "@/store/motherSlice";
 import { PresetsColors } from "@/types";
-import React, { useEffect } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSession } from "@clerk/clerk-expo";
+import { Redirect } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
 import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
@@ -16,22 +24,46 @@ export default function PrayersPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
+  const { session, isSignedIn } = useSession();
   const dispatch = useDispatch<AppDispatch>();
+  const { items: mother } = useSelector((state: RootState) => state.mother);
+  const [refreshing, setRefreshing] = useState(false);
+
   const {
     items,
     error,
     loading: doasLoading,
   } = useSelector((state: RootState) => state.doasByMother);
 
-  useEffect(() => {
-    if (userContext?.mother._id) {
-      dispatch(fetchDoasByMotherId(userContext?.mother._id));
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    if (mother?.data._id) {
+      dispatch(fetchDoasByMotherId(mother?.data._id));
     }
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
   }, []);
 
+  useEffect(() => {
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchMother(session?.publicUserData.identifier));
+      if (mother?.data._id) {
+        dispatch(fetchDoasByMotherId(mother?.data._id));
+      }
+    }
+  }, [session?.publicUserData.identifier]);
+
+  if (!isSignedIn && !session) {
+    return <Redirect href={"/login-signup"} />;
+  }
+
   return (
-    <ScrollView>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.container}>
         <View style={styles.doaList}>
           <View style={styles.doaListHeader}>

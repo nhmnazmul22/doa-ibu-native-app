@@ -1,12 +1,13 @@
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { AppDispatch, RootState } from "@/store";
-import { fetchDoasByMotherId } from "@/store/doasbyMother";
+import { fetchMother } from "@/store/motherSlice";
 import { PresetsColors } from "@/types";
+import { useSession } from "@clerk/clerk-expo";
 import { Feather } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
-import React, { useCallback, useEffect, useState } from "react";
+import { Redirect } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -14,7 +15,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -32,31 +32,16 @@ export default function MotherHomePage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
-  const [refreshing, setRefreshing] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
-  const [image, setImage] = useState<string | null>(
-    userContext?.mother.profilePicture || null
-  );
+  const [image, setImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<ImagePicker.ImagePickerAsset>();
   const [audioFile, setAudioFile] =
     useState<DocumentPicker.DocumentPickerAsset>();
   const [title, setTitle] = useState<string>("");
   const [shortDes, setShortDec] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const {
-    items,
-    error,
-    loading: doasLoading,
-  } = useSelector((state: RootState) => state.doasByMother);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    dispatch(fetchDoasByMotherId(userContext?.mother._id));
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
-  }, []);
+  const dispatch = useDispatch<AppDispatch>();
+  const { session, isSignedIn } = useSession();
+  const { items: mother } = useSelector((state: RootState) => state.mother);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -108,7 +93,9 @@ export default function MotherHomePage() {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("shortDes", shortDes);
-      formData.append("motherId", userContext?.mother._id);
+      if (mother?.data._id) {
+        formData.append("motherId", mother?.data._id);
+      }
       if (imageFile?.uri) {
         formData.append("image", {
           uri: imageFile.uri,
@@ -151,10 +138,14 @@ export default function MotherHomePage() {
   };
 
   useEffect(() => {
-    if (userContext?.mother._id) {
-      dispatch(fetchDoasByMotherId(userContext?.mother._id));
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchMother(session?.publicUserData.identifier));
     }
-  }, []);
+  }, [session?.publicUserData.identifier]);
+
+  if (!isSignedIn && !session) {
+    return <Redirect href={"/login-signup"} />;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -163,11 +154,7 @@ export default function MotherHomePage() {
       keyboardVerticalOffset={40}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
+        <ScrollView>
           <View style={styles.container}>
             <View style={styles.doaCarouselBox}>
               <Pressable onPress={pickImage} style={{ width: 160 }}>
@@ -214,6 +201,7 @@ export default function MotherHomePage() {
                     value={title}
                     onChangeText={(text) => setTitle(text)}
                     placeholder="Doa Title"
+                    placeholderTextColor="#000000c1"
                   />
                 </View>
                 <View style={styles.inputBox}>
@@ -224,6 +212,7 @@ export default function MotherHomePage() {
                     value={shortDes}
                     onChangeText={(text) => setShortDec(text)}
                     placeholder="Short Description"
+                    placeholderTextColor="#000000c1"
                   />
                 </View>
                 <View style={styles.btnBox}>

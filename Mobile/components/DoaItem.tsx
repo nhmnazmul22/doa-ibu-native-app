@@ -1,17 +1,18 @@
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { formatTime } from "@/lib";
 import api from "@/lib/config/axios";
-import { AppDispatch } from "@/store";
+import { AppDispatch, RootState } from "@/store";
 import { fetchDoas } from "@/store/doasSlice";
+import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { useSession } from "@clerk/clerk-expo";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 interface DoaItemType {
   _id: string;
@@ -32,13 +33,14 @@ export default function DoaItem({
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
   const dispatch = useDispatch<AppDispatch>();
+  const { session } = useSession();
+  const { items: user } = useSelector((state: RootState) => state.user);
 
   const handelLoved = async () => {
     try {
       const body = {
-        userId: userContext?.user._id,
+        userId: user?.data._id,
       };
       const res = await api.put(`/love-doa/${_id}`, body);
       if (res.status === 201) {
@@ -63,7 +65,15 @@ export default function DoaItem({
     }
   };
 
-  const isFavorite = favoriteUsers.includes(userContext?.user._id);
+  useEffect(() => {
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
+  }, [session?.publicUserData.identifier]);
+
+  const isFavorite = user?.data._id
+    ? favoriteUsers.includes(user?.data._id)
+    : false;
 
   return (
     <View style={styles.container}>

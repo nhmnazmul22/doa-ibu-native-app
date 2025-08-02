@@ -15,9 +15,6 @@ import {
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import api from "@/lib/config/axios";
 import Toast from "react-native-toast-message";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { fetchDoas } from "@/store/doasSlice";
 interface MotherDoaProps {
   doa: Doa;
 }

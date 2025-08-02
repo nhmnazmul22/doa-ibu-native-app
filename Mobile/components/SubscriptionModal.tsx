@@ -1,7 +1,9 @@
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import api from "@/lib/config/axios";
+import { AppDispatch, RootState } from "@/store";
+import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { useSession } from "@clerk/clerk-expo";
 import Checkbox from "expo-checkbox";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
@@ -16,6 +18,7 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import { useDispatch, useSelector } from "react-redux";
 import LoadingComponents from "./LoadingComponents";
 
 interface SubscriptionModalType {
@@ -33,13 +36,15 @@ export default function SubscriptionModal({
   type,
 }: SubscriptionModalType) {
   const theme = useTheme();
-  const userContext = useUserInfo();
   const colors = theme?.colors;
   const styles = getStyles(colors);
   const [paymentMethod, setPaymentMethod] = useState<"qris" | "gopay">("qris");
   const [amount, setAmount] = useState(price || "25000");
   const [loading, setLoading] = useState(false);
   const [qrUrl, setQrUrl] = useState<string>("");
+  const { session } = useSession();
+  const dispatch = useDispatch<AppDispatch>();
+  const { items: user } = useSelector((state: RootState) => state.user);
 
   const handlePayNow = async () => {
     try {
@@ -47,7 +52,7 @@ export default function SubscriptionModal({
       const paymentInfo = {
         amount: amount,
         method: paymentMethod,
-        userId: userContext?.user?._id,
+        userId: user?.data?._id,
       };
       if (!paymentInfo.amount || !paymentInfo.method || !paymentInfo.userId) {
         setVisibleModal(false);
@@ -93,6 +98,12 @@ export default function SubscriptionModal({
       setAmount(price);
     }
   }, [price, type]);
+
+  useEffect(() => {
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+    }
+  }, [session?.publicUserData.identifier]);
 
   return (
     <Modal

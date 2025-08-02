@@ -206,6 +206,7 @@ export default function LoginPage() {
         />
         <TextInput
           inputMode="text"
+          secureTextEntry
           style={styles.input}
           placeholder="Enter Password"
           value={password}

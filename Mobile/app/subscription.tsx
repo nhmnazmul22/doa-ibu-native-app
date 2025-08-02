@@ -1,10 +1,11 @@
 import LoadingComponents from "@/components/LoadingComponents";
 import SubscriptionModal from "@/components/SubscriptionModal";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import { AppDispatch, RootState } from "@/store";
 import { fetchPricing } from "@/store/PricingSlice";
+import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
+import { useSession } from "@clerk/clerk-expo";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import React, { useEffect, useState } from "react";
 import {
@@ -28,19 +29,27 @@ export default function SubscriptionPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
   const [tab, setTab] = useState<"free" | "premium" | "donate">("free");
+  const { session } = useSession();
   const [price, setPrice] = useState<string>("25000");
   const [visibleModal, setVisibleModal] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-
   const { items, loading, error } = useSelector(
     (state: RootState) => state.pricing
   );
+  const [isPremiumMember, setIsPremiumMember] = useState(false);
+  const { items: user } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     dispatch(fetchPricing());
   }, []);
+
+  useEffect(() => {
+    if (session?.publicUserData.identifier) {
+      dispatch(fetchUser(session?.publicUserData.identifier));
+      setIsPremiumMember(user?.data.subscriptionType !== "premium");
+    }
+  }, [session?.publicUserData.identifier]);
 
   const customBtn =
     price !== "20000" && price !== "50000" && price !== "100000";
@@ -197,8 +206,8 @@ export default function SubscriptionPage() {
                         ))}
                       </View>
                     </View>
-                    {userContext?.user.subscriptionType !== "premium" &&
-                      userContext?.user.subscriptionStatus !== "active" && (
+                    {isPremiumMember &&
+                      user?.data.subscriptionStatus !== "active" && (
                         <View style={styles.btnBox}>
                           <Pressable
                             style={[styles.buyBtn]}
@@ -334,6 +343,7 @@ export default function SubscriptionPage() {
                         value={price}
                         onChangeText={(text) => setPrice(text)}
                         placeholder="Enter donation price"
+                        placeholderTextColor="#000000c1"
                       />
                     </View>
                     <View style={styles.btnBox}>
@@ -371,6 +381,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       justifyContent: "flex-start",
       alignItems: "center",
       width: width * 0.9,
+      paddingBottom: 20,
     },
     pageHeader: {
       paddingTop: 20,

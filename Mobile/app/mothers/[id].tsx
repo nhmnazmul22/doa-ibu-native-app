@@ -2,7 +2,6 @@ import ErrorComponents from "@/components/ErrorComponent";
 import LoadingComponents from "@/components/LoadingComponents";
 import MotherDoaList from "@/components/MotherDoaList";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import api from "@/lib/config/axios";
 import { AppDispatch, RootState } from "@/store";
 import { fetchDoasByMotherId } from "@/store/doasbyMother";
@@ -32,7 +31,6 @@ export default function MotherProfile() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const userContext = useUserInfo();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
@@ -41,7 +39,7 @@ export default function MotherProfile() {
     loading: motherLoading,
     error: motherError,
   } = useSelector((state: RootState) => state.motherById);
-
+  const { items: user } = useSelector((state: RootState) => state.user);
   const {
     items: doas,
     loading: doasLoading,
@@ -61,7 +59,7 @@ export default function MotherProfile() {
     try {
       setLoading(true);
       const body = {
-        userId: userContext?.user._id,
+        userId: user?.data._id,
       };
 
       const res = await api.put(`/follow-mother/${id}`, body);
@@ -112,9 +110,9 @@ export default function MotherProfile() {
       return prevValue;
     }, 0);
 
-  const isFollowedUser = mother?.data.followers?.includes(
-    userContext?.user._id
-  );
+  const isFollowedUser = user?.data._id
+    ? mother?.data.followers?.includes(user?.data._id)
+    : false;
 
   const addedKBefore = (total: number) => {
     if (total >= 1000) {

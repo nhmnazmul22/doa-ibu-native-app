@@ -119,6 +119,7 @@ export default function ForgotPassword() {
             placeholder="Enter email address"
             value={email}
             onChangeText={(text) => setEmail(text)}
+            placeholderTextColor="#000000c1"
           />
           <Pressable style={styles.btn} onPress={resetPasswordCode}>
             <Text style={styles.btnText}>Send code</Text>
@@ -133,6 +134,7 @@ export default function ForgotPassword() {
             placeholder="Enter New password"
             value={password}
             onChangeText={(text) => setPassword(text)}
+            placeholderTextColor="#000000c1"
           />
           <TextInput
             inputMode="text"
@@ -140,6 +142,7 @@ export default function ForgotPassword() {
             placeholder="Enter OTP Code"
             value={code}
             onChangeText={(text) => setCode(text)}
+            placeholderTextColor="#000000c1"
           />
           <Pressable style={styles.btn} onPress={verifyCode}>
             <Text style={styles.btnText}>Send code</Text>

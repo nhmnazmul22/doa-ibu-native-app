@@ -80,25 +80,9 @@ export default function TopAppBar() {
 
   return (
     <View style={styles.container}>
-      <Link href="/">
-        {pathname === "/" ? (
-          <Pressable onPress={() => router.push("/subscription")}>
-            <MaterialIcons name="subscriptions" size={28} color="black" />
-          </Pressable>
-        ) : (
-          <Pressable
-            onPress={() =>
-              pathname === "/mother-panel" ? () => {} : router.back()
-            }
-          >
-            <MaterialCommunityIcons
-              name="arrow-left-thin"
-              size={34}
-              color="black"
-            />
-          </Pressable>
-        )}
-      </Link>
+      <Pressable onPress={() => router.push("/subscription")}>
+        <MaterialIcons name="subscriptions" size={28} color="black" />
+      </Pressable>
       <Link href="/">
         {pathname.includes("/prayers/") ||
         pathname.includes("/recording") ||

@@ -1,6 +1,5 @@
 import LoadingComponents from "@/components/LoadingComponents";
 import { useTheme } from "@/context/theme/ThemeContext";
-import { useUserInfo } from "@/context/user/userContext";
 import api from "@/lib/config/axios";
 import { AppDispatch, RootState } from "@/store";
 import { fetchDoa } from "@/store/doaSlice";
@@ -40,9 +39,8 @@ export default function MotherDoa() {
   const currentTrack = audioTracks[trackIndex];
   const player = useAudioPlayer(currentTrack);
   const playerStatus = useAudioPlayerStatus(player);
-
-  const userContext = useUserInfo();
   const dispatch = useDispatch<AppDispatch>();
+  const { items: user } = useSelector((state: RootState) => state.user);
 
   const {
     items: Doa,
@@ -95,7 +93,7 @@ export default function MotherDoa() {
   const handelLoved = async () => {
     try {
       const body = {
-        userId: userContext?.user._id,
+        userId: user?.data._id,
       };
       const res = await api.put(`/love-doa/${id}`, body);
       if (res.status === 201) {
@@ -174,9 +172,9 @@ export default function MotherDoa() {
   }
 
   const isFavorite =
-    Doa?.data &&
-    Doa.data.favoriteUsers &&
-    Doa.data.favoriteUsers.includes(userContext?.user._id);
+    Doa?.data && Doa.data.favoriteUsers && user?.data._id
+      ? Doa.data.favoriteUsers.includes(user.data._id)
+      : false;
 
   return (
     <View style={styles.container}>
