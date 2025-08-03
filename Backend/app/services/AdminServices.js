@@ -103,7 +103,6 @@ export const LoginAdminService = async (req, res) => {
       path: "/",
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
     });
-    res.cookie("adminToken", token, cookieOptions);
 
     return {
       status: 201,
