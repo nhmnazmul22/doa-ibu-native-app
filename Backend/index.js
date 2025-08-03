@@ -51,7 +51,7 @@ async function startServer() {
   console.log("Database Connected");
 
   const dev = process.env.NODE_ENV !== "production";
-  const nextApp = next({ dev, dir: "./admin" });
+  const nextApp = next({ dev: false, dir: "./admin" });
   const handle = nextApp.getRequestHandler();
 
   // **Important: wait for Next.js to prepare before mounting handlers**
