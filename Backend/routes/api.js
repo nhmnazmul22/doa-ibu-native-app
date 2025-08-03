@@ -6,6 +6,7 @@ import * as PaymentController from "../app/controllers/PaymentsController.js";
 import * as SubscriptionController from "../app/controllers/SubscriptionController.js";
 import * as DonationController from "../app/controllers/DonationController.js";
 import * as PricingController from "../app/controllers/PricingController.js";
+import * as AdminController from "../app/controllers/AdminController.js";
 import { upload } from "../app/middlewares/uploadMiddleware.js";
 
 const router = express.Router();
@@ -90,5 +91,12 @@ router.delete(
   "/delete-pricing/:pricingId",
   PricingController.DeletePricingController
 );
+
+// Admin routes
+router.get("/get-admin/:adminId", AdminController.GetAdminController);
+router.post("/create-admin", AdminController.CreateAdminController);
+router.post("/login-admin", AdminController.LoginAdminController);
+router.put("/update-admin/:adminId", AdminController.UpdateAdminController);
+router.delete("/delete-admin/:adminId", AdminController.DeleteAdminController);
 
 export default router;
