@@ -192,6 +192,7 @@ export const MidtransWebhookService = async (req) => {
           endDate,
           method: payment_type,
           status: "active",
+          userId: userId,
         };
 
         await SubscriptionModel.create(subscriptionObj);
