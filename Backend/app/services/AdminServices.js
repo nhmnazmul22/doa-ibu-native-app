@@ -98,12 +98,11 @@ export const LoginAdminService = async (req, res) => {
 
     res.cookie("adminToken", token, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "None" : "Lax",
+      secure: true, 
+      sameSite: "None",
       path: "/",
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
     });
-
     return {
       status: 201,
       message: "Admin create successful",
