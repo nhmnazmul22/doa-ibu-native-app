@@ -46,7 +46,7 @@ export default function RecordingList({
   }, []);
 
   const playAudio = async (filename: string) => {
-    const uri = FileSystem.documentDirectory + filename;
+    const fileUri = `${FileSystem.documentDirectory}recordings/${userId}/${filename}`;
 
     try {
       if (playerRef.current) {
@@ -63,7 +63,7 @@ export default function RecordingList({
         setDuration(0);
       }
 
-      const player = new AudioPlayer({ uri }, 500);
+      const player = new AudioPlayer({ uri: fileUri }, 500);
       playerRef.current = player;
 
       const onPlaybackStatusUpdate = (status: any) => {
