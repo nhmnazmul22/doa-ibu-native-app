@@ -6,8 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js",
-    "start:all": "cd ./admin && npm run build && cd .. && node index.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",

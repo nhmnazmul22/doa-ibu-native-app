@@ -26,7 +26,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Security Apply
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000/",
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(hpp());
 app.use(cookieParser());

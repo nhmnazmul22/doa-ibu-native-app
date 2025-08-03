@@ -2,6 +2,7 @@ import { convertObjectId } from "../utility/lib.js";
 import AdminModel from "../models/AdminModel.js";
 import bcrypt from "bcrypt";
 import { TokenEncoded } from "../utility/tokenUtility.js";
+const isProduction = process.env.NODE_ENV === "production";
 
 // Get Admin Service
 export const GetAdminService = async (req) => {
@@ -95,13 +96,13 @@ export const LoginAdminService = async (req, res) => {
 
     const token = TokenEncoded(admin._id, admin.email);
 
-    const cookieOptions = {
+    res.cookie("adminToken", token, {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
       path: "/",
-      sameSite: "None",
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-    };
+    });
     res.cookie("adminToken", token, cookieOptions);
 
     return {
