@@ -98,8 +98,8 @@ export const LoginAdminService = async (req, res) => {
 
     res.cookie("adminToken", token, {
       httpOnly: true,
-      secure: true, 
-      sameSite: "None",
+      secure: false,
+      sameSite: "Lax",
       path: "/",
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
     });
