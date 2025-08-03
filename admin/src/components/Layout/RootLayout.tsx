@@ -9,6 +9,12 @@ import { store } from "@/store";
 import { Toaster } from "@/components/ui/sonner";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
+   
+
+
+
+
+
   return (
     <SidebarProvider>
       <Provider store={store}>

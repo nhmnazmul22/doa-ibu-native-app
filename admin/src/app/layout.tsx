@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${NunitoFont.className} ${NunitoFont.className} antialiased`}
+        className={`${NunitoFont.className} ${NunitoFont.className} antialiased overflow-x-hidden`}
       >
         <Layout>{children}</Layout>
       </body>
