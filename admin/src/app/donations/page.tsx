@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import RootLayout from "@/components/Layout/RootLayout";
 import DonationsList from "@/components/DonationList";
 
 export default function DonationsPage() {
