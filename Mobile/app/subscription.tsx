@@ -146,6 +146,20 @@ export default function SubscriptionPage() {
                             ))}
                           </View>
                         </View>
+                        <View style={styles.btnBox}>
+                          {price.type === "premium" &&
+                            isPremiumMember &&
+                            user?.data.subscriptionStatus !== "active" && (
+                              <View style={styles.btnBox}>
+                                <Pressable
+                                  style={[styles.buyBtn]}
+                                  onPress={() => setVisibleModal(true)}
+                                >
+                                  <Text style={styles.btnText}>Pembelian</Text>
+                                </Pressable>
+                              </View>
+                            )}
+                        </View>
                       </View>
                     )
                 )}
