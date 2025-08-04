@@ -2,7 +2,7 @@ import { useTheme } from "@/context/theme/ThemeContext";
 import { PresetsColors } from "@/types";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link, usePathname } from "expo-router";
 import React from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
@@ -38,9 +38,9 @@ export default function TabBar() {
               : "/prayers"
           }
         >
-          <FontAwesome6
-            name="book-bible"
-            size={30}
+          <MaterialIcons
+            name="library-music"
+            size={34}
             color={colors?.bodyBackground}
           />
         </Link>
@@ -61,7 +61,7 @@ export default function TabBar() {
         <View style={styles.menuItems}>
           <Link href="/mothers">
             <FontAwesome5
-              name="user-nurse"
+              name="user-friends"
               size={30}
               color={colors?.bodyBackground}
             />
