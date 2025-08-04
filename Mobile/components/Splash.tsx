@@ -22,7 +22,9 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Image source={require("../assets/images/doa-transparent.png")} />
+      <Image
+        source={require("../assets/images/doaibu-splase-transparent.png")}
+      />
     </View>
   );
 }

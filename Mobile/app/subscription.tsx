@@ -29,7 +29,7 @@ export default function SubscriptionPage() {
   const theme = useTheme();
   const colors = theme?.colors;
   const styles = getStyles(colors);
-  const [tab, setTab] = useState<"free" | "premium" | "donate">("free");
+  const [tab, setTab] = useState<string>("free");
   const { session } = useSession();
   const [price, setPrice] = useState<string>("25000");
   const [visibleModal, setVisibleModal] = useState(false);
@@ -74,38 +74,25 @@ export default function SubscriptionPage() {
               </Text>
             </View>
             <View style={styles.tabsList}>
-              <Pressable
-                style={[
-                  styles.tabBtnPrimary,
-                  tab === "free" && styles.activeBtn,
-                ]}
-                onPress={() => setTab("free")}
-              >
-                <Text
+              {items?.data.map((value, index) => (
+                <Pressable
+                  key={index}
                   style={[
-                    styles.tabBtnText,
-                    tab === "free" && styles.activeBtnText,
+                    styles.tabBtnPrimary,
+                    tab === value.type && styles.activeBtn,
                   ]}
+                  onPress={() => setTab(value.type)}
                 >
-                  Gratis
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.tabBtnPrimary,
-                  tab === "premium" && styles.activeBtn,
-                ]}
-                onPress={() => setTab("premium")}
-              >
-                <Text
-                  style={[
-                    styles.tabBtnText,
-                    tab === "premium" && styles.activeBtnText,
-                  ]}
-                >
-                  Premium
-                </Text>
-              </Pressable>
+                  <Text
+                    style={[
+                      styles.tabBtnText,
+                      tab === value.type && styles.activeBtnText,
+                    ]}
+                  >
+                    {value.type[0].toUpperCase() + value.type.slice(1)}
+                  </Text>
+                </Pressable>
+              ))}
               <Pressable
                 style={[
                   styles.tabBtnPrimary,
@@ -125,99 +112,42 @@ export default function SubscriptionPage() {
             </View>
             {items?.data && items?.data.length > 0 ? (
               <View style={{ marginTop: 30 }}>
-                {tab === "free" && (
-                  <View style={styles.tabContents}>
-                    <View style={styles.contentHeader}>
-                      <Text style={styles.tabTitle}>
-                        {items?.data?.[1].title}
-                      </Text>
-                      <Text style={styles.tabTitle}>
-                        {items?.data?.[1].price} Rp
-                      </Text>
-                    </View>
-                    <Text style={styles.tabDes}>
-                      {items?.data?.[1].shortDes}
-                    </Text>
-                    <View style={styles.featureContents}>
-                      <Text style={styles.featureTitle}>Features:</Text>
-                      <View style={styles.features}>
-                        {items.data[1].features.map((feature, index) => (
-                          <View key={index} style={styles.featureBox}>
-                            {feature.available ? (
-                              <AntDesign
-                                name="checkcircle"
-                                size={24}
-                                color={colors?.success}
-                              />
-                            ) : (
-                              <AntDesign
-                                name="closecircle"
-                                size={24}
-                                color={colors?.primary}
-                              />
-                            )}
-                            <Text style={styles.featureText}>
-                              {feature.text}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  </View>
-                )}
-                {tab === "premium" && (
-                  <View style={styles.tabContents}>
-                    <View style={styles.contentHeader}>
-                      <Text style={styles.tabTitle}>
-                        {items?.data?.[0].title}
-                      </Text>
-                      <Text style={styles.tabTitle}>
-                        Rp {items?.data?.[0].price}/
-                        <Text style={{ fontSize: 14, fontWeight: "400" }}>
-                          bulan
-                        </Text>
-                      </Text>
-                    </View>
-                    <Text style={styles.tabDes}>
-                      {items?.data?.[0].shortDes}
-                    </Text>
-                    <View style={styles.featureContents}>
-                      <Text style={styles.featureTitle}>Features:</Text>
-                      <View style={styles.features}>
-                        {items.data[0].features.map((feature, index) => (
-                          <View key={index} style={styles.featureBox}>
-                            {feature.available ? (
-                              <AntDesign
-                                name="checkcircle"
-                                size={24}
-                                color={colors?.success}
-                              />
-                            ) : (
-                              <AntDesign
-                                name="closecircle"
-                                size={24}
-                                color={colors?.primary}
-                              />
-                            )}
-                            <Text style={styles.featureText}>
-                              {feature.text}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                    {isPremiumMember &&
-                      user?.data.subscriptionStatus !== "active" && (
-                        <View style={styles.btnBox}>
-                          <Pressable
-                            style={[styles.buyBtn]}
-                            onPress={() => setVisibleModal(true)}
-                          >
-                            <Text style={styles.btnText}>Pembelian</Text>
-                          </Pressable>
+                {items.data.map(
+                  (price, index) =>
+                    tab === price.type && (
+                      <View style={styles.tabContents}>
+                        <View style={styles.contentHeader}>
+                          <Text style={styles.tabTitle}>{price.title}</Text>
+                          <Text style={styles.tabTitle}>{price.price} Rp</Text>
                         </View>
-                      )}
-                  </View>
+                        <Text style={styles.tabDes}>{price.shortDes}</Text>
+                        <View style={styles.featureContents}>
+                          <Text style={styles.featureTitle}>Features:</Text>
+                          <View style={styles.features}>
+                            {price.features.map((feature, index) => (
+                              <View key={index} style={styles.featureBox}>
+                                {feature.available ? (
+                                  <AntDesign
+                                    name="checkcircle"
+                                    size={24}
+                                    color={colors?.success}
+                                  />
+                                ) : (
+                                  <AntDesign
+                                    name="closecircle"
+                                    size={24}
+                                    color={colors?.primary}
+                                  />
+                                )}
+                                <Text style={styles.featureText}>
+                                  {feature.text}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </View>
+                    )
                 )}
                 {tab === "donate" && (
                   <View style={styles.tabContents}>

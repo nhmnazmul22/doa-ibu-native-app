@@ -19,11 +19,22 @@ export default function Doa({ _id, thumbnail, title, shortDes }: DoaType) {
   return (
     <View>
       <View style={styles.thumbnail}>
-        <Pressable onPress={() => router.push(`/prayers/${_id}`)}>
+        <Pressable
+          style={styles.imageBoxStyle}
+          onPress={() => router.push(`/prayers/${_id}`)}
+        >
           {!thumbnail ? (
-            <Image source={require("../assets/images/doa-bg.jpg")} />
+            <Image
+              source={require("../assets/images/doa-banner.png")}
+              style={{ width: "100%", height: "100%", borderRadius: 20 }}
+              resizeMode="cover"
+            />
           ) : (
-            <Image source={{ uri: thumbnail }} width={140} height={180} />
+            <Image
+              source={{ uri: thumbnail }}
+              style={{ width: "100%", height: "100%", borderRadius: 20 }}
+              resizeMode="cover"
+            />
           )}
         </Pressable>
 
@@ -50,6 +61,11 @@ const getStyles = (colors: PresetsColors | undefined) =>
     thumbnail: {
       position: "relative",
       height: 185,
+    },
+    imageBoxStyle: {
+      width: 140,
+      height: 180,
+      borderRadius: 20,
     },
     playIcon: {
       position: "absolute",

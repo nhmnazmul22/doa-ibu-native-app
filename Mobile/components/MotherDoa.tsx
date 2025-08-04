@@ -1,6 +1,8 @@
 import { useTheme } from "@/context/theme/ThemeContext";
 import { formatTime } from "@/lib";
+import api from "@/lib/config/axios";
 import { Doa, PresetsColors } from "@/types";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link, router, usePathname } from "expo-router";
 import { default as React, useState } from "react";
@@ -12,14 +14,12 @@ import {
   Text,
   View,
 } from "react-native";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import api from "@/lib/config/axios";
 import Toast from "react-native-toast-message";
 interface MotherDoaProps {
   doa: Doa;
 }
 
-const doaImg = require("@/assets/images/doa-banner.jpg");
+const doaImg = require("@/assets/images/doa-banner.png");
 
 export default function MotherDoa({ doa }: MotherDoaProps) {
   const theme = useTheme();

@@ -18,7 +18,7 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-const motherImg = require("@/assets/images/doa-banner.jpg");
+const motherImg = require("@/assets/images/doa-banner.png");
 const width = Dimensions.get("window").width;
 
 export default function MOtherList() {

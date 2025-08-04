@@ -7,7 +7,7 @@ import { AppDispatch, RootState } from "@/store";
 import { fetchMother } from "@/store/motherSlice";
 import { fetchUser } from "@/store/userSlice";
 import { PresetsColors } from "@/types";
-import { useClerk, useSession } from "@clerk/clerk-expo";
+import { useSession } from "@clerk/clerk-expo";
 import Entypo from "@expo/vector-icons/Entypo";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -33,7 +33,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 
-const profileImage = require("@/assets/images/doa-banner.jpg");
+const profileImage = require("@/assets/images/doa-banner.png");
 const width = Dimensions.get("window").width;
 const data = [
   { label: "Male", value: "male" },

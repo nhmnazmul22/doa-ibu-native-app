@@ -23,7 +23,7 @@ import {
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 
-const demyImg = require("@/assets/images/doa-banner.jpg");
+const demyImg = require("@/assets/images/doa-banner.png");
 const { width } = Dimensions.get("window");
 export default function MotherDoa() {
   const theme = useTheme();

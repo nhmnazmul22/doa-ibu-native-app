@@ -91,7 +91,8 @@ export default function TopAppBar() {
         ) : (
           <Image
             style={styles.logo}
-            source={require("../../assets/images/doa-transparent.png")}
+            source={require("../../assets/images/doaibu-logo-transparent.png")}
+            resizeMode="contain"
           />
         )}
       </Link>
@@ -117,7 +118,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       zIndex: 5,
     },
     logo: {
-      width: 80,
+      width: 120,
       height: 80,
     },
     pageTitle: {

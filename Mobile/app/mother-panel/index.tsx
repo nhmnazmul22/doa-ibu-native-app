@@ -26,7 +26,7 @@ import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
-const demoImg = require("@/assets/images/doa-bg.jpg");
+const demoImg = require("@/assets/images/doa-banner.png");
 
 export default function MotherHomePage() {
   const theme = useTheme();

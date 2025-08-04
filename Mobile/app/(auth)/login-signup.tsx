@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 
-const logo = require("@/assets/images/doa-transparent.png");
+const logo = require("@/assets/images/doaibu-splase-transparent.png");
 const width = Dimensions.get("window").width;
 
 export default function LoginSignupPage() {

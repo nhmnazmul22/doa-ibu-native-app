@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/doa-transparent.png",
+      "image": "./assets/images/doaibu-splase-transparent.png",
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
@@ -50,16 +50,16 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/doa.jpeg"
+      "favicon": "./assets/images/doaibu-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/doa-transparent.png",
+          "image": "./assets/images/doaibu-splase-transparent.png",
           "resizeMode": "cover",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#ffffff"
         }
       ],
       "expo-audio",
