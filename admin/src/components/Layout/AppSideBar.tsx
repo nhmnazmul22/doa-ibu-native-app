@@ -60,17 +60,13 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="h-[80px] mb-5 flex items-center gap-2">
+          <SidebarGroupLabel className="h-[70px] mb-5 flex flex-col items-start gap-2">
             <Image
-              src="/doa-transparent.png"
+              src="/doaibu-logo-transparent.png"
               alt="Doa Ibu"
-              width={80}
+              width={140}
               height={80}
             />
-            <div>
-              <h3 className="text-2xl font-bold">Doa Ibu</h3>
-              <p>Admin Panel</p>
-            </div>
           </SidebarGroupLabel>
           <Separator />
           <SidebarGroupContent>

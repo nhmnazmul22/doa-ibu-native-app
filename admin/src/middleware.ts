@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("adminToken")?.value;
-  
+
   const pathname = request.nextUrl.pathname;
 
   // Define public paths that don't require auth or redirect
@@ -35,5 +35,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|favicon.ico|logo.jpg|\\.well-known).*)"],
+  matcher: [
+    "/((?!api|_next|favicon.ico|doaibu-logo-transparent.png|\\.well-known).*)",
+  ],
 };
