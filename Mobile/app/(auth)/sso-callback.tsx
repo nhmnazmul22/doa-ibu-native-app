@@ -1,11 +1,9 @@
-import { Dimensions, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useSession } from "@clerk/clerk-expo";
-import { generatePassword } from "@/lib";
 import api from "@/lib/config/axios";
+import { useSession } from "@clerk/clerk-expo";
 import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
-import { Axios, AxiosError } from "axios";
 
 const width = Dimensions.get("window").width;
 export default function Loading() {
@@ -19,10 +17,7 @@ export default function Loading() {
         const userRes = await api.get(
           `/get-user/${session?.publicUserData.identifier}`
         );
-        const motherRes = await api.get(
-          `/get-mother/${session?.publicUserData.identifier}`
-        );
-        if (userRes.status === 200 || motherRes.status === 200) {
+        if (userRes.status === 200) {
           Toast.show({
             type: "success",
             text1: "Sing in successful",
