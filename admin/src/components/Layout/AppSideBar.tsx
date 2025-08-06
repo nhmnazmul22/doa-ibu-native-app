@@ -52,7 +52,7 @@ const items = [
 export function AppSidebar() {
   const pathName = usePathname();
 
-  if (pathName.includes("/admin/login")) {
+  if (pathName.includes("/secure_admin/login")) {
     return null;
   }
 
