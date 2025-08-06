@@ -38,6 +38,7 @@ export const config = {
   matcher: [
     "/",
     "/((?!api|_next|favicon.ico|doaibu-logo-transparent.png|\\.well-known).*)",
+    "/secure_admin",
     "/secure_admin/:path*",
   ],
 };
