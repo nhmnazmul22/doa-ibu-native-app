@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   basePath: "/secure_admin",
-  trailingSlash: false,
+  // trailingSlash: false,
   typescript: {
     ignoreBuildErrors: true,
   },

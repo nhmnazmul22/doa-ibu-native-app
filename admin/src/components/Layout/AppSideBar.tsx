@@ -24,27 +24,27 @@ import { usePathname } from "next/navigation";
 const items = [
   {
     title: "Home",
-    url: "/",
+    url: "/secure_admin",
     icon: Home,
   },
   {
     title: "Users",
-    url: "/users",
+    url: "/secure_admin/users",
     icon: Users,
   },
   {
     title: "Subscriptions",
-    url: "/subscriptions",
+    url: "/secure_admin/subscriptions",
     icon: BanknoteArrowUp,
   },
   {
     title: "Donations",
-    url: "/donations",
+    url: "/secure_admin/donations",
     icon: HandHelping,
   },
   {
     title: "Pricing",
-    url: "/pricing",
+    url: "/secure_admin/pricing",
     icon: Banknote,
   },
 ];
@@ -52,7 +52,7 @@ const items = [
 export function AppSidebar() {
   const pathName = usePathname();
 
-  if (pathName.includes("/secure_admin/login")) {
+  if (pathName.includes("/login")) {
     return null;
   }
 

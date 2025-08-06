@@ -12,7 +12,7 @@ const Header = () => {
   const route = useRouter();
   const pathName = usePathname();
 
-  if (pathName.includes("/secure_admin/login")) {
+  if (pathName.includes("/login")) {
     return null;
   }
 
