@@ -115,7 +115,7 @@ export default function SubscriptionPage() {
                 {items.data.map(
                   (price, index) =>
                     tab === price.type && (
-                      <View style={styles.tabContents}>
+                      <View key={index} style={styles.tabContents}>
                         <View style={styles.contentHeader}>
                           <Text style={styles.tabTitle}>{price.title}</Text>
                           <Text style={styles.tabTitle}>{price.price} Rp</Text>

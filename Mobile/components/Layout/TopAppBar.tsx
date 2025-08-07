@@ -5,14 +5,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link, router, usePathname } from "expo-router";
 import React from "react";
-import {
-  Dimensions,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
@@ -85,16 +78,10 @@ export default function TopAppBar() {
       </Pressable>
       <Link href="/">
         {pathname.includes("/prayers/") ||
-        pathname.includes("/recording") ||
-        pathname.includes("/mothers/") ? (
-          <Text style={styles.pageTitle}>{pageTitle()}</Text>
-        ) : (
-          <Image
-            style={styles.logo}
-            source={require("../../assets/images/doaibu-logo-transparent.png")}
-            resizeMode="contain"
-          />
-        )}
+          pathname.includes("/recording") ||
+          (pathname.includes("/mothers/") && (
+            <Text style={styles.pageTitle}>{pageTitle()}</Text>
+          ))}
       </Link>
       <Pressable onPress={handleSignOut}>
         <MaterialCommunityIcons name="logout" size={28} color="black" />
@@ -107,7 +94,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
   StyleSheet.create({
     container: {
       backgroundColor: colors?.bodyBackground,
-      paddingVertical: 10,
+      paddingVertical: 20,
       paddingHorizontal: 30,
       display: "flex",
       flexDirection: "row",
@@ -118,7 +105,7 @@ const getStyles = (colors: PresetsColors | undefined) =>
       zIndex: 5,
     },
     logo: {
-      width: 120,
+      width: 60,
       height: 80,
     },
     pageTitle: {
