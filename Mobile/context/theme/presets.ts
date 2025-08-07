@@ -2,7 +2,7 @@ import { PresetsColors } from "@/types";
 
 export const ThemePresets: Record<string, PresetsColors> = {
   original: {
-    primary: "#D26C7A",
+    primary: "#d9674e",
     secondary: "#F8D7DA",
     darkText: "#2E2E2E",
     bodyBackground: "#FFF9F5",
@@ -18,7 +18,7 @@ export const ThemePresets: Record<string, PresetsColors> = {
     warning: "#FFE799",
   },
   floral: {
-    primary: "#E67A90",
+    primary: "#D26C7A",
     secondary: "#FFF0F5",
     darkText: "#3B3B3B",
     bodyBackground: "#FFFAF7",
